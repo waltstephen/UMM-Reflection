@@ -136,11 +136,11 @@ header.hero::before{content:"";position:absolute;z-index:-1;left:50%;top:-40px;w
 .stagebar button.on .v{color:var(--ink)}
 
 /* stat strip */
-.strip{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;width:100%;margin-top:6px;text-align:left}
+.strip{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;width:100%;margin-top:6px;text-align:left}
 .strip>div{padding:18px 20px;display:grid;gap:6px;align-content:start;background:var(--surface);border:1px solid var(--rule);border-radius:14px;position:relative;overflow:hidden}
 .strip>div::before{content:"";position:absolute;inset:0 auto 0 0;width:3px;background:linear-gradient(var(--accent),var(--accent-mid))}
-.strip .n{font-family:var(--serif);font-size:40px;line-height:1.05}
-.strip .n small{font-size:20px;color:var(--muted)}
+.strip .n{font-family:var(--serif);font-size:36px;line-height:1.05}
+.strip .n small{font-size:15px;color:var(--muted)}
 .strip .n em{font-style:normal;color:var(--accent)}
 .strip .t{font-size:14px;color:var(--muted);line-height:1.45}
 
@@ -372,7 +372,7 @@ footer{margin-top:72px;padding-top:20px;border-top:1px solid var(--rule);font-si
 @media (max-width:960px){
   .steps5{grid-template-columns:repeat(5,minmax(150px,1fr));overflow-x:auto;padding-bottom:6px}
   .detail,.reward,.bench,.charts,.two{grid-template-columns:1fr}
-  .tiles{grid-template-columns:repeat(2,1fr)}
+  .tiles,.strip{grid-template-columns:repeat(2,1fr)}
 }
 @media (max-width:860px){
   .topnav .ext{display:none}
@@ -383,7 +383,7 @@ footer{margin-top:72px;padding-top:20px;border-top:1px solid var(--rule);font-si
   .abl .hd.x{display:none}
 }
 @media (max-width:560px){
-  .strip{grid-template-columns:1fr}
+  .strip{grid-template-columns:repeat(2,1fr)}
   header.hero{padding-block:40px 24px}
   .brow{grid-template-columns:96px 1fr 48px}
   .db .r,.db .axis{grid-template-columns:92px 1fr 88px;gap:8px}
@@ -454,9 +454,10 @@ footer{margin-top:72px;padding-top:20px;border-top:1px solid var(--rule);font-si
     <figcaption><b>From borrowed critique to native reflection.</b> External models are used only to build the SFT data. After RL, a single model inspects and revises its own images, with no critic or verifier at inference.</figcaption>
   </figure>
   <div class="strip" role="list">
-    <div role="listitem"><div class="n num">0.71 <small>→</small> <em data-count="0.84" data-dec="2">0.84</em></div><div class="t">GenEval overall, BAGEL base vs UMM-Reflection with three reflection rounds</div></div>
-    <div role="listitem"><div class="n num"><em data-count="64.9" data-dec="1" data-suf="%">64.9%</em> <small>vs 20.6%</small></div><div class="t">of wrong first images repaired by the end of reflection, after RL vs after SFT</div></div>
-    <div role="listitem"><div class="n num"><em data-count="0.19" data-dec="2" data-pre="+">+0.19</em> <small>WISE</small></div><div class="t">RL uses only GenEval-style prompts; WISE, OneIG and CompBench are held out</div></div>
+    <div role="listitem"><div class="n num"><em data-count="12.05" data-dec="2" data-pre="+">+12.05</em> <small>GenEval</small></div><div class="t">0.72 → 0.84 over reflection SFT; the RL training domain</div></div>
+    <div role="listitem"><div class="n num"><em data-count="10.97" data-dec="2" data-pre="+">+10.97</em> <small>WISE</small></div><div class="t">0.63 → 0.74 on world-knowledge prompts, held out from RL</div></div>
+    <div role="listitem"><div class="n num"><em data-count="3.48" data-dec="2" data-pre="+">+3.48</em> <small>OneIG</small></div><div class="t">0.79 → 0.83 on OneIG-Bench, held out from RL</div></div>
+    <div role="listitem"><div class="n num"><em data-count="4.63" data-dec="2" data-pre="+">+4.63</em> <small>CompBench</small></div><div class="t">0.50 → 0.55 on T2I-CompBench++, held out from RL</div></div>
   </div>
 </header>
 
@@ -703,13 +704,13 @@ function play(svg){ if(RM) return; drawLines(svg,false); popDots(svg,false); req
   rs(); addEventListener("resize",rs);
   for(let i=0;i<70;i++) P.push({x:Math.random(),y:Math.random(),r:Math.random()*1.6+.4,s:Math.random()*.00025+.00008,a:Math.random()*.6+.2});
   (function fr(){cx.clearRect(0,0,W,H); P.forEach(p=>{p.y-=p.s; if(p.y<0){p.y=1;p.x=Math.random();} cx.beginPath(); cx.arc(p.x*W,p.y*H,p.r*devicePixelRatio,0,7); cx.fillStyle=`rgba(205,190,255,${p.a})`; cx.fill();}); raf=requestAnimationFrame(fr);})();
-  let armed=false; setTimeout(()=>armed=true,1400);
+  let armed=false; setTimeout(()=>armed=true,2400);
   function go(force){ if(!armed && !force) return; sp.classList.add("gone"); ["wheel","touchmove","keydown","pointerdown","click"].forEach(e=>removeEventListener(e,h)); removeEventListener("pointermove",hm); setTimeout(()=>{cancelAnimationFrame(raf); sp.remove();},950); startPipe(); }
   const h=()=>go(false);
   let moved=0; const hm=e=>{ moved+=Math.abs(e.movementX||0)+Math.abs(e.movementY||0); if(moved>120) go(false); };
   ["wheel","touchmove","keydown","pointerdown","click"].forEach(e=>addEventListener(e,h,{passive:true}));
   addEventListener("pointermove",hm,{passive:true});
-  setTimeout(()=>go(true),6000);
+  setTimeout(()=>go(true),7000);
 })();
 function startPipeLater(){ setTimeout(()=>startPipe(),50); }
 

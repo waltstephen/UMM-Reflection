@@ -4,215 +4,124 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="UMM-Reflection: learning native reflection in unified models with interleaved reinforcement learning.">
-<style>:root{color-scheme:light}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<meta name="theme-color" content="#5D2CD6">
 <title>UMM-Reflection</title>
+<style>:root{color-scheme:light}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&family=Public+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap">
 <style>
 :root{
-  --bg:#F3F5F6; --surface:#FFFFFF; --sunk:#E9EDEF; --ink:#142026; --ink-2:#3A4A52; --muted:#5E6E76; --rule:#D6DDE0;
-  --accent:#0E7C66; --accent-ink:#FFFFFF; --accent-soft:#DDEFEA;
-  --s-base:#C4702A; --s-sft:#5A62D6; --s-ours:#0E8C73;
-  --pass:#1D7A45; --fail:#B2412F;
-  --grid:#E2E7E9;
+  --bg:#FBFAFF; --bg-2:#F4F1FD; --surface:#FFFFFF; --sunk:#EFEBFB; --ink:#1A1433; --ink-2:#3E3760; --muted:#6D6689; --rule:#E2DCF3;
+  --accent:#5D2CD6; --accent-deep:#3A1A9A; --accent-mid:#8B6CF0; --accent-soft:#EEE8FD; --accent-ink:#FFFFFF;
+  --warm:#FF7200; --cool:#0089CF;
+  --s-base:#A7A1BD; --s-sft:#E0709F; --s-ours:#5D2CD6; --s-other:#CFC9E0;
+  --pass:#2C9C80; --fail:#B8294F;
+  --grid:#ECE8F7; --glow:rgba(93,44,214,.18);
   --serif:"Newsreader","Iowan Old Style","Georgia",serif;
   --sans:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
   --mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   color-scheme:dark;
-  --bg:#0E1417; --surface:#151D21; --sunk:#1B2529; --ink:#E3EAEC; --ink-2:#C0CCD0; --muted:#93A3AA; --rule:#27343A;
-  --accent:#2FB08E; --accent-ink:#06120E; --accent-soft:#16312A;
-  --s-base:#C9803B; --s-sft:#7C85EC; --s-ours:#23A785;
-  --pass:#4CC07A; --fail:#E27562; --grid:#212C31;
+  --bg:#0E0A1C; --bg-2:#130E26; --surface:#18122E; --sunk:#1F1839; --ink:#EDE9FB; --ink-2:#CAC3E7; --muted:#9D95BF; --rule:#2D2550;
+  --accent:#9B7BFF; --accent-deep:#C4B3FF; --accent-mid:#7B5BF0; --accent-soft:#261C4C; --accent-ink:#120B2A;
+  --s-base:#7D7699; --s-sft:#E487B0; --s-ours:#9B7BFF; --s-other:#4A4270;
+  --pass:#47C0A0; --fail:#E7708F; --grid:#241D42; --glow:rgba(155,123,255,.22);
 }}
 :root[data-theme="dark"]{
   color-scheme:dark;
-  --bg:#0E1417; --surface:#151D21; --sunk:#1B2529; --ink:#E3EAEC; --ink-2:#C0CCD0; --muted:#93A3AA; --rule:#27343A;
-  --accent:#2FB08E; --accent-ink:#06120E; --accent-soft:#16312A;
-  --s-base:#C9803B; --s-sft:#7C85EC; --s-ours:#23A785;
-  --pass:#4CC07A; --fail:#E27562; --grid:#212C31;
+  --bg:#0E0A1C; --bg-2:#130E26; --surface:#18122E; --sunk:#1F1839; --ink:#EDE9FB; --ink-2:#CAC3E7; --muted:#9D95BF; --rule:#2D2550;
+  --accent:#9B7BFF; --accent-deep:#C4B3FF; --accent-mid:#7B5BF0; --accent-soft:#261C4C; --accent-ink:#120B2A;
+  --s-base:#7D7699; --s-sft:#E487B0; --s-ours:#9B7BFF; --s-other:#4A4270;
+  --pass:#47C0A0; --fail:#E7708F; --grid:#241D42; --glow:rgba(155,123,255,.22);
 }
 *{box-sizing:border-box}
-body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.6;padding-inline:20px;padding-block:0 64px}
-.wrap{max-width:1120px;margin-inline:auto}
-.measure{max-width:68ch}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.6;padding-inline:20px;padding-block:0 64px;overflow-x:hidden}
+.wrap{max-width:1140px;margin-inline:auto}
+.measure{max-width:70ch}
 h1,h2,h3{font-family:var(--serif);font-weight:500;text-wrap:balance;margin:0;letter-spacing:-.01em}
 p{margin:0}
 a{color:var(--accent)}
 :focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px}
-.label{font-family:var(--sans);font-size:12px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
-
-/* hero */
-header.hero{display:grid;gap:22px;padding-block:56px 36px}
-.hero .label{color:var(--accent)}
-.hero h1{font-size:clamp(44px,7vw,84px);line-height:1;font-weight:500;letter-spacing:-.025em}
-.hero h1 .dash{color:var(--accent)}
-.hero .sub{font-family:var(--serif);font-size:clamp(20px,2.4vw,27px);line-height:1.3;color:var(--ink-2);max-width:34ch;font-weight:400}
-.authors{font-size:15px;color:var(--muted)}
-.authors b{color:var(--ink-2);font-weight:600}
-.links{display:flex;flex-wrap:wrap;gap:10px}
-.btn{display:inline-flex;align-items:center;gap:9px;padding:9px 16px 9px 13px;border-radius:999px;border:1px solid var(--rule);background:var(--surface);color:var(--ink);font:600 14px/1 var(--sans);text-decoration:none;cursor:not-allowed}
-.btn[href]{cursor:pointer;transition:border-color .2s,color .2s}.btn[href]:hover{border-color:var(--accent);color:var(--accent)}
-.btn svg{width:17px;height:17px;flex:none;fill:currentColor}
-.btn .soon{font:500 11px/1 var(--mono);color:var(--muted);border-left:1px solid var(--rule);padding-left:9px;letter-spacing:.02em}
+.label{font-family:var(--sans);font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
 figure{margin:0}
-.teaser{background:#fff;border:1px solid var(--rule);border-radius:10px;padding:14px;overflow-x:auto}
-.teaser img{display:block;width:100%;min-width:640px;height:auto}
-figcaption{font-size:14px;color:var(--muted);margin-top:10px;max-width:90ch}
+figcaption{font-size:14px;color:var(--muted);margin-top:12px;max-width:92ch}
 figcaption b{color:var(--ink-2)}
+.num{font-variant-numeric:tabular-nums lining-nums}
 
-/* numbers strip */
-.strip{display:grid;grid-template-columns:repeat(3,1fr);border-block:1px solid var(--rule);margin-block:8px 0}
-.strip div{padding:18px 20px 18px 0;display:grid;gap:4px;align-content:start}
-.strip div+div{padding-left:20px;border-left:1px solid var(--rule)}
-.strip .n{font-family:var(--serif);font-size:38px;line-height:1.05;font-variant-numeric:tabular-nums lining-nums}
-.strip .n small{font-size:20px;color:var(--muted)}
-.strip .n em{font-style:normal;color:var(--accent)}
-.strip .t{font-size:14px;color:var(--muted);line-height:1.45}
-
-section{padding-block:60px 0;display:grid;gap:22px}
-section>h2{font-size:clamp(28px,3.4vw,38px);line-height:1.15}
-.lede{font-size:17px;color:var(--ink-2)}
-.abstract p{font-size:17px;line-height:1.7;color:var(--ink-2)}
-.video{background:#000;border:1px solid var(--rule);border-radius:12px;overflow:hidden;aspect-ratio:16/9}
-.video video{display:block;width:100%;height:100%}
-.abstract p+p{margin-top:14px}
-
-/* comparison */
-.compare{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-.col{border:1px solid var(--rule);background:var(--surface);border-radius:10px;padding:20px;display:grid;gap:10px;align-content:start}
-.col.ours{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}
-.col h3{font-family:var(--sans);font-size:15px;font-weight:700}
-.col .how{font-size:14px;color:var(--muted);min-height:3em}
-.col .kv{display:grid;grid-template-columns:1fr auto;gap:4px 12px;font-size:14px;border-top:1px solid var(--rule);padding-top:10px}
-.col .kv dt{color:var(--muted)}
-.col .kv dd{margin:0;font-family:var(--mono);font-weight:500;font-variant-numeric:tabular-nums;text-align:right}
-.col.ours .kv dd{color:var(--accent);font-weight:600}
-.col .note{font-size:13.5px;color:var(--ink-2)}
-.evidence{display:grid;gap:0;border-top:1px solid var(--rule)}
-.evidence li{list-style:none;display:grid;grid-template-columns:200px 1fr;gap:20px;padding-block:16px;border-bottom:1px solid var(--rule)}
-.evidence ul{margin:0;padding:0}
-.evidence .k{font-weight:600;font-size:15px}
-.evidence .v{color:var(--ink-2);font-size:15.5px}
-
-/* trajectory viewer */
-.viewer{background:#0F1719;color:#DCE6E8;border-radius:14px;padding:22px;display:grid;gap:18px;--v-muted:#8FA2A8;--v-rule:#24343A;--v-acc:#43C6A1}
-.tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;scrollbar-width:thin}
-.tab{flex:none;border:1px solid var(--v-rule);background:transparent;color:#C6D3D6;border-radius:8px;padding:7px 11px;font:500 13px/1.2 var(--sans);cursor:pointer;display:grid;gap:2px;text-align:left}
-.tab .b{font:600 10.5px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--v-muted)}
-.tab[aria-selected="true"]{background:#E7F2EF;color:#0F1719;border-color:#E7F2EF}
-.tab[aria-selected="true"] .b{color:#0E7C66}
-.tab:hover:not([aria-selected="true"]){border-color:#4A6168}
-.prompt{font-family:var(--serif);font-style:italic;font-size:clamp(18px,2.2vw,23px);line-height:1.35;color:#F2F7F8;max-width:80ch}
-.prompt .src{display:block;font:600 11px/1 var(--mono);font-style:normal;letter-spacing:.08em;text-transform:uppercase;color:var(--v-acc);margin-bottom:8px}
-.stage{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:22px;align-items:start}
-.bigimg{position:relative;border-radius:8px;overflow:hidden;background:#000;aspect-ratio:1/1}
-.bigimg img{width:100%;height:100%;object-fit:cover;display:block;transition:opacity .25s}
-.bigimg .tag{position:absolute;left:10px;top:10px;font:600 11px/1 var(--mono);background:rgba(8,14,16,.78);color:#fff;padding:6px 8px;border-radius:5px;letter-spacing:.04em}
-.verdict{position:absolute;right:10px;top:10px;font:600 11px/1 var(--mono);padding:6px 8px;border-radius:5px;letter-spacing:.03em}
-.verdict.ok{background:#1D7A45;color:#fff}
-.verdict.no{background:#B2412F;color:#fff}
-.film{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
-.frame{padding:0;border:2px solid transparent;border-radius:6px;background:none;cursor:pointer;display:grid;gap:5px;color:var(--v-muted);font:500 11px/1.1 var(--mono);text-align:left}
-.frame img{width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:4px;display:block;opacity:.72;transition:opacity .2s}
-.frame span{padding:0 2px 3px}
-.frame[aria-current="true"]{border-color:var(--v-acc);color:#E7F2EF}
-.frame[aria-current="true"] img,.frame:hover img{opacity:1}
-.transcript{font-family:var(--mono);font-size:13px;line-height:1.65;background:#0A1113;border:1px solid var(--v-rule);border-radius:8px;padding:16px 18px;max-height:560px;overflow:auto}
-.transcript .row{display:grid;gap:3px}
-.transcript .row+.row{margin-top:12px}
-.transcript .t{color:var(--v-acc);font-weight:600;font-size:12px}
-.transcript .x{color:#D5E0E2;white-space:pre-wrap;font-size:12.8px}
-.transcript .x.edit{color:#F3F8F9;border-left:2px solid var(--v-acc);padding-left:10px}
-.transcript .done{color:var(--v-muted)}
-.vfoot{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;font-size:13px;color:var(--v-muted)}
-.vfoot kbd{font:500 11px var(--mono);border:1px solid var(--v-rule);border-radius:4px;padding:1px 5px;color:#C6D3D6}
-.stepper{display:flex;gap:6px}
-.stepper button{font:600 12px/1 var(--mono);background:transparent;color:#DCE6E8;border:1px solid var(--v-rule);border-radius:6px;padding:7px 10px;cursor:pointer}
-.stepper button:hover{border-color:var(--v-acc)}
-
-/* charts */
-.charts{display:grid;grid-template-columns:1.25fr 1fr;gap:16px}
-.card{background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:20px;display:grid;gap:10px;align-content:start;position:relative}
-.card h3{font-family:var(--sans);font-size:15px;font-weight:700}
-.card .cap{font-size:13.5px;color:var(--muted)}
-.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:13px;color:var(--ink-2)}
-.legend span{display:inline-flex;align-items:center;gap:6px}
-.legend i{width:14px;height:3px;border-radius:2px;display:inline-block}
-svg.chart{width:100%;height:auto;display:block;overflow:visible}
-svg.chart text{font-family:var(--sans);font-size:12px;fill:var(--muted)}
-svg.chart .dl{font-weight:600;fill:var(--ink)}
-.tip{position:absolute;pointer-events:none;background:var(--ink);color:var(--bg);font-size:12.5px;line-height:1.45;padding:8px 10px;border-radius:6px;white-space:nowrap;font-variant-numeric:tabular-nums;z-index:2}
-.tip b{font-weight:600}
-.tbl{overflow-x:auto;border:1px solid var(--rule);border-radius:10px;background:var(--surface)}
-table{border-collapse:collapse;width:100%;min-width:560px;font-size:14.5px;font-variant-numeric:tabular-nums}
-th,td{padding:11px 16px;text-align:right;border-bottom:1px solid var(--rule)}
-th:first-child,td:first-child{text-align:left}
-thead th{font-size:12px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
-tbody tr:last-child td{border-bottom:0}
-td .d{font-size:12px;color:var(--muted);margin-left:6px;font-family:var(--mono)}
-tr.ours td{background:var(--accent-soft);font-weight:600}
-tr.ours td .d{color:var(--accent)}
-
-/* method */
-.method-fig{background:#fff;border:1px solid var(--rule);border-radius:10px;padding:12px;overflow-x:auto}
-.method-fig img{display:block;width:100%;min-width:640px}
-.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:1px solid var(--rule)}
-.steps div{padding:18px 20px 4px 0;display:grid;gap:8px;align-content:start}
-.steps div+div{padding-left:20px;border-left:1px solid var(--rule)}
-.steps h3{font-family:var(--sans);font-size:15px;font-weight:700}
-.steps .n{font:600 12px/1 var(--mono);color:var(--accent)}
-.steps p{font-size:15px;color:var(--ink-2)}
-
-pre.bib{margin:0;font:13px/1.6 var(--mono);background:var(--sunk);border:1px solid var(--rule);border-radius:10px;padding:18px 20px;overflow-x:auto;color:var(--ink-2)}
-.bibwrap{position:relative}
-.copy{position:absolute;right:10px;top:10px;font:600 12px/1 var(--sans);border:1px solid var(--rule);background:var(--surface);color:var(--ink);border-radius:6px;padding:7px 10px;cursor:pointer}
-footer{margin-top:64px;padding-top:20px;border-top:1px solid var(--rule);font-size:13.5px;color:var(--muted);display:flex;flex-wrap:wrap;gap:8px 24px;justify-content:space-between}
-
-/* splash */
-.splash{position:fixed;inset:0;z-index:100;background:var(--bg);display:grid;place-items:center;transition:opacity .8s ease,visibility .8s;padding:24px}
-.splash.gone{opacity:0;visibility:hidden;pointer-events:none}
-.splash .inner{display:grid;justify-items:center;gap:26px;text-align:center}
-.splash .word{font-family:var(--serif);font-weight:500;font-size:clamp(46px,9vw,104px);line-height:1;letter-spacing:-.03em}
-.splash .word span{display:inline-block;animation:rise .9s cubic-bezier(.2,.7,.2,1) both}
-.splash .word .dash{color:var(--accent)}
-.loop{display:flex;align-items:center;gap:14px}
-.loop .sq{width:clamp(120px,22vw,190px);aspect-ratio:1;border-radius:8px;overflow:hidden;position:relative;background:var(--sunk);box-shadow:0 10px 40px rgba(10,30,30,.18)}
-.loop .sq img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .7s}
-.loop .sq img.on{opacity:1}
-.loop .note{font:500 12px/1.5 var(--mono);color:var(--ink-2);text-align:left;width:clamp(150px,24vw,230px);min-height:7.5em}
-.loop .note b{color:var(--accent);font-weight:600;display:block;margin-bottom:4px}
-.rounds{display:flex;gap:8px;font:600 11px/1 var(--mono);color:var(--muted)}
-.rounds span{padding:5px 8px;border-radius:5px;border:1px solid var(--rule);transition:all .4s}
-.rounds span.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
-.splash .hint{position:absolute;bottom:calc(34px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
-.splash .hint::after{content:"";display:block;width:1px;height:26px;margin:10px auto 0;background:var(--muted);animation:drip 1.6s ease-in-out infinite;transform-origin:top}
-@keyframes rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+/* ---------- splash ---------- */
+.splash{position:fixed;inset:0;z-index:100;display:grid;place-items:center;overflow:hidden;
+  background:radial-gradient(120% 90% at 50% 40%,#2B1478 0%,#170A45 45%,#0A0520 100%);color:#fff;transition:opacity .9s ease,visibility .9s,transform .9s ease}
+.splash.gone{opacity:0;visibility:hidden;pointer-events:none;transform:scale(1.04)}
+.splash canvas{position:absolute;inset:0;width:100%;height:100%}
+.splash .aur{position:absolute;width:70vmax;height:70vmax;border-radius:50%;filter:blur(80px);opacity:.55;mix-blend-mode:screen;animation:float 14s ease-in-out infinite alternate}
+.splash .aur.a{background:radial-gradient(circle,#5D2CD6 0%,transparent 65%);left:-18vmax;top:-22vmax}
+.splash .aur.b{background:radial-gradient(circle,#8B6CF0 0%,transparent 60%);right:-24vmax;bottom:-30vmax;animation-duration:18s;animation-delay:-4s}
+.splash .aur.c{background:radial-gradient(circle,rgba(255,114,0,.55) 0%,transparent 55%);width:40vmax;height:40vmax;right:8vmax;top:-8vmax;opacity:.22;animation-duration:22s}
+@keyframes float{from{transform:translate(0,0) scale(1)}to{transform:translate(6vmax,4vmax) scale(1.12)}}
+.splash .inner{position:relative;display:grid;justify-items:center;text-align:center;gap:0;padding:24px}
+.splash .kicker{font:600 12px/1 var(--mono);letter-spacing:.34em;text-transform:uppercase;color:#C9BBFF;opacity:0;animation:fade 1s .2s ease forwards;margin-bottom:26px}
+.splash .title{font-family:var(--serif);font-weight:500;font-size:clamp(52px,11vw,138px);line-height:.95;letter-spacing:-.035em;white-space:nowrap;position:relative}
+.splash .title .ch{display:inline-block;opacity:0;transform:translateY(.45em) rotateX(70deg);filter:blur(10px);animation:chin 1.1s cubic-bezier(.2,.8,.2,1) forwards;
+  background:linear-gradient(100deg,#fff 0%,#fff 38%,#CDBEFF 48%,#fff 58%,#fff 100%);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent}
+.splash.lit .title .ch{animation:chin 1.1s cubic-bezier(.2,.8,.2,1) forwards,sheen 3.2s ease-in-out .2s infinite}
+.splash .title .ch.d{background:linear-gradient(100deg,#B79CFF,#FF9A4D);-webkit-background-clip:text;background-clip:text}
+@keyframes chin{to{opacity:1;transform:none;filter:none}}
+@keyframes sheen{0%{background-position:100% 0}60%,100%{background-position:-100% 0}}
+.splash .mirror{font-family:var(--serif);font-weight:500;font-size:clamp(52px,11vw,138px);line-height:.95;letter-spacing:-.035em;white-space:nowrap;transform:scaleY(-1);margin-top:.06em;
+  color:#fff;opacity:0;-webkit-mask-image:linear-gradient(to top,rgba(0,0,0,.42),transparent 62%);mask-image:linear-gradient(to top,rgba(0,0,0,.42),transparent 62%);filter:url(#ripple) blur(.6px);animation:fade 1.6s 1.1s ease forwards;pointer-events:none;user-select:none}
+.splash .line{width:min(560px,70vw);height:1px;margin-top:-.4em;background:linear-gradient(90deg,transparent,#B79CFF,transparent);transform:scaleX(0);animation:grow 1.4s .9s cubic-bezier(.2,.7,.2,1) forwards}
+.splash .sub{font-family:var(--serif);font-style:italic;font-size:clamp(16px,2.1vw,23px);color:#DCD3FF;max-width:40ch;margin-top:22px;opacity:0;animation:fade 1.2s 1.5s ease forwards;line-height:1.35}
+.splash .hint{position:absolute;bottom:calc(34px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:#A99BDA;white-space:nowrap;opacity:0;animation:fade 1s 2.2s ease forwards}
+.splash .hint::after{content:"";display:block;width:1px;height:28px;margin:12px auto 0;background:#B79CFF;animation:drip 1.6s ease-in-out infinite;transform-origin:top}
+@keyframes fade{to{opacity:1}}
+@keyframes grow{to{transform:scaleX(1)}}
 @keyframes drip{0%{transform:scaleY(0)}50%{transform:scaleY(1)}100%{transform:scaleY(0);transform-origin:bottom}}
 
-/* nav */
-.topnav{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;margin-inline:-20px;padding-inline:20px;background:color-mix(in srgb,var(--bg) 82%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--rule)}
-.topnav .in{max-width:1120px;margin-inline:auto;display:flex;align-items:center;gap:18px;height:54px}
+/* ---------- nav ---------- */
+.topnav{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;margin-inline:-20px;padding-inline:20px;background:color-mix(in srgb,var(--bg) 80%,transparent);backdrop-filter:blur(14px) saturate(1.3);-webkit-backdrop-filter:blur(14px) saturate(1.3);border-bottom:1px solid var(--rule)}
+.topnav .in{max-width:1140px;margin-inline:auto;display:flex;align-items:center;gap:18px;height:56px}
 .topnav .brand{font-family:var(--serif);font-weight:600;font-size:19px;text-decoration:none;color:var(--ink);white-space:nowrap}
 .topnav .brand span{color:var(--accent)}
 .topnav .sec{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;flex:1}
-.topnav .sec a{font-size:13.5px;color:var(--muted);text-decoration:none;padding:6px 10px;border-radius:6px;white-space:nowrap;transition:color .2s,background .2s}
+.topnav .sec a{font-size:13.5px;color:var(--muted);text-decoration:none;padding:6px 11px;border-radius:999px;white-space:nowrap;transition:color .2s,background .2s}
 .topnav .sec a:hover{color:var(--ink);background:var(--sunk)}
 .topnav .sec a.on{color:var(--accent);background:var(--accent-soft)}
 .topnav .ext{display:flex;gap:4px}
-.topnav .ext a{font-size:13px;color:var(--muted);text-decoration:none;padding:6px 9px;border-radius:6px;cursor:not-allowed;white-space:nowrap}
-.topnav .ext a[href]{cursor:pointer}.topnav .ext a[href]:hover{color:var(--ink);background:var(--sunk)}
-section{scroll-margin-top:70px}
+.topnav .ext a{font-size:13px;font-weight:600;color:var(--ink-2);text-decoration:none;padding:6px 11px;border-radius:999px;white-space:nowrap;border:1px solid var(--rule)}
+.topnav .ext a:hover{color:var(--accent);border-color:var(--accent)}
+section,[id]{scroll-margin-top:72px}
+
+/* ---------- hero ---------- */
+header.hero{display:grid;gap:22px;padding-block:64px 36px;position:relative;justify-items:center;text-align:center}
+header.hero::before{content:"";position:absolute;z-index:-1;left:50%;top:-40px;width:min(1100px,120vw);height:520px;transform:translateX(-50%);
+  background:radial-gradient(50% 55% at 30% 40%,var(--glow),transparent 70%),radial-gradient(40% 50% at 75% 30%,rgba(139,108,240,.14),transparent 70%);pointer-events:none}
+.hero h1{font-size:clamp(46px,7.6vw,92px);line-height:1;font-weight:500;letter-spacing:-.03em;
+  background:linear-gradient(95deg,var(--accent-deep) 0%,var(--accent) 45%,var(--accent-mid) 70%,var(--accent) 100%);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:hue 9s ease-in-out infinite alternate}
+@keyframes hue{to{background-position:100% 0}}
+.hero .sub{font-family:var(--serif);font-size:clamp(20px,2.5vw,28px);line-height:1.3;color:var(--ink-2);max-width:40ch;font-weight:400}
+.authors{font-size:15px;color:var(--muted)}
+.authors b{color:var(--ink-2);font-weight:600}
+.links{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.btn{display:inline-flex;align-items:center;gap:9px;padding:10px 17px 10px 14px;border-radius:999px;border:1px solid var(--rule);background:var(--surface);color:var(--ink);font:600 14px/1 var(--sans);text-decoration:none;cursor:not-allowed;box-shadow:0 1px 0 rgba(30,10,80,.04)}
+.btn[href]{cursor:pointer;transition:border-color .2s,color .2s,transform .2s,box-shadow .2s}
+.btn[href]:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-2px);box-shadow:0 8px 22px var(--glow)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.primary .soon{color:color-mix(in srgb,var(--accent-ink) 75%,transparent);border-color:color-mix(in srgb,var(--accent-ink) 35%,transparent)}
+.btn.primary:hover{color:var(--accent-ink);filter:brightness(1.08)}
+.btn svg{width:17px;height:17px;flex:none;fill:currentColor}
+.btn .soon{font:500 11px/1 var(--mono);color:var(--muted);border-left:1px solid var(--rule);padding-left:9px;letter-spacing:.02em}
+.hero figure{width:100%;text-align:left;margin-top:10px}
 
 /* pipeline hero */
-.pipe{background:#fff;border:1px solid var(--rule);border-radius:12px;overflow:hidden}
+.pipe{background:#fff;border:1px solid var(--rule);border-radius:14px;overflow:hidden;box-shadow:0 20px 60px -30px var(--glow)}
 .pipe .scroll{overflow-x:auto}
 .pipe .bands{min-width:680px;display:grid}
 .pipe .band{position:relative;transition:opacity .6s ease,filter .6s ease;cursor:pointer}
 .pipe .band img{display:block;width:100%;height:auto}
-.pipe .band::after{content:"";position:absolute;left:0;top:10%;bottom:10%;width:4px;border-radius:0 3px 3px 0;background:#0E7C66;transform:scaleY(0);transition:transform .5s ease}
+.pipe .band::after{content:"";position:absolute;left:0;top:10%;bottom:10%;width:4px;border-radius:0 3px 3px 0;background:#5D2CD6;transform:scaleY(0);transition:transform .5s ease}
 .pipe.focus .band{opacity:.28;filter:grayscale(.6)}
 .pipe.focus .band.on{opacity:1;filter:none}
 .pipe.focus .band.on::after{transform:scaleY(1)}
@@ -226,62 +135,277 @@ section{scroll-margin-top:70px}
 .stagebar button.on .k{color:var(--accent)}
 .stagebar button.on .v{color:var(--ink)}
 
+/* stat strip */
+.strip{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;width:100%;margin-top:6px;text-align:left}
+.strip>div{padding:18px 20px;display:grid;gap:6px;align-content:start;background:var(--surface);border:1px solid var(--rule);border-radius:14px;position:relative;overflow:hidden}
+.strip>div::before{content:"";position:absolute;inset:0 auto 0 0;width:3px;background:linear-gradient(var(--accent),var(--accent-mid))}
+.strip .n{font-family:var(--serif);font-size:40px;line-height:1.05}
+.strip .n small{font-size:20px;color:var(--muted)}
+.strip .n em{font-style:normal;color:var(--accent)}
+.strip .t{font-size:14px;color:var(--muted);line-height:1.45}
+
 /* marquee */
-.marquee{margin-inline:-20px;overflow:hidden;padding-block:26px 6px;mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);-webkit-mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent)}
+.marquee{margin-inline:-20px;overflow:hidden;padding-block:30px 6px;mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);-webkit-mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent)}
 .track{display:flex;gap:16px;width:max-content;animation:slide 70s linear infinite}
 .marquee:hover .track{animation-play-state:paused}
 @keyframes slide{to{transform:translateX(-50%)}}
-.mcard{width:300px;flex:none;background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:10px;display:grid;gap:8px;transition:transform .3s ease,box-shadow .3s ease;cursor:pointer;text-align:left;font:inherit;color:inherit}
-.mcard:hover{transform:translateY(-4px);box-shadow:0 12px 30px rgba(10,30,30,.12)}
+.mcard{width:300px;flex:none;background:var(--surface);border:1px solid var(--rule);border-radius:12px;padding:10px;display:grid;gap:8px;transition:transform .3s ease,box-shadow .3s ease}
+.mcard:hover{transform:translateY(-4px);box-shadow:0 14px 30px -10px var(--glow)}
 .mcard .pair{display:grid;grid-template-columns:1fr 18px 1fr;align-items:center;gap:4px}
-.mcard .pair img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:5px;display:block}
+.mcard .pair img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:6px;display:block}
 .mcard .pair i{font-style:normal;color:var(--accent);text-align:center;font-weight:700}
 .mcard .cap{font-size:12.5px;line-height:1.4;color:var(--ink-2);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:2.8em}
 .mcard .meta{display:flex;justify-content:space-between;font:600 10.5px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
 .mcard .meta b{color:var(--accent);font-weight:600}
 
+/* ---------- sections ---------- */
+section{padding-block:72px 8px;display:grid;gap:24px}
+section.band{margin-inline:-20px;padding-inline:20px;background:var(--bg-2);border-block:1px solid var(--rule);margin-top:72px;padding-block:64px}
+section.band>*{max-width:1140px;width:100%;margin-inline:auto}
+.head{display:grid;gap:10px;justify-items:center;text-align:center}
+.head h2{font-size:clamp(30px,3.8vw,44px);line-height:1.12}
+.head .lede{font-size:17.5px;color:var(--ink-2);max-width:72ch}
+h3.sub{font-family:var(--serif);font-size:24px;line-height:1.2}
+.abstract p{font-size:17px;line-height:1.75;color:var(--ink-2)}
+.abstract p+p{margin-top:14px}
+.abstract .card-a{background:var(--surface);border:1px solid color-mix(in srgb,var(--accent) 30%,var(--rule));border-radius:16px;padding:28px 32px;max-width:900px;margin-inline:auto;box-shadow:0 20px 50px -34px var(--glow)}
+.abstract b{color:var(--accent)}
+.video{background:#000;border:1px solid var(--rule);border-radius:16px;overflow:hidden;aspect-ratio:16/9;max-width:980px;margin-inline:auto;box-shadow:0 30px 70px -30px rgba(40,10,120,.45)}
+.video video{display:block;width:100%;height:100%}
+
+/* comparison */
+.compare{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.col{border:1px solid var(--rule);background:var(--surface);border-radius:14px;padding:22px;display:grid;gap:10px;align-content:start}
+.col.ours{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset,0 22px 50px -30px var(--glow)}
+.col h3{font-family:var(--sans);font-size:15px;font-weight:700}
+.col .how{font-size:14px;color:var(--muted);min-height:3em}
+.col .kv{display:grid;grid-template-columns:1fr auto;gap:4px 12px;font-size:14px;border-top:1px solid var(--rule);padding-top:10px}
+.col .kv dt{color:var(--muted)}
+.col .kv dd{margin:0;font-family:var(--mono);font-weight:500;font-variant-numeric:tabular-nums;text-align:right}
+.col.ours .kv dd{color:var(--accent);font-weight:700}
+.col .note{font-size:13.5px;color:var(--ink-2)}
+.meter{height:6px;border-radius:6px;background:var(--sunk);overflow:hidden;margin-top:2px}
+.meter i{display:block;height:100%;width:0;border-radius:6px;background:var(--s-base);transition:width 1.4s cubic-bezier(.2,.7,.2,1)}
+.col.ours .meter i{background:linear-gradient(90deg,var(--accent-mid),var(--accent))}
+.wide-fig{background:#fff;border:1px solid var(--rule);border-radius:14px;padding:12px;overflow-x:auto}
+.wide-fig img{display:block;width:100%;min-width:640px;height:auto}
+.evidence{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.evidence>div{border-top:2px solid var(--accent);padding-top:14px;display:grid;gap:6px;align-content:start}
+.evidence .k{font-weight:700;font-size:15px}
+.evidence .v{color:var(--ink-2);font-size:15px}
+
+/* ---------- RL section ---------- */
+.rlfig{position:relative;background:#fff;border:1px solid var(--rule);border-radius:16px;padding:14px;overflow-x:auto;box-shadow:0 24px 60px -34px var(--glow)}
+.rlfig .in{position:relative;min-width:760px}
+.rlfig img{display:block;width:100%;height:auto}
+.rlfig svg.spot{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.rlfig svg.spot .veil{fill:rgba(250,248,255,.78);transition:opacity .5s ease}
+.rlfig svg.spot rect.hole{transition:all .6s cubic-bezier(.2,.7,.2,1)}
+.rlfig svg.spot rect.ring{fill:none;stroke:#5D2CD6;stroke-width:.35;rx:.8;transition:all .6s cubic-bezier(.2,.7,.2,1);filter:drop-shadow(0 0 .6px rgba(93,44,214,.6))}
+.rlfig .hot{position:absolute;transform:translate(-50%,-50%);width:28px;height:28px;border-radius:50%;border:0;background:transparent;cursor:pointer}
+.rlfig .hot::after{content:"";position:absolute;inset:-4px;border-radius:50%;border:2px solid #8B6CF0;animation:pulse 2.4s ease-out infinite;animation-play-state:paused;opacity:0}
+.rlfig .hot:hover::after,.rlfig .hot.on::after{animation-play-state:running;border-color:#5D2CD6}
+@keyframes pulse{0%{transform:scale(.7);opacity:.9}100%{transform:scale(1.6);opacity:0}}
+.steps5{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.steps5 button{all:unset;cursor:pointer;display:grid;gap:6px;align-content:start;padding:14px 14px 16px;border-radius:12px;border:1px solid var(--rule);background:var(--surface);position:relative;overflow:hidden;transition:border-color .3s,box-shadow .3s,transform .3s}
+.steps5 button:hover{transform:translateY(-2px)}
+.steps5 button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.steps5 .no{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font:700 12px/1 var(--mono);border:1.5px solid var(--muted);color:var(--muted);transition:all .3s}
+.steps5 .t{font-weight:700;font-size:14.5px;line-height:1.3}
+.steps5 .s{font-size:13px;color:var(--muted);line-height:1.4}
+.steps5 .bar{position:absolute;left:0;bottom:0;height:3px;width:0;background:var(--accent)}
+.steps5 button.on{border-color:var(--accent);box-shadow:0 14px 30px -18px var(--glow)}
+.steps5 button.on .no{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.detail{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:28px;align-items:start;background:var(--surface);border:1px solid var(--rule);border-radius:16px;padding:26px 28px;min-height:250px}
+.detail .dk{font:700 11.5px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:10px}
+.detail h3{font-family:var(--serif);font-size:26px;line-height:1.2;margin-bottom:12px}
+.detail p{font-size:15.5px;color:var(--ink-2);line-height:1.65}
+.detail p+p{margin-top:10px}
+.detail .side{display:grid;gap:12px;align-content:start}
+.detail .fx{font-family:var(--serif);font-size:19px;line-height:1.5;background:var(--accent-soft);border-radius:12px;padding:14px 18px;color:var(--ink);overflow-x:auto;white-space:nowrap}
+.detail .fx .v{font-style:italic}
+.detail .fx sub,.detail .fx sup{font-size:.68em}
+.detail .facts{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.detail .facts div{border:1px solid var(--rule);border-radius:10px;padding:10px 12px;display:grid;gap:2px}
+.detail .facts b{font-family:var(--serif);font-size:24px;font-weight:500;color:var(--accent);line-height:1.1}
+.detail .facts span{font-size:12.5px;color:var(--muted);line-height:1.35}
+.fadein{animation:fadeup .55s cubic-bezier(.2,.7,.2,1) both}
+@keyframes fadeup{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* reward waterfall */
+.reward{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:18px}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:16px;padding:22px;display:grid;gap:12px;align-content:start;position:relative}
+.card h3{font-family:var(--sans);font-size:15.5px;font-weight:700}
+.card .cap{font-size:13.5px;color:var(--muted)}
+.seg{display:inline-flex;gap:4px;background:var(--sunk);padding:4px;border-radius:999px;flex-wrap:wrap}
+.seg button{all:unset;cursor:pointer;font:600 13px/1 var(--sans);padding:8px 13px;border-radius:999px;color:var(--ink-2);transition:all .25s}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--accent);box-shadow:0 2px 8px rgba(40,10,120,.12)}
+.seg button:focus-visible{outline:2px solid var(--accent)}
+.terms{display:grid;gap:10px;font-size:14px}
+.terms .row{display:grid;grid-template-columns:150px 1fr 58px;align-items:center;gap:12px}
+.terms .row .k{color:var(--ink-2)}
+.terms .row .k small{display:block;color:var(--muted);font-size:12px;font-family:var(--mono)}
+.terms .track2{position:relative;height:22px;border-radius:6px;background:var(--sunk)}
+.terms .track2 .zero{position:absolute;top:-3px;bottom:-3px;width:1px;background:var(--muted);opacity:.6}
+.terms .track2 i{position:absolute;top:0;bottom:0;border-radius:5px;transition:left .8s cubic-bezier(.2,.7,.2,1),width .8s cubic-bezier(.2,.7,.2,1),background .4s}
+.terms .row .val{font-family:var(--mono);font-size:13.5px;text-align:right;font-weight:600}
+.terms .row.total{border-top:1px solid var(--rule);padding-top:10px}
+.terms .row.total .val{color:var(--accent);font-size:16px}
+.qline{display:flex;align-items:flex-end;gap:10px;height:136px;padding:4px 2px 0}
+.qline .qb{flex:1;display:grid;gap:6px;justify-items:center;align-content:end;height:100%}
+.qline .qb i{width:100%;max-width:64px;border-radius:8px 8px 3px 3px;transition:height .8s cubic-bezier(.2,.7,.2,1),background .4s;height:0}
+.qline .qb span{font:600 12px/1 var(--mono);color:var(--muted)}
+.qline .qb b{font:700 13px/1 var(--mono)}
+.qline .qb i.pass{background:linear-gradient(var(--pass),color-mix(in srgb,var(--pass) 55%,transparent))}
+.qline .qb i.fail{background:linear-gradient(var(--fail),color-mix(in srgb,var(--fail) 45%,transparent))}
+.dchips{display:flex;gap:8px;flex-wrap:wrap}
+.dchips span{font:600 12px/1 var(--mono);padding:6px 9px;border-radius:999px;background:var(--sunk);color:var(--ink-2)}
+.dchips span.up{background:color-mix(in srgb,var(--pass) 16%,transparent);color:var(--pass)}
+.dchips span.dn{background:color-mix(in srgb,var(--fail) 14%,transparent);color:var(--fail)}
+.why{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.why>div{background:var(--surface);border:1px solid var(--rule);border-radius:14px;padding:20px;display:grid;gap:8px;align-content:start}
+.why .big{font-family:var(--serif);font-size:40px;line-height:1;color:var(--accent)}
+.why .big small{font-size:18px;color:var(--muted)}
+.why h3{font-family:var(--sans);font-size:15px;font-weight:700}
+.why p{font-size:14.5px;color:var(--ink-2)}
+
+/* ---------- benchmarks ---------- */
+.bench{display:grid;grid-template-columns:minmax(0,.95fr) minmax(0,1.05fr);gap:18px;align-items:stretch}
+.radar text{font-family:var(--sans);font-size:12px;fill:var(--muted)}
+.radar .ax{cursor:pointer}
+.radar .ax text.nm{font-size:13.5px;font-weight:700;fill:var(--ink-2);transition:fill .2s}
+.radar .ax.on text.nm{fill:var(--accent)}
+.radar .ax .hit{fill:transparent}
+.radar .poly{transition:opacity .3s}
+.hint2{font-size:12.5px;color:var(--muted);text-align:center}
+.bars{display:grid;gap:12px}
+.bars .bn{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.bars .bn .nm{font-family:var(--serif);font-size:30px;line-height:1}
+.bars .bn .gain{font:700 13px/1 var(--mono);color:var(--accent);background:var(--accent-soft);padding:7px 10px;border-radius:999px}
+.bars .desc{font-size:14px;color:var(--muted);min-height:3em}
+.brow{display:grid;grid-template-columns:150px 1fr 56px;align-items:center;gap:12px;font-size:14px}
+.brow .m{color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brow .tr{height:26px;background:var(--sunk);border-radius:7px;overflow:hidden;position:relative}
+.brow .tr i{position:absolute;left:0;top:0;bottom:0;width:0;border-radius:7px;background:var(--s-other);transition:width 1.1s cubic-bezier(.2,.7,.2,1)}
+.brow .v{font-family:var(--mono);font-weight:600;text-align:right;font-variant-numeric:tabular-nums}
+.brow.ours .m,.brow.ours .v{color:var(--accent);font-weight:700}
+.brow.ours .tr i{background:linear-gradient(90deg,var(--accent-mid),var(--accent));box-shadow:0 0 18px var(--glow)}
+.brow.ours .tr i::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.45) 50%,transparent 70%);background-size:250% 100%;animation:shine 2.8s ease-in-out infinite}
+@keyframes shine{from{background-position:150% 0}to{background-position:-100% 0}}
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.tile{background:var(--surface);border:1px solid var(--rule);border-radius:14px;padding:18px 18px 16px;display:grid;gap:6px;cursor:pointer;transition:border-color .25s,transform .25s,box-shadow .25s;text-align:left;font:inherit;color:inherit}
+.tile:hover,.tile.on{border-color:var(--accent);transform:translateY(-3px);box-shadow:0 16px 34px -20px var(--glow)}
+.tile .k{font:700 11px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.tile .n{font-family:var(--serif);font-size:38px;line-height:1;color:var(--accent)}
+.tile .n small{font-size:16px;color:var(--muted);margin-left:2px}
+.tile .t{font-size:13px;color:var(--muted);line-height:1.4}
+.tile .t b{color:var(--ink-2);font-weight:600}
+.charts{display:grid;grid-template-columns:1.2fr 1fr;gap:18px}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:13px;color:var(--ink-2)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:16px;height:3px;border-radius:2px;display:inline-block}
+.legend i.dot{width:10px;height:10px;border-radius:50%}
+svg.chart{width:100%;height:auto;display:block;overflow:visible}
+svg.chart text{font-family:var(--sans);font-size:12px;fill:var(--muted)}
+svg.chart .dl{font-weight:700;fill:var(--ink)}
+svg.chart .dl.acc{fill:var(--accent)}
+svg.chart .draw{transition:stroke-dashoffset 1.8s cubic-bezier(.3,.6,.2,1)}
+svg.chart .pop{transition:opacity .5s ease,transform .5s ease;transform-box:fill-box;transform-origin:center}
+.cardhead{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap}
+.replay{all:unset;cursor:pointer;font:600 12px/1 var(--mono);color:var(--accent);border:1px solid color-mix(in srgb,var(--accent) 40%,transparent);padding:7px 10px;border-radius:999px}
+.replay:hover{background:var(--accent-soft)}
+.tip{position:absolute;pointer-events:none;background:var(--ink);color:var(--bg);font-size:12.5px;line-height:1.45;padding:8px 10px;border-radius:8px;white-space:nowrap;font-variant-numeric:tabular-nums;z-index:3;box-shadow:0 8px 24px rgba(20,10,50,.25)}
+.tip b{font-weight:700}
+/* dumbbell */
+.db{display:grid;gap:9px}
+.db .r{display:grid;grid-template-columns:130px 1fr 110px;gap:14px;align-items:center;font-size:13.5px}
+.db .r .nm{color:var(--ink-2)}
+.db .r .nm small{color:var(--muted);font-family:var(--mono);font-size:11px;margin-left:4px}
+.db .ln{position:relative;height:24px}
+.db .ln::before{content:"";position:absolute;left:0;right:0;top:50%;height:1px;background:var(--grid)}
+.db .ln .seg2{position:absolute;top:50%;height:4px;margin-top:-2px;border-radius:4px;background:linear-gradient(90deg,color-mix(in srgb,var(--accent) 30%,transparent),var(--accent));transition:left .9s cubic-bezier(.2,.7,.2,1),width .9s cubic-bezier(.2,.7,.2,1)}
+.db .ln .seg2.neg{background:linear-gradient(270deg,color-mix(in srgb,var(--muted) 30%,transparent),var(--muted))}
+.db .ln b{position:absolute;top:50%;width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:50%;transition:left .9s cubic-bezier(.2,.7,.2,1)}
+.db .ln b.a{background:var(--surface);border:2px solid var(--s-base)}
+.db .ln b.i{background:var(--surface);border:2px solid var(--accent)}
+.db .ln b.f{background:var(--accent);box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 18%,transparent)}
+.db .v{font-family:var(--mono);font-size:12.5px;text-align:right;color:var(--muted);white-space:nowrap}
+.db .v b{color:var(--accent);font-weight:700}
+.db .axis{display:grid;grid-template-columns:130px 1fr 110px;gap:14px;font:500 11px/1 var(--mono);color:var(--muted)}
+.db .axis div{display:flex;justify-content:space-between}
+/* ablation */
+.abl{display:grid;gap:14px}
+.abl .r{display:grid;grid-template-columns:190px 1fr 1fr;gap:16px;align-items:center;font-size:14px}
+.abl .hd{font:700 11px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.abl .r .nm{color:var(--ink-2)}
+.abl .r .nm small{display:block;color:var(--muted);font-size:12px}
+.abl .r.ours .nm{color:var(--accent);font-weight:700}
+.hb{display:grid;grid-template-columns:1fr 50px;gap:8px;align-items:center}
+.hb .tr{height:18px;background:var(--sunk);border-radius:5px;overflow:hidden;position:relative}
+.hb .tr i{position:absolute;inset:0 auto 0 0;width:0;background:var(--s-base);border-radius:5px;transition:width 1.2s cubic-bezier(.2,.7,.2,1)}
+.abl .r.ours .hb .tr i{background:linear-gradient(90deg,var(--accent-mid),var(--accent))}
+.abl .r.half .hb .tr i{background:color-mix(in srgb,var(--accent) 45%,var(--s-base))}
+.hb span{font-family:var(--mono);font-weight:600;font-size:13px;text-align:right}
+.two{display:grid;grid-template-columns:1.1fr 1fr;gap:18px}
+.tbl{overflow-x:auto;border:1px solid var(--rule);border-radius:14px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:560px;font-size:14.5px;font-variant-numeric:tabular-nums}
+th,td{padding:12px 16px;text-align:right;border-bottom:1px solid var(--rule)}
+th:first-child,td:first-child{text-align:left}
+thead th{font-size:12px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+tbody tr:last-child td{border-bottom:0}
+tbody tr{transition:background .2s}
+tbody tr:hover td{background:var(--bg-2)}
+td .d{font-size:12px;color:var(--muted);margin-left:6px;font-family:var(--mono)}
+tr.ours td{background:var(--accent-soft)!important;font-weight:700;color:var(--accent)}
+tr.ours td .d{color:var(--accent)}
+.note2{font-size:13.5px;color:var(--muted)}
+
+pre.bib{margin:0;font:13px/1.6 var(--mono);background:var(--sunk);border:1px solid var(--rule);border-radius:14px;padding:18px 20px;overflow-x:auto;color:var(--ink-2)}
+.bibwrap{position:relative;max-width:900px;width:100%;margin-inline:auto}
+.copy{position:absolute;right:10px;top:10px;font:600 12px/1 var(--sans);border:1px solid var(--rule);background:var(--surface);color:var(--ink);border-radius:999px;padding:7px 12px;cursor:pointer}
+footer{margin-top:72px;padding-top:20px;border-top:1px solid var(--rule);font-size:13.5px;color:var(--muted);display:flex;flex-wrap:wrap;gap:8px 24px;justify-content:space-between}
+
 /* reveal */
 .rv{transition:transform .9s cubic-bezier(.2,.7,.2,1),opacity .9s ease}
-.rv.pre{transform:translateY(26px);opacity:.35}
+.rv.pre{transform:translateY(28px);opacity:0}
 
-/* viewer autoplay */
-.play{font:600 12px/1 var(--mono);background:#E7F2EF;color:#0F1719;border:0;border-radius:6px;padding:8px 11px;cursor:pointer}
-.prog{height:2px;background:var(--v-rule);border-radius:2px;overflow:hidden;margin-top:8px}
-.prog i{display:block;height:100%;width:0;background:var(--v-acc)}
-.transcript .x.fresh{animation:fadein .5s ease both}
-@keyframes fadein{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
-svg.chart .draw{transition:stroke-dashoffset 1.6s cubic-bezier(.3,.6,.2,1)}
-.wide-fig{background:#fff;border:1px solid var(--rule);border-radius:10px;padding:12px;overflow-x:auto}
-.wide-fig img{display:block;width:100%;min-width:640px;height:auto}
-
+@media (max-width:960px){
+  .steps5{grid-template-columns:repeat(5,minmax(150px,1fr));overflow-x:auto;padding-bottom:6px}
+  .detail,.reward,.bench,.charts,.two{grid-template-columns:1fr}
+  .tiles{grid-template-columns:repeat(2,1fr)}
+}
 @media (max-width:860px){
   .topnav .ext{display:none}
   .stagebar{grid-template-columns:1fr}
   .stagebar button{border-right:0;border-bottom:1px solid var(--rule)}
-  .compare,.charts,.steps{grid-template-columns:1fr}
-  .steps div+div{padding-left:0;border-left:0;border-top:1px solid var(--rule)}
-  .stage{grid-template-columns:1fr}
-  .evidence li{grid-template-columns:1fr;gap:4px}
+  .compare,.why,.evidence{grid-template-columns:1fr}
+  .abl .r{grid-template-columns:1fr;gap:6px}
+  .abl .hd.x{display:none}
 }
 @media (max-width:560px){
   .strip{grid-template-columns:1fr}
-  .strip div+div{padding-left:0;border-left:0;border-top:1px solid var(--rule)}
-  .viewer{padding:16px}
-  header.hero{padding-block:36px 24px}
+  header.hero{padding-block:40px 24px}
+  .brow{grid-template-columns:96px 1fr 48px}
+  .db .r,.db .axis{grid-template-columns:92px 1fr 88px;gap:8px}
+  .terms .row{grid-template-columns:110px 1fr 50px}
+  .tiles{grid-template-columns:1fr}
+  .abstract .card-a{padding:20px}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}.splash{display:none}.rv.pre{transform:none;opacity:1}}
-</style>
 
+</style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="ripple" x="-10%" y="-10%" width="120%" height="120%"><feTurbulence type="fractalNoise" baseFrequency="0.012 0.09" numOctaves="2" seed="3"><animate attributeName="baseFrequency" dur="7s" values="0.012 0.09;0.016 0.12;0.012 0.09" repeatCount="indefinite"/></feTurbulence><feDisplacementMap in="SourceGraphic" scale="9"/></filter></svg>
 <div class="splash" id="splash" aria-hidden="true">
+  <div class="aur a"></div><div class="aur b"></div><div class="aur c"></div>
+  <canvas id="spc"></canvas>
   <div class="inner">
-    <div class="word"><span>UMM</span><span class="dash" style="animation-delay:.12s">-</span><span style="animation-delay:.2s">Reflection</span></div>
-    <div class="loop">
-      <div class="sq" id="spImg"></div>
-      <div class="note" id="spNote"></div>
-    </div>
-    <div class="rounds" id="spRounds"><span>R0</span><span>R1</span><span>R2</span><span>R3</span></div>
+    <div class="kicker">Native reflection · Interleaved RL</div>
+    <div class="title" id="spTitle"></div>
+    <div class="mirror" id="spMirror">UMM-Reflection</div>
+    <div class="line"></div>
+    <div class="sub">Learning native reflection in unified models with interleaved reinforcement learning</div>
   </div>
   <div class="hint">Move or scroll to enter</div>
 </div>
@@ -290,7 +414,7 @@ svg.chart .draw{transition:stroke-dashoffset 1.6s cubic-bezier(.3,.6,.2,1)}
   <div class="in">
     <a class="brand" href="#top">UMM<span>-</span>Reflection</a>
     <div class="sec" id="secnav">
-      <a href="#pipeline">Pipeline</a><a href="#video">Video</a><a href="#abstract">Abstract</a><a href="#finding">Finding</a><a href="#trajectories">Examples</a><a href="#results">Results</a><a href="#method">Method</a><a href="#cite">Citation</a>
+      <a href="#abstract">Abstract</a><a href="#video">Video</a><a href="#finding">Finding</a><a href="#rl">RL</a><a href="#results">Benchmarks</a><a href="#analysis">Analysis</a><a href="#cite">Citation</a>
     </div>
     <div class="ext"><a href="https://github.com/waltstephen/UMM-Reflection">Code</a><a href="https://huggingface.co/YijiaFan/UMM-Reflection-BAGEL-RL">Models</a><a href="https://huggingface.co/datasets/YijiaFan/UMM-Reflection-SFT-Data">Data</a></div>
   </div>
@@ -299,13 +423,13 @@ svg.chart .draw{transition:stroke-dashoffset 1.6s cubic-bezier(.3,.6,.2,1)}
 <div class="wrap" id="top">
 <header class="hero">
   <div class="label">Unified multimodal models · Reinforcement learning · Test-time reflection</div>
-  <h1>UMM<span class="dash">-</span>Reflection</h1>
+  <h1>UMM-Reflection</h1>
   <p class="sub">Learning native reflection in unified models with interleaved reinforcement learning</p>
   <p class="authors"><b>Authors</b> will be listed with the arXiv release.</p>
   <nav class="links" aria-label="Resources">
     <a class="btn" aria-disabled="true" role="link" tabindex="0" title="Coming soon">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2h9l5 5v15H6zM14 3.5V8h4.5zM8 12h8v1.5H8zm0 3h8v1.5H8zm0 3h5v1.5H8z"/></svg>Paper<span class="soon">arXiv · soon</span></a>
-    <a class="btn" href="https://github.com/waltstephen/UMM-Reflection">
+    <a class="btn primary" href="https://github.com/waltstephen/UMM-Reflection">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.5a10.5 10.5 0 0 0-3.3 20.46c.52.1.72-.23.72-.5v-1.8c-2.93.64-3.55-1.4-3.55-1.4-.48-1.22-1.17-1.54-1.17-1.54-.95-.65.08-.64.08-.64 1.05.08 1.6 1.08 1.6 1.08.94 1.6 2.46 1.14 3.06.87.1-.68.37-1.14.66-1.4-2.34-.27-4.8-1.17-4.8-5.2 0-1.15.41-2.09 1.08-2.83-.1-.27-.47-1.34.1-2.8 0 0 .89-.28 2.9 1.08a10 10 0 0 1 5.27 0c2-1.36 2.89-1.08 2.89-1.08.58 1.46.21 2.53.1 2.8.68.74 1.08 1.68 1.08 2.83 0 4.04-2.46 4.92-4.8 5.18.38.33.72.97.72 1.96v2.9c0 .28.19.61.73.5A10.5 10.5 0 0 0 12 1.5z"/></svg>Code<span class="soon">GitHub</span></a>
     <a class="btn" href="https://huggingface.co/YijiaFan/UMM-Reflection-BAGEL-RL">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm-3.6 7.2a1.4 1.4 0 1 1 0 2.8 1.4 1.4 0 0 1 0-2.8zm7.2 0a1.4 1.4 0 1 1 0 2.8 1.4 1.4 0 0 1 0-2.8zM7.3 14h9.4c-.6 2.2-2.5 3.8-4.7 3.8S7.9 16.2 7.3 14z"/></svg>Models<span class="soon">Hugging Face</span></a>
@@ -314,7 +438,7 @@ svg.chart .draw{transition:stroke-dashoffset 1.6s cubic-bezier(.3,.6,.2,1)}
     <a class="btn" href="#video">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zM10 8l6 4-6 4z"/></svg>Video<span class="soon">3 min</span></a>
   </nav>
-  <figure id="pipeline" style="scroll-margin-top:70px">
+  <figure id="pipeline">
     <div class="pipe" id="pipe">
       <div class="scroll"><div class="bands">
         <div class="band" data-i="0"><img src="pipe_s1.png" alt="Stage 1, data construction: a prompt pool feeds an image generator; a VLM critic either accepts the image or writes an edit, an image editor applies it, and accepted trajectories are kept as one-shot, natural repair or planned progression."></div>
@@ -330,18 +454,25 @@ svg.chart .draw{transition:stroke-dashoffset 1.6s cubic-bezier(.3,.6,.2,1)}
     <figcaption><b>From borrowed critique to native reflection.</b> External models are used only to build the SFT data. After RL, a single model inspects and revises its own images, with no critic or verifier at inference.</figcaption>
   </figure>
   <div class="strip" role="list">
-    <div role="listitem"><div class="n">0.71 <small>→</small> <em>0.84</em></div><div class="t">GenEval overall, BAGEL base vs UMM-Reflection with three reflection rounds</div></div>
-    <div role="listitem"><div class="n"><em>64.9%</em> <small>vs 20.6%</small></div><div class="t">of wrong first images repaired by the end of reflection, after RL vs after SFT</div></div>
-    <div role="listitem"><div class="n"><em>+0.19</em> <small>WISE</small></div><div class="t">RL uses only GenEval-style prompts; WISE, OneIG and CompBench are held out</div></div>
+    <div role="listitem"><div class="n num">0.71 <small>→</small> <em data-count="0.84" data-dec="2">0.84</em></div><div class="t">GenEval overall, BAGEL base vs UMM-Reflection with three reflection rounds</div></div>
+    <div role="listitem"><div class="n num"><em data-count="64.9" data-dec="1" data-suf="%">64.9%</em> <small>vs 20.6%</small></div><div class="t">of wrong first images repaired by the end of reflection, after RL vs after SFT</div></div>
+    <div role="listitem"><div class="n num"><em data-count="0.19" data-dec="2" data-pre="+">+0.19</em> <small>WISE</small></div><div class="t">RL uses only GenEval-style prompts; WISE, OneIG and CompBench are held out</div></div>
   </div>
 </header>
 
 <div class="marquee" aria-label="First image and final image for eight reflection trajectories"><div class="track" id="track"></div></div>
 
+<section class="abstract" id="abstract" aria-labelledby="h-abs">
+  <div class="head"><div class="label">Overview</div><h2 id="h-abs">Abstract</h2></div>
+  <div class="card-a rv">
+    <p>Unified multimodal models can both look at and render images, so in principle they can repair their own generations: diagnose what an image gets wrong, revise it, observe the result, and diagnose again. Whether a revision helps is known only after it is rendered, so the reflection text and the image generation must be learned jointly, over the whole loop. Supervised fine-tuning (SFT) on reflection trajectories gives a cold start but does not find the high-success repair paths, and naive RL that optimizes only the renderer or only one head leaves most of the gain untapped.</p>
+    <p>We introduce <b>UMM-Reflection</b>, which applies reinforcement learning (RL) to complete reflection trajectories inside one unified model: sibling trajectories share one initial image, so the group-relative advantage compares reflection strategies, and one trajectory-level advantage updates both the reflection tokens and the flow-based revisions, avoiding the combinatorial blow-up of per-round credit assignment. Unlike single-round editing or pipelines with an external critic, credit flows across rounds and to both roles of the same model, and no verifier is needed at inference. On BAGEL, UMM-Reflection improves GenEval by 12.05 points over SFT, and the gains transfer to WISE (+10.97), OneIG-Bench (+3.48), and T2I-CompBench++ (+4.63), none of which is used in training.</p>
+  </div>
+</section>
+
 <section id="video" aria-labelledby="h-vid">
-  <div class="label">Demo</div>
-  <h2 id="h-vid">UMM-Reflection in three minutes</h2>
-  <figure>
+  <div class="head"><div class="label">Video</div><h2 id="h-vid">A three-minute tour of UMM-Reflection</h2></div>
+  <figure class="rv">
     <div class="video"><video controls preload="metadata" playsinline poster="demo/cover.png">
       <source src="demo/umm-reflection-3min.mp4" type="video/mp4">
       <track kind="captions" src="demo/umm-reflection-3min.en.vtt" srclang="en" label="English">
@@ -349,91 +480,116 @@ svg.chart .draw{transition:stroke-dashoffset 1.6s cubic-bezier(.3,.6,.2,1)}
   </figure>
 </section>
 
-<section class="abstract" id="abstract" aria-labelledby="h-abs">
-  <h2 id="h-abs">Abstract</h2>
-  <div class="measure">
-    <p>Unified multimodal models can both look at and render images, so in principle they can repair their own generations: diagnose what an image gets wrong, revise it, observe the result, and diagnose again. Whether a revision helps is known only after it is rendered, so the reflection text and the image generation must be learned jointly, over the whole loop. Supervised fine-tuning (SFT) on reflection trajectories gives a cold start but does not find the high-success repair paths, and naive RL that optimizes only the renderer or only one head leaves most of the gain untapped.</p>
-    <p>We introduce <b>UMM-Reflection</b>, which applies reinforcement learning (RL) to complete reflection trajectories inside one unified model: sibling trajectories share one initial image, so the group-relative advantage compares reflection strategies, and one trajectory-level advantage updates both the reflection tokens and the flow-based revisions, avoiding the combinatorial blow-up of per-round credit assignment. Unlike single-round editing or pipelines with an external critic, credit flows across rounds and to both roles of the same model, and no verifier is needed at inference. On BAGEL, UMM-Reflection improves GenEval by 12.05 points over SFT, and the gains transfer to WISE (+10.97), OneIG-Bench (+3.48), and T2I-CompBench++ (+4.63), none of which is used in training.</p>
+<section id="finding" class="band" aria-labelledby="h-find">
+  <div class="head">
+    <div class="label">Key finding</div>
+    <h2 id="h-find">Reflection is only useful when it changes the image</h2>
+    <p class="lede">Writing a plausible critique is easy. Turning that critique into a better image is the hard part. We compare three ways to give BAGEL a second look at its own output on the 553 official GenEval prompts, each with up to three edits.</p>
   </div>
-</section>
-
-<section id="finding" aria-labelledby="h-find">
-  <div class="label">Key finding</div>
-  <h2 id="h-find">Reflection is only useful when it changes the image</h2>
-  <p class="lede measure">Writing a plausible critique is easy. Turning that critique into a better image is the hard part. We compare three ways to give BAGEL a second look at its own output on the 553 official GenEval prompts, each with up to three edits.</p>
-  <div class="compare rv">
+  <div class="compare rv" id="compare">
     <div class="col">
-      <div class="label">External critic</div>
+      <div class="label" style="color:var(--muted)">External critic</div>
       <h3>BAGEL + GPT-5.5 critic</h3>
       <p class="how">A frontier model reads each image and writes the edit instruction. BAGEL performs the edit.</p>
       <dl class="kv"><dt>GenEval, final</dt><dd>0.79</dd><dt>Wrong images repaired</dt><dd>27.6%</dd></dl>
+      <div class="meter"><i data-w="27.6"></i></div>
       <p class="note">The critic declared 67 of the 163 wrong first images finished at round 0.</p>
     </div>
     <div class="col">
-      <div class="label">Imitation</div>
+      <div class="label" style="color:var(--muted)">Imitation</div>
       <h3>BAGEL-SFT reflection</h3>
       <p class="how">The model is fine-tuned on interleaved reflection trajectories and reflects on its own.</p>
       <dl class="kv"><dt>GenEval, final</dt><dd>0.72</dd><dt>Wrong images repaired</dt><dd>20.6%</dd></dl>
+      <div class="meter"><i data-w="20.6"></i></div>
       <p class="note">It writes reflections in the right format, but the edits rarely fix what was wrong.</p>
     </div>
     <div class="col ours">
-      <div class="label" style="color:var(--accent)">Learned from consequences</div>
+      <div class="label">Learned from consequences</div>
       <h3>UMM-Reflection</h3>
       <p class="how">Same model and protocol, trained with whole-trajectory RL on the images its reflections produce.</p>
       <dl class="kv"><dt>GenEval, final</dt><dd>0.84</dd><dt>Wrong images repaired</dt><dd>64.9%</dd></dl>
+      <div class="meter"><i data-w="64.9"></i></div>
       <p class="note">Reflection and generation are trained together, so a diagnosis is rewarded only when the edit it leads to is better.</p>
     </div>
   </div>
   <figure class="rv">
-    <div class="wide-fig"><img src="rl_vs_sft.jpg" alt="Same GenEval prompt, a dog right of a tie. SFT keeps moving the tie and the dog back and forth and ends where it started. After RL the revisions move steadily into the correct-image region and end with the tie left of the dog."></div>
+    <div class="wide-fig"><img src="rl_vs_sft.jpg" loading="lazy" alt="Same GenEval prompt, a dog right of a tie. SFT keeps moving the tie and the dog back and forth and ends where it started. After RL the revisions move steadily into the correct-image region and end with the tie left of the dog."></div>
     <figcaption><b>Same prompt, same first-round quality, different revisions.</b> SFT re-rolls the same mistake across rounds. After RL each edit builds on the previous one and the trajectory ends in the correct-image region. The state-space panel is schematic.</figcaption>
   </figure>
-  <div class="evidence rv"><ul>
-    <li><span class="k">The gain is in the revisions</span><span class="v">First-round accuracy is 70–73 for base, SFT and RL models alike. With three reflection rounds, UMM-Reflection reaches 84, while base and SFT stay at 73 and 72.</span></li>
-    <li><span class="k">It fixes what resampling cannot</span><span class="v">On the 62 prompts where four independent BAGEL samples all fail, reflection after RL repairs 60% of wrong first images. SFT repairs 12%.</span></li>
-    <li><span class="k">It transfers</span><span class="v">RL sees only GenEval-style prompts. The same checkpoint improves WISE by 0.19, T2I-CompBench++ by 0.06 and OneIG-Bench by 0.02 over the base model.</span></li>
-  </ul></div>
-</section>
-
-<section id="trajectories" aria-labelledby="h-traj">
-  <div class="label">Examples</div>
-  <h2 id="h-traj">Step through real trajectories</h2>
-  <p class="lede measure">Each case is one unedited run of UMM-Reflection with a budget of three edits. Pick a round to see the image and the text the model wrote about it. The text is the model's own output in its interleaved format.</p>
-  <figure class="rv">
-    <div class="teaser"><img src="teaser.svg" alt="Three reflection trajectories on GenEval, WISE and CompBench prompts: initial image, the model's diagnosis and edit, two revisions, and the final image." loading="lazy"></div>
-    <figcaption><b>Three capabilities.</b> Spatial relations (GenEval), world knowledge (WISE) and shape binding (CompBench). Each arrow is one round of the model's own diagnosis and edit.</figcaption>
-  </figure>
-  <div class="viewer rv" id="viewer">
-    <div class="tabs" role="tablist" aria-label="Cases" id="tabs"></div>
-    <p class="prompt" id="prompt"></p>
-    <div class="stage">
-      <div>
-        <div class="bigimg"><img id="big" alt=""><span class="tag" id="bigtag"></span><span class="verdict" id="verdict" hidden></span></div>
-        <div class="film" id="film"></div>
-        <div class="prog"><i id="progbar"></i></div>
-      </div>
-      <div class="transcript" id="transcript" aria-live="polite"></div>
-    </div>
-    <div class="vfoot">
-      <span>Plays through the rounds on its own. Click a round or use <kbd>←</kbd> <kbd>→</kbd> to take over. GenEval cases show the official detector verdict for each round.</span>
-      <span class="stepper"><button type="button" class="play" id="play" aria-pressed="true">❚❚ Pause</button><button type="button" id="prev" aria-label="Previous round">← Round</button><button type="button" id="next" aria-label="Next round">Round →</button></span>
-    </div>
+  <div class="evidence rv">
+    <div><span class="k">The gain is in the revisions</span><span class="v">First-round accuracy is 70–73 for base, SFT and RL models alike. With three reflection rounds, UMM-Reflection reaches 84, while base and SFT stay at 73 and 72.</span></div>
+    <div><span class="k">It fixes what resampling cannot</span><span class="v">On the 62 prompts where four independent BAGEL samples all fail, reflection after RL repairs 60% of wrong first images. SFT repairs 12%.</span></div>
+    <div><span class="k">It transfers</span><span class="v">RL sees only GenEval-style prompts. The same checkpoint improves WISE by 0.19, T2I-CompBench++ by 0.06 and OneIG-Bench by 0.02 over the base model.</span></div>
   </div>
 </section>
 
-<section id="results" aria-labelledby="h-res">
-  <div class="label">Results</div>
-  <h2 id="h-res">More rounds help only after RL</h2>
-  <div class="charts">
-    <div class="card rv" id="c1">
-      <h3>GenEval accuracy by reflection budget</h3>
+<section id="rl" aria-labelledby="h-rl">
+  <div class="head">
+    <div class="label">Method</div>
+    <h2 id="h-rl">Reinforcement learning on whole reflection trajectories</h2>
+    <p class="lede">SFT teaches the format of reflection: inspect, diagnose, write an edit, render it. It cannot tell the model which reflections actually lead to better images, because that is only known after the edit is drawn. RL closes that loop. The model rolls out complete reflection trajectories, a verifier scores the images they produce, and the outcome is credited to both the words and the pixels that led to it.</p>
+  </div>
+  <figure class="rv">
+    <div class="rlfig" id="rlfig"><div class="in">
+      <img src="rl_pipeline.jpg" alt="UMM-Reflection RL. (1) Sixteen rollouts share one detached initial image for the prompt a dog right of a tie. (2) Each rollout interleaves the model's own reflection text with its renders for three rounds. (3) A frozen verifier scores every image; trajectory rewards are 1.21, 1.19 and 0.30 for the three rollouts shown. (4) Group normalization gives one advantage per trajectory, (5) which updates both the text head and the flow head of the unified backbone.">
+      <svg class="spot" id="spot" viewBox="0 0 100 38.84" preserveAspectRatio="none" aria-hidden="true">
+        <defs><mask id="spm"><rect x="0" y="0" width="100" height="38.84" fill="#fff"/><g id="holes"></g></mask></defs>
+        <rect class="veil" id="veil" x="0" y="0" width="100" height="38.84" mask="url(#spm)" opacity="0"/>
+        <g id="rings"></g>
+      </svg>
+    </div></div>
+    <figcaption><b>One RL step on one prompt.</b> Sixteen rollouts share one first image; each interleaves the model's own reflection (verbatim) with its renders for up to three rounds. A frozen verifier scores every image (<i>q</i>) and every trajectory (<i>R</i>(τ)). Group normalization gives one advantage per trajectory, which updates both the text and flow heads. Green and red frames mark verifier pass and fail; dashed arrows are used in training only.</figcaption>
+  </figure>
+  <div class="steps5 rv" id="steps5" role="tablist" aria-label="RL steps"></div>
+  <div class="detail rv" id="detail" aria-live="polite"></div>
+
+  <div class="reward rv">
+    <div class="card">
+      <div class="cardhead"><h3>Image scores along each trajectory</h3><div class="seg" id="tauSeg"></div></div>
+      <p class="cap">Verifier scores <i>q</i> for the first image and the three revisions of the rollouts in the figure. Green bars pass the verifier.</p>
+      <div class="qline" id="qline"></div>
+      <div class="dchips" id="dchips"></div>
+    </div>
+    <div class="card">
+      <h3>How the trajectory reward is assembled</h3>
+      <p class="cap"><i>R</i>(τ) = <i>q<sub>T</sub></i> + α Σ[Δ<sub>t</sub>]<sub>+</sub> + β <i>S</i><sub>multi</sub> − λ Σ[−Δ<sub>t</sub>]<sub>+</sub> − <i>p</i>·1[premature DONE], with α = β = 0.3 and λ = <i>p</i> = 0.5.</p>
+      <div class="terms" id="terms"></div>
+    </div>
+  </div>
+
+  <div class="why rv">
+    <div><div class="big num" data-count="4096" data-dec="0">4,096</div><h3>Why one advantage per trajectory</h3><p>A group-relative estimate for every round would need sibling groups at every round: branching 16 ways at each of three rounds is 16³ = 4,096 rollouts per prompt. The trajectory-level advantage keeps the 16-sample cost of GRPO, while the progress terms in <i>R</i>(τ) still reward each round that improves the image.</p></div>
+    <div><div class="big num">1 <small>shared A<sub>i</sub></small></div><h3>Why text and flow share it</h3><p>The text policy and the flow renderer are not normalized separately. A reflection that leads to a better image raises the advantage of both the diagnostic tokens and the rendering steps that followed, so the model learns which reflections lead to which visual outcomes.</p></div>
+    <div><div class="big num">0 <small>verifiers at test time</small></div><h3>Nothing extra at inference</h3><p>The verifier and the frozen SFT reference are used only to compute rewards and KL during training. At inference only the unified model runs: it looks at its own image, writes the reflection and renders the revision.</p></div>
+  </div>
+</section>
+
+<section id="results" class="band" aria-labelledby="h-res">
+  <div class="head">
+    <div class="label">Benchmarks</div>
+    <h2 id="h-res">One checkpoint, four benchmarks, three of them never seen in RL</h2>
+    <p class="lede">All rows use the same prompts, resolution and scorer, with up to three reflection rounds for the models that reflect. RL trains on GenEval-style prompts only; WISE, OneIG-Bench and T2I-CompBench++ measure transfer.</p>
+  </div>
+  <div class="tiles rv" id="tiles"></div>
+  <div class="bench rv">
+    <div class="card">
+      <h3>All five systems at a glance</h3>
+      <svg class="radar" id="radar" viewBox="0 0 440 400" role="img" aria-label="Radar chart of GenEval, WISE, OneIG and CompBench scores for five systems."></svg>
+      <div class="legend" id="rlg" style="justify-content:center"></div>
+      <p class="hint2">Hover or tap an axis to compare on that benchmark.</p>
+    </div>
+    <div class="card bars" id="bars"></div>
+  </div>
+  <div class="charts rv">
+    <div class="card" id="c1">
+      <div class="cardhead"><h3>GenEval accuracy by reflection budget</h3><button class="replay" type="button" id="rp1">↻ Replay</button></div>
       <p class="cap">Official 553 prompts and detector, 512 px. R0 is the first image; +k allows k edits.</p>
       <div class="legend" id="lg1"></div>
       <svg class="chart" id="ch1" viewBox="0 0 520 300" role="img" aria-label="Line chart of GenEval accuracy against reflection budget. Base: 71, 72, 73, 73. SFT: 70, 71, 72, 72. UMM-Reflection: 73, 82, 84, 84."></svg>
     </div>
-    <div class="card rv" id="c2">
-      <h3>Repair rate during RL training</h3>
-      <p class="cap">Share of wrong first images that are correct after three edits, per checkpoint.</p>
+    <div class="card" id="c2">
+      <div class="cardhead"><h3>Repair rate during RL training</h3><button class="replay" type="button" id="rp2">↻ Replay</button></div>
+      <p class="cap">Share of wrong first images that are correct after three edits, along one RL run.</p>
       <svg class="chart" id="ch2" viewBox="0 0 420 300" role="img" aria-label="Line chart of repair rate against RL updates: 0 updates 20.6%, 100: 35.6%, 200: 44.1%, 300: 56.0%, 400: 60.4%, 500: 61.1%, 1000: 64.9%."></svg>
     </div>
   </div>
@@ -449,26 +605,46 @@ svg.chart .draw{transition:stroke-dashoffset 1.6s cubic-bezier(.3,.6,.2,1)}
       </tbody>
     </table>
   </div>
-  <p class="cap" style="font-size:13.5px;color:var(--muted)">All rows use the same prompts, resolution and scorer. Differences are relative to BAGEL-Base. T2I-RL applies the same RL budget to single-shot generation, with no reflection.</p>
+  <p class="note2">Differences are relative to BAGEL-Base. Self-Agentic runs the untuned base model through the same three inspect-and-edit rounds. T2I-RL applies 1,000 RL updates to single-shot generation, with no reflection.</p>
 </section>
 
-<section id="method" aria-labelledby="h-met">
-  <div class="label">Method</div>
-  <h2 id="h-met">One model, one trajectory, one reward</h2>
-  <figure>
-    <div class="method-fig rv"><img src="method.jpg" alt="Training diagram. Left: the unified actor with text and flow parameters and joint attention rolls out 16 trajectories from a shared first image. Right: a verifier scores each round, the trajectory reward is group-normalized into one advantage, and that advantage updates both the text loss and the flow loss."></div>
-    <figcaption><b>Whole-trajectory RL.</b> Sixteen reflection trajectories start from the same first image. A verifier scores each round during training only. One group-normalized advantage per trajectory updates the text (understanding) and flow (generation) parameters together.</figcaption>
-  </figure>
-  <div class="steps rv">
-    <div><span class="n">Stage 1</span><h3>Learn the protocol</h3><p>SFT on interleaved trajectories teaches the model to inspect an image, write a diagnosis and an edit instruction, and generate the revised image in a single context.</p></div>
-    <div><span class="n">Stage 2</span><h3>Reward the whole sequence</h3><p>RL scores complete repair sequences by visual progress and final quality. The reflection text and the edited image share the credit, so neither is trained in isolation.</p></div>
-    <div><span class="n">Inference</span><h3>No verifier needed</h3><p>At test time the model reflects on its own output. The verifier is used only to compute training rewards.</p></div>
+<section id="analysis" aria-labelledby="h-an">
+  <div class="head">
+    <div class="label">Analysis</div>
+    <h2 id="h-an">Where the gain comes from</h2>
+    <p class="lede">The first image barely changes. What RL changes is what happens after it: which errors get repaired, on which kinds of prompts, and which half of the model has to learn for that to work.</p>
+  </div>
+  <div class="card rv" id="dbcard">
+    <div class="cardhead"><h3 id="dbtitle">Per-family accuracy on GenEval</h3><div class="seg" id="dbSeg"></div></div>
+    <p class="cap" id="dbcap"></p>
+    <div class="legend" id="dblg"></div>
+    <div class="db" id="db"></div>
+  </div>
+  <div class="tiles rv" id="tiles2">
+    <div class="tile" tabindex="-1"><span class="k">Paired vs SFT</span><span class="n num"><span data-count="109" data-dec="0">109</span><small>: 38</small></span><span class="t">prompts won vs lost against reflection SFT on GenEval (<b>p &lt; 10⁻⁸</b>, McNemar)</span></div>
+    <div class="tile" tabindex="-1"><span class="k">Position</span><span class="n num"><span data-count="42" data-dec="0" data-pre="+">+42</span><small>pts</small></span><span class="t">spatial-relation accuracy over SFT, <b>0.47 → 0.89</b>; the largest family gain</span></div>
+    <div class="tile" tabindex="-1"><span class="k">Hard prompts</span><span class="n num"><span data-count="60" data-dec="0" data-suf="%">60%</span><small>vs 12%</small></span><span class="t">repaired on the <b>62 prompts</b> where four independent base samples all fail</span></div>
+    <div class="tile" tabindex="-1"><span class="k">Same image budget</span><span class="n num"><span data-count="84" data-dec="0">84</span><small>vs 80</small></span><span class="t">reflection vs best-of-4 sampling from the stronger T2I-RL renderer (<b>p ≤ 0.04</b>)</span></div>
+  </div>
+  <div class="two rv">
+    <div class="card" id="ablcard">
+      <h3>Both heads must be trained</h3>
+      <p class="cap">Trajectory RL with one head frozen. GenEval final accuracy and repair rate of wrong first images.</p>
+      <div class="abl" id="abl"></div>
+    </div>
+    <div class="card">
+      <h3>What the numbers say</h3>
+      <div class="evidence" style="grid-template-columns:1fr;gap:16px">
+        <div><span class="k">A better renderer alone does not repair</span><span class="v">Training only the flow head leaves the model close to SFT (73, repair 22.8%): the renderer improves, but the reflections that drive it do not.</span></div>
+        <div><span class="k">Learning what to write is the larger part</span><span class="v">Training only the text head recovers most of the gain (78, 49.4%).</span></div>
+        <div><span class="k">Joint training adds six more points</span><span class="v">With both heads, the renderer also learns to execute the reflections the text head now writes: 84 and 64.9%. This joint optimization is what a single unified model makes possible.</span></div>
+      </div>
+    </div>
   </div>
 </section>
 
 <section id="cite" aria-labelledby="h-cite">
-  <div class="label">Citation</div>
-  <h2 id="h-cite">BibTeX</h2>
+  <div class="head"><div class="label">Citation</div><h2 id="h-cite">BibTeX</h2></div>
   <div class="bibwrap rv">
 <pre class="bib" id="bib">@article{ummreflection2026,
   title   = {Learning Native Reflection in Unified Models
@@ -488,184 +664,54 @@ svg.chart .draw{transition:stroke-dashoffset 1.6s cubic-bezier(.3,.6,.2,1)}
 </div>
 
 <script>
-const CASES = [{"bench":"geneval","uid":"official553_position_0378","prompt":"Create an image with a sports ball left of an umbrella.","cat":"position","scoretype":"official_image_only_verdict","rounds":[{"img":"img/c0_r0.jpg","exact":false},{"img":"img/c0_r1.jpg","exact":false},{"img":"img/c0_r2.jpg","exact":true},{"img":"img/c0_r3.jpg","exact":true}],"events":[{"thinking":"The original user request is to create an image with a sports ball left of an umbrella. The current image shows a soccer ball on the left side of a colorful umbrella, which meets the basic elements of the request. However, the soccer ball is not distinctly a sports ball in the traditional sense, and the umbrella is quite large and colorful. To meet the user's request, the image should be edited to show a more typical sports ball, such as a basketball or a football, positioned to the left of an umbrella. The umbrella should be smaller and more appropriately scaled in relation to the sports ball to create a clear left-to-right spatial relationship between the two objects. The background should be kept simple to maintain focus on the sports ball and umbrella.","edit":"Create an image where a sports ball is positioned to the left of an umbrella. The sports ball should be a typical sports ball such as a basketball or a football, and the umbrella should be smaller and appropriately scaled to the right of the sports ball, creating a clear left-to-right spatial relationship. The background should be simple to keep the focus on the sports ball and umbrella."},{"thinking":"The user wants to create an image of a sports ball left of an umbrella. The image provided shows a soccer ball on the left side with a colorful umbrella on the right side, which meets the basic elements of the request but the soccer ball does not fully represent a sports ball in the context of the image. To meet the user's request, the image should be edited to show a clear distinction between the sports ball and the umbrella, with the sports ball placed distinctly to the left of the umbrella. The umbrella should be positioned to the right side of the image and be appropriately scaled in relation to the sports ball to maintain a sense of balance. The background should be kept simple to keep the focus on the two main objects.","edit":"Create an image where a sports ball is positioned distinctly to the left of an umbrella. The sports ball should be a typical sports ball such as a basketball or a football, and the umbrella should be smaller and appropriately scaled to the right of the sports ball, creating a clear left-to-right spatial relationship. The background should be simple to keep the focus on the sports ball and umbrella. The sports ball should be placed on the left side of the image, while the umbrella is on the right side, ensuring the ball is clearly left of the umbrella."},{"thinking":"The user wants to create an image with a sports ball left of an umbrella. The image provided shows a basketball and an umbrella, but the umbrella is not clearly an umbrella; it looks more like a kite or a sail. To meet the user's request, the image should be edited to show a sports ball, such as a soccer ball or a football, positioned to the left side of an actual umbrella. The umbrella should be depicted in a way that is recognizable as an umbrella, with a canopy and a handle, and it should be placed to the right side of the image, creating the left-to-right spatial relationship specified in the user's request.","edit":"Create an image where a sports ball is positioned distinctly to the left of an umbrella. The sports ball should be a typical sports ball such as a soccer ball or a football, and the umbrella should be smaller and appropriately scaled to the right of the sports ball, creating a clear left-to-right spatial relationship. The background should be simple to keep the focus on the sports ball and umbrella. The sports ball should be placed on the left side of the image, while the umbrella is on the right side, ensuring the ball is clearly left of the umbrella. The umbrella should be depicted as a standard umbrella with a canopy and a handle."}]},{"bench":"oneig","uid":"780_human_104","prompt":"Please generate an image capturing a moment in a stylish cafe, where two young women are enjoying coffee. Picture a beautifully crafted latte art and a blooming magnolia flower for a touch of elegance.","cat":"human","scoretype":"cached_official_alignment","rounds":[{"img":"img/c1_r0.jpg","exact":null},{"img":"img/c1_r1.jpg","exact":null},{"img":"img/c1_r2.jpg","exact":null},{"img":"img/c1_r3.jpg","exact":null}],"events":[{"thinking":"The original user request is to create an image capturing a moment in a stylish cafe where two young women are enjoying coffee, with a focus on the beautifully crafted latte art and a blooming magnolia flower for a touch of elegance. The provided image shows two women sitting at a table with cups of coffee, one of which has latte art, and there are magnolia flowers in the background. To meet the request, the image should be edited to show two young women in a cafe setting, with one of them holding a cup of coffee with latte art. The setting should be stylish with elements that suggest a cozy cafe atmosphere, such as wooden tables, ambient lighting, and decor that is sophisticated yet comfortable. The presence of a blooming magnolia flower should be included to add an elegant touch to the scene. The image should also convey a sense of enjoyment and relaxation, as the women are enjoying their coffee.","edit":"Create an image capturing a moment in a stylish cafe where two young women are enjoying coffee. The setting should be elegant with a focus on the beautifully crafted latte art and a blooming magnolia flower adding a touch of sophistication. The two women should be seated at a table, one holding a cup of coffee with intricate latte art, and the other possibly sipping from a cup. The background should feature elements of a chic cafe, such as modern decor, warm lighting, and possibly some greenery or flowers to enhance the ambiance. The image should evoke a sense of relaxation and enjoyment in a stylish environment."},{"thinking":"The user wants to create an image of two young women enjoying coffee in a stylish cafe setting. The image should feature a beautifully crafted latte art and a blooming magnolia flower for an elegant touch. The two women should be seated together, perhaps at a table, holding cups of coffee. The environment should convey a sense of style, so the cafe should be depicted with modern decor, perhaps some artwork on the walls, stylish furniture, and ambient lighting. The latte art on the coffee should be clearly visible, showing an artistic design that complements the elegant theme. The magnolia flower should be in full bloom and placed in a way that adds to the aesthetic appeal of the image without distracting from the main subjects.","edit":"Create an image of two young women enjoying coffee in a stylish cafe setting. The scene should depict them seated at a table with cups of coffee, one of which has a beautifully crafted latte art design. A blooming magnolia flower should be included in the image, possibly as part of a decorative element in the cafe, such as a vase on the table or hanging from the ceiling. The cafe should have a modern and chic atmosphere with stylish decor, comfortable seating, and warm lighting. The women should be casually dressed, perhaps in trendy outfits, and appear relaxed and happy, enjoying their time together. The image should emphasize elegance and a sense of style, with the latte art and magnolia flower enhancing the aesthetic."},{"thinking":"The user wants to create an image capturing a moment in a stylish cafe where two young women are enjoying coffee. The image should prominently feature a beautifully crafted latte art design and a blooming magnolia flower as a touch of elegance. The two women should be positioned in a way that suggests they are enjoying their time together, perhaps sitting at a table with their coffee cups in front of them. The setting should be designed to be stylish, with elements that convey a chic cafe atmosphere, such as modern decor, comfortable seating, and ambient lighting. The latte art should be clearly visible on the coffee cups, and the magnolia flower should be placed in a tasteful manner to enhance the elegance of the scene.","edit":"Create an image of two young women enjoying coffee in a stylish cafe setting. The focal point should be the beautifully crafted latte art on their coffee cups, which should be clearly visible and artistically designed. A blooming magnolia flower should be included in the image, possibly as part of a decorative element such as a vase or hanging ornament, adding an elegant touch to the scene. The two women should be seated together at a table, casually dressed, and appear relaxed and happy, enjoying their coffee. The cafe setting should be modern and chic, with stylish decor, comfortable seating, and warm lighting. The image should convey a sense of style and relaxation, with the latte art and magnolia flower enhancing the overall aesthetic."}]},{"bench":"compbench","uid":"color_000052","prompt":"Create an image with a blue backpack and a gold clock.","cat":"color","scoretype":"cached_official_binding_VQA","rounds":[{"img":"img/c2_r0.jpg","exact":null},{"img":"img/c2_r1.jpg","exact":null},{"img":"img/c2_r2.jpg","exact":null},{"img":"img/c2_r3.jpg","exact":null}],"events":[{"thinking":"The original user request is to create an image with a blue backpack and a gold clock. The current image shows a blue backpack and a gold clock, but the backpack appears to be a modern, possibly nylon, backpack with a contemporary design, while the clock looks like a traditional analog clock. To meet the user's request, the image should be edited to show a more classic or vintage style backpack to pair better with the gold clock. The clock should be clearly gold and have a design that complements the style of the backpack. The background should be adjusted to maintain a consistent setting that complements both objects.","edit":"Replace the modern blue backpack with a vintage-style blue backpack that has a classic design, possibly made of leather or a traditional fabric material. The gold clock should be more ornate and antique-looking, with Roman numerals and a brass finish. The background should be adjusted to a setting that matches the vintage aesthetic, such as an old wooden desk or shelf, to create a cohesive look."},{"thinking":"The user wants to create an image with a blue backpack and a gold clock. The current image shows a modern backpack and a clock, but the backpack is quite different in style compared to what might be described as a \"blue backpack\" in the context of the user's request. The backpack in the image is dark blue with leather straps, which might be more akin to a travel or work backpack rather than a casual blue backpack. For the image to meet the user's request, the backpack should be reimagined as a blue backpack with a more casual or everyday look, perhaps made of fabric. The gold clock should be kept as a key element, but it should be clearly gold in color and have a design that complements the casual style of the backpack, such as a simple analog face or a more minimalist design. The background of the image should be neutral or simple to keep the focus on the backpack and the clock.","edit":"Create an image featuring a casual blue backpack, likely made of fabric material such as nylon or canvas, with simple design elements such as a main compartment and side pockets. The backpack should be blue in color. Next to the backpack, include a gold-colored clock with a simple analog face design. The clock should be positioned close enough to the backpack to create a visual association between the two objects, perhaps resting on a surface near the backpack. The background should be minimalistic to keep the focus on the backpack and the clock."},{"thinking":"The user wants to create an image with a blue backpack and a gold clock. The current image shows a blue backpack, but it is not paired with a gold clock. The image depicts a plain blue backpack with no clock present, which does not meet the user's request. To meet the user's request, the image should be edited to show a blue backpack next to a gold clock. The clock should have a golden color and should be clearly visible and positioned next to the backpack to indicate that they are the two main subjects of the image.","edit":"Place a blue backpack next to a gold-colored clock to meet the user's request of creating an image with a blue backpack and a gold clock. The blue backpack should be positioned on one side of the image, and the gold clock should be placed on the other side, clearly visible and distinct. The background should be neutral to keep the focus on the backpack and the clock."}]},{"bench":"geneval","uid":"official553_two_object_0133","prompt":"Create an image with a computer keyboard and a microwave.","cat":"two_object","scoretype":"official_image_only_verdict","rounds":[{"img":"img/c3_r0.jpg","exact":false},{"img":"img/c3_r1.jpg","exact":true},{"img":"img/c3_r2.jpg","exact":true},{"img":"img/c3_r3.jpg","exact":true}],"events":[{"thinking":"The original user request is to create an image with a computer keyboard and a microwave. The current image shows a microwave oven on a kitchen countertop with a digital display and buttons, and there is a keyboard partially visible on the right side of the image. To meet the user's request, the image should be edited to show a computer keyboard and a microwave in a way that aligns with the original request. The microwave should be clearly visible and identifiable, and the computer keyboard should be present in the image, likely positioned near the microwave to suggest they are in the same space, such as a kitchen or an office setting. The image should be simple and focused on the two objects without any distracting background elements.","edit":"Place a computer keyboard next to a microwave in an image. The microwave should be on one side and the keyboard on the other side, clearly showing both objects. The setting should be a simple environment like a kitchen or a workspace to keep the focus on the two items."},{"thinking":"The user wants to create an image containing a computer keyboard and a microwave. The current image shows a microwave oven in a kitchen setting. To meet the user's request, the image should be edited to show a computer keyboard placed next to a microwave. The microwave should be a common household appliance, and the keyboard should be a typical computer keyboard, possibly resting on a desk or countertop near the microwave. The image should depict the two objects clearly and in a way that conveys their relationship as separate items in the same space.","edit":"Place a computer keyboard next to a microwave oven in the image. The microwave should be positioned on one side of the image, and the computer keyboard on the other side, likely on a desk or countertop. The scene should be simple and clean to emphasize the two objects. The microwave should be a typical kitchen appliance, and the keyboard should be a standard computer keyboard, placed parallel to the microwave to clearly show both items."},{"thinking":"The user wants to create an image with a computer keyboard and a microwave. The current image shows a microwave oven placed on a reflective surface next to a keyboard that is tilted and appears to be floating in mid-air, which does not meet the user's request. To meet the user's request, the image should be edited to show a computer keyboard placed next to a microwave oven. The microwave should be depicted as a typical kitchen appliance and the keyboard should be a conventional computer keyboard, positioned in a manner that clearly shows both objects together.","edit":"Place a standard computer keyboard next to a microwave oven in the image. The microwave should be positioned on one side, and the keyboard on the other side, both resting on a flat surface like a countertop or desk. The microwave should be a common household appliance, and the keyboard should be a typical computer keyboard, clearly showing both objects side by side. The image should depict the two items in a simple setting to emphasize their presence."}]},{"bench":"compbench","uid":"color_000177","prompt":"Create an image with a white snow and a blue sled.","cat":"color","scoretype":"cached_official_binding_VQA","rounds":[{"img":"img/c4_r0.jpg","exact":null},{"img":"img/c4_r1.jpg","exact":null},{"img":"img/c4_r2.jpg","exact":null},{"img":"img/c4_r3.jpg","exact":null}],"events":[{"thinking":"The original user request is to create an image with white snow and a blue sled. The current image shows a blue sled in a snowy environment, but the snow appears to be a mix of white and blue, which does not meet the requirement of having white snow. To meet the user's request, the image should be edited to show a scene with predominantly white snow and a blue sled. The background should be a snowy landscape to maintain the winter theme, and the sled should be clearly blue to stand out against the white snow. The sled should be positioned in a way that is visually appealing and consistent with the snowy setting.","edit":"Create an image with a white snowy landscape and a blue sled. The snow should be predominantly white, and the sled should be blue to stand out against the snow. The sled should be positioned in a snowy setting, possibly on a path or in a field, to maintain a winter theme. The background should be a snowy landscape to keep the image consistent with the request."},{"thinking":"The user wants to create an image with white snow and a blue sled. The current image shows a blue sled in a snowy setting, but the snow has a blue tint which does not match the user's request for white snow. To meet the user's request, the image should be edited to show a blue sled on a background that is entirely white snow. The sled should be clearly blue to contrast with the white snow, and the overall scene should be simple and clean to emphasize the sled and the snow.","edit":"Create an image with a blue sled on white snowy ground. The snow should be pure white, and the sled should be blue to stand out against the snow. The background should be a plain white snowy surface to maintain a clean and simple winter scene. The sled should be positioned in the center of the image to be the focal point, with no other objects or distractions in the scene."},{"thinking":"The user wants to create an image with white snow and a blue sled. The current image shows a blue sled on a plain white background, which is not a natural setting. To meet the user's request, the image should be edited to show a blue sled on a snowy landscape. The snow should be white, and the sled should be clearly blue to contrast with the snow. The sled should be placed in a setting that suggests a winter scene, perhaps in an open field or near a forest, to give context to the image.","edit":"Create an image of a blue sled on a snowy landscape. The snow should be white and cover the ground, creating a winter scene. The sled should be blue and positioned in a natural setting, such as in a snowy field or near a forest, to give context to the image. The background should include snow-covered trees or a horizon line to emphasize the snowy environment. The sled should be clearly visible and stand out against the white snow."}]},{"bench":"geneval","uid":"official553_position_0374","prompt":"Create an image with a dog right of a tie.","cat":"position","scoretype":"official_image_only_verdict","rounds":[{"img":"img/c5_r0.jpg","exact":false},{"img":"img/c5_r1.jpg","exact":true},{"img":"img/c5_r2.jpg","exact":true},{"img":"img/c5_r3.jpg","exact":true}],"events":[{"thinking":"The original user request is to create an image with a dog right of a tie. The current image shows a dog wearing a blue tie sitting in a living room, with a pair of ties lying on the floor to the right of the dog. To meet the user's request, the image should be edited so that the dog is positioned to the right of a single tie instead of wearing a tie around its neck. The tie should be placed to the left of the dog, clearly indicating that the dog is to the right of the tie. The background setting should be kept consistent with a living room environment to maintain context.","edit":"Place a tie to the left of a dog, with the dog positioned to the right of the tie. The image should depict the dog standing or sitting to the right side of the image, while the tie is laid out on the left side of the image, clearly indicating the dog's position relative to the tie. The setting should be a simple background to keep the focus on the dog and the tie."},{"thinking":"The user wants to create an image where a dog is positioned to the right of a tie. The current image shows a dog wearing a tie, which does not meet the user's request. To meet the user's request, the image should be edited such that the dog is placed to the right side of a necktie. The necktie should be on the left side of the image and the dog should be on the right side, clearly showing the dog's position relative to the tie. The background should be minimalistic to keep the focus on the dog and the tie.","edit":"Place a necktie on the left side of the image and position a dog to the right of the tie. The necktie should be upright and clearly separate from the dog, emphasizing the dog's position to the right of the tie. The background should be simple to maintain a clean composition, ensuring the focus is on the dog and the tie. The dog should be depicted standing or sitting appropriately to the right of the necktie."},{"thinking":"The user wants to create an image where a dog is positioned to the right of a tie. The image provided shows a dog wearing a necktie, which does not meet the user's requirement. To meet the user's request, the image should be edited to show a tie on the left side of the image and a dog to the right side of the tie. The dog should be clearly separate from the tie, and the overall composition should be simple with a neutral background.","edit":"Place a necktie on the left side of the image and position a dog to the right of the tie. The image should depict the dog standing or sitting to the right side of the image, clearly separate from the necktie. The necktie should be upright and positioned to the left of the dog, creating a visual separation between the two objects. The background should be neutral to keep the focus on the dog and the tie."}]},{"bench":"wise","uid":"0115_pid116","prompt":"An autumn delight, a fruit with cultural significance in Japan, often seen in traditional dishes and rituals.","cat":"Cultural knowledge","scoretype":"cached_WISE_judge","rounds":[{"img":"img/c6_r0.jpg","exact":null},{"img":"img/c6_r1.jpg","exact":null},{"img":"img/c6_r2.jpg","exact":null},{"img":"img/c6_r3.jpg","exact":null}],"events":[{"thinking":"The original user request is to create an image with an autumn delight, a fruit with cultural significance in Japan, often seen in traditional dishes and rituals. The current image shows a fruit that resembles a pomegranate with a smaller fruit on top, surrounded by autumn leaves, which aligns with the theme of autumn. However, the fruit does not distinctly match the description of a Japanese fruit commonly associated with cultural significance in dishes and rituals. The fruit in the image appears to be a pomegranate, which is not typically a fruit with significant cultural importance in Japan. To meet the request, the image should be edited to depict a Japanese fruit that is culturally significant. The fruit should be identified as a specific type of Japanese fruit, such as an umeboshi (pickled plum) or a kaki (persimmon), and it should be presented in a setting that reflects the autumn season, perhaps surrounded by leaves or other autumnal elements. The image should convey the theme of autumn delight while accurately representing the cultural significance of the fruit.","edit":"Create an image featuring a Japanese fruit with cultural significance in autumn, such as a persimmon (kaki), surrounded by autumn leaves. The persimmon should be prominently displayed, with a warm, autumnal color palette and elements that evoke traditional Japanese culture, such as a tatami mat background or traditional Japanese decorations. The image should depict the fruit in a setting that reflects the theme of autumn delight and cultural significance in Japanese traditions."},{"thinking":"The user wants to create an image of an autumn delight, which is a fruit with cultural significance in Japan, often seen in traditional dishes and rituals. The current image shows a fruit that looks like a pomegranate with a smaller fruit on top, which is not a Japanese fruit with cultural significance. The fruit in the image does not match the description of a Japanese fruit that is commonly used in Japanese cuisine and culture. To meet the user's request, the image should be edited to show a Japanese fruit such as a persimmon or a Japanese plum (umeboshi) that is culturally significant and often seen in traditional Japanese dishes and rituals during autumn. The background should be autumn-themed to match the season of autumn delight.","edit":"Create an image featuring a Japanese fruit that is culturally significant in autumn, such as a persimmon (kaki), surrounded by autumn leaves. The persimmon should be prominently displayed, with a warm, autumnal color palette and elements that evoke traditional Japanese culture, such as a tatami mat background or traditional Japanese decorations. The image should depict the fruit in a setting that reflects the theme of autumn delight and cultural significance in Japanese traditions. The fruit should be shown in a way that is consistent with Japanese culinary and cultural practices, perhaps placed in a traditional Japanese bowl or on a seasonal table setting."},{"thinking":"The user wants an image of an autumn delight, which is a fruit with cultural significance in Japan, often seen in traditional dishes and rituals. The current image shows a pumpkin, which is not a Japanese fruit with cultural significance. The pumpkin does not reflect the cultural context of Japan. To meet the user's request, the image should be edited to depict a Japanese fruit that is culturally significant, such as a persimmon (kaki), which is often associated with autumn and traditional Japanese cuisine. The image should be set in an autumn setting to emphasize the season of autumn delight.","edit":"Create an image featuring a Japanese fruit that is culturally significant in autumn, such as a persimmon (kaki), surrounded by autumn leaves. The persimmon should be prominently displayed, with a warm, autumnal color palette and elements that evoke traditional Japanese culture, such as a tatami mat background or traditional Japanese decorations. The image should depict the fruit in a setting that reflects the theme of autumn delight and cultural significance in Japanese traditions. The fruit should be shown in a way that is consistent with Japanese culinary and cultural practices, perhaps placed in a traditional Japanese bowl or on a seasonal table setting. The background should include elements that suggest autumn, such as maple leaves or a seasonal motif."}]},{"bench":"compbench","uid":"texture_000125","prompt":"Create an image with a plastic phone case and a fabric curtain.","cat":"texture","scoretype":"cached_official_binding_VQA","rounds":[{"img":"img/c7_r0.jpg","exact":null},{"img":"img/c7_r1.jpg","exact":null},{"img":"img/c7_r2.jpg","exact":null},{"img":"img/c7_r3.jpg","exact":null}],"events":[{"thinking":"The original user request is to create an image with a plastic phone case and a fabric curtain. The provided image shows a phone case with a glossy finish resting on a fabric surface, likely a towel, with natural light casting shadows. To meet the request, the image should be edited to show a phone case made of plastic material and a fabric curtain in the background. The phone case should have a more matte texture to suggest plastic, and the curtain should be depicted as a soft, textured fabric to contrast with the smooth plastic of the case. The lighting should be adjusted to maintain a natural look, possibly with soft shadows to match the fabric texture.","edit":"Create an image showing a phone case made of plastic material placed against a fabric curtain. The phone case should have a matte texture to indicate plastic, while the curtain should be depicted with a soft, textured fabric appearance. The setting should be natural and well-lit, with soft shadows to match the fabric texture, similar to the original image."},{"thinking":"The user wants to create an image with a plastic phone case and a fabric curtain. The image provided shows a phone case with a glossy finish resting against a fabric surface, likely a towel, with natural light casting shadows. To meet the user's request, the phone case should be made of plastic material, which generally has a matte finish compared to the glossy finish of the case in the image. The fabric curtain should be visible in the image, perhaps hanging in the background or draping around the phone case, emphasizing the fabric texture. The lighting should be adjusted to maintain a natural look with soft shadows, consistent with the source image.","edit":"Create an image featuring a phone case made of plastic material resting against a fabric curtain. The phone case should have a matte finish to suggest plastic, and the fabric curtain should be visible in the image, possibly hanging in the background or draped around the phone case, emphasizing its texture. The setting should be natural with soft lighting to maintain a realistic look, similar to the source image. The phone case should be positioned such that it contrasts with the fabric curtain, highlighting the difference in textures."},{"thinking":"The user wants to create an image with a plastic phone case and a fabric curtain. The image provided shows a phone case that seems to be more of a silicone or gel-like material rather than plastic. To meet the request, the image should be edited to show a phone case made of plastic, which typically has a matte finish and less shine than the glossy finish of the case in the image. The fabric curtain should be included as part of the image setting, possibly hanging in the background or draped around the phone case to create a contrasting texture between the smooth plastic of the case and the fabric of the curtain. The lighting should be natural to maintain consistency.","edit":"Create an image showing a phone case made of plastic material resting against a fabric curtain. The plastic phone case should have a matte finish to suggest plastic, contrasting with the fabric texture of the curtain. The fabric curtain should be visible in the image, possibly hanging in the background or draped around the phone case, emphasizing the difference in textures between the smooth plastic case and the fabric. The setting should be natural with soft lighting to maintain realism, similar to the source image. The phone case should be positioned to clearly show its plastic material, such as a matte finish, while the curtain provides a soft backdrop."}]}];
-const BENCH = {geneval:"GenEval", oneig:"OneIG-Bench", compbench:"CompBench", wise:"WISE"};
-const CAT = {position:"Spatial relation", two_object:"Two objects", human:"People", color:"Color binding", texture:"Texture binding", "Cultural knowledge":"Cultural knowledge"};
+const CASES = [{"bench": "geneval", "prompt": "Create an image with a sports ball left of an umbrella.", "r0": "img/c0_r0.jpg", "r3": "img/c0_r3.jpg"}, {"bench": "oneig", "prompt": "Please generate an image capturing a moment in a stylish cafe, where two young women are enjoying coffee. Picture a beautifully crafted latte art and a blooming magnolia flower for a touch of elegance.", "r0": "img/c1_r0.jpg", "r3": "img/c1_r3.jpg"}, {"bench": "compbench", "prompt": "Create an image with a blue backpack and a gold clock.", "r0": "img/c2_r0.jpg", "r3": "img/c2_r3.jpg"}, {"bench": "geneval", "prompt": "Create an image with a computer keyboard and a microwave.", "r0": "img/c3_r0.jpg", "r3": "img/c3_r3.jpg"}, {"bench": "compbench", "prompt": "Create an image with a white snow and a blue sled.", "r0": "img/c4_r0.jpg", "r3": "img/c4_r3.jpg"}, {"bench": "geneval", "prompt": "Create an image with a dog right of a tie.", "r0": "img/c5_r0.jpg", "r3": "img/c5_r3.jpg"}, {"bench": "wise", "prompt": "An autumn delight, a fruit with cultural significance in Japan, often seen in traditional dishes and rituals.", "r0": "img/c6_r0.jpg", "r3": "img/c6_r3.jpg"}, {"bench": "compbench", "prompt": "Create an image with a plastic phone case and a fabric curtain.", "r0": "img/c7_r0.jpg", "r3": "img/c7_r3.jpg"}];
 const $ = id => document.getElementById(id);
-let ci = 0, ri = 0;
-
-function esc(s){return s.replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]))}
-
-function buildTabs(){
-  const t = $("tabs");
-  CASES.forEach((c,i)=>{
-    const b = document.createElement("button");
-    b.type="button"; b.className="tab"; b.id="tab-"+i; b.setAttribute("role","tab");
-    b.innerHTML = `<span class="b">${BENCH[c.bench]}</span>${CAT[c.cat]||c.cat}`;
-    b.onclick = ()=>{userTook(); ci=i; ri=0; render();};
-    t.appendChild(b);
-  });
-}
-function render(){
-  const c = CASES[ci];
-  CASES.forEach((_,i)=>$("tab-"+i).setAttribute("aria-selected", i===ci));
-  { const tb=$("tabs"), t=$("tab-"+ci); if(t.offsetLeft < tb.scrollLeft || t.offsetLeft+t.offsetWidth > tb.scrollLeft+tb.clientWidth) tb.scrollTo({left:t.offsetLeft-12,behavior:"smooth"}); }
-  $("prompt").innerHTML = `<span class="src">${BENCH[c.bench]} · ${CAT[c.cat]||c.cat}</span>${esc(c.prompt)}`;
-  const names = ["Initial","Revision 1","Revision 2","Revision 3 · final"];
-  const f = $("film"); f.innerHTML="";
-  c.rounds.forEach((r,i)=>{
-    const b=document.createElement("button"); b.type="button"; b.className="frame";
-    b.setAttribute("aria-current", i===ri); b.setAttribute("aria-label", names[i]);
-    b.innerHTML=`<img src="${r.img}" alt="" loading="lazy"><span>R${i}${i===3?" · final":""}</span>`;
-    b.onclick=()=>{userTook(); ri=i; render();};
-    f.appendChild(b);
-  });
-  const r = c.rounds[ri];
-  const big=$("big"); big.src=r.img; big.alt=`${names[ri]} image for: ${c.prompt}`;
-  $("bigtag").textContent = names[ri].toUpperCase();
-  const v=$("verdict");
-  if (r.exact===true||r.exact===false){ v.hidden=false; v.className="verdict "+(r.exact?"ok":"no"); v.textContent = r.exact?"✓ GENEVAL PASS":"✗ GENEVAL FAIL"; }
-  else v.hidden=true;
-  const tr=$("transcript");
-  if (ri < c.events.length){
-    const e=c.events[ri];
-    tr.innerHTML = `<div class="row"><span class="t">[CURRENT_ROUND]</span><span class="x">Round#${ri}</span></div>
-<div class="row"><span class="t">[ACTION]</span><span class="x">edit</span></div>
-<div class="row"><span class="t">[THINKING]</span><span class="x fresh">${esc(e.thinking)}</span></div>
-<div class="row"><span class="t">[SOURCE_IMAGE]</span><span class="x">Image #${ri}</span></div>
-<div class="row"><span class="t">[EDIT]  → produces Revision ${ri+1}</span><span class="x edit fresh" style="animation-delay:.15s">${esc(e.edit)}</span></div>`;
-  } else {
-    tr.innerHTML = `<div class="row"><span class="t">[CURRENT_ROUND]</span><span class="x">Round#${ri}</span></div>
-<div class="row done">The edit budget of three rounds is used up. This is the image the model returns.</div>`;
-  }
-  tr.scrollTop=0;
-}
-function step(d){userTook(); ri=Math.max(0,Math.min(3,ri+d)); render();}
-$("prev").onclick=()=>step(-1); $("next").onclick=()=>step(1);
-$("viewer").addEventListener("keydown",e=>{
-  if(e.key==="ArrowLeft"){step(-1);e.preventDefault();}
-  if(e.key==="ArrowRight"){step(1);e.preventDefault();}
-});
-buildTabs(); render();
-
-/* ---------- viewer autoplay ---------- */
 const RM = matchMedia("(prefers-reduced-motion: reduce)").matches;
-const DWELL = 4200;
-let auto = !RM, inView = false, t0 = performance.now();
-function setPlay(on){ auto=on; $("play").setAttribute("aria-pressed",on); $("play").textContent = on ? "❚❚ Pause" : "▶ Play"; t0=performance.now(); if(!on) $("progbar").style.width="0"; }
-function userTook(){ if(auto) setPlay(false); }
-$("play").onclick=()=>setPlay(!auto);
-if(RM) setPlay(false);
-function tick(now){
-  if(auto && inView && !document.hidden){
-    const p=(now-t0)/DWELL;
-    $("progbar").style.width=Math.min(100,p*100)+"%";
-    if(p>=1){ if(ri<3){ri++;} else {ci=(ci+1)%CASES.length; ri=0;} render(); t0=now; }
-  } else { t0 = now - (parseFloat($("progbar").style.width||0)/100)*DWELL; }
-  requestAnimationFrame(tick);
-}
-new IntersectionObserver(es=>{inView=es[0].isIntersecting;},{threshold:.35}).observe($("viewer"));
-requestAnimationFrame(tick);
-
-
-$("copy").onclick = async ()=>{
-  try{ await navigator.clipboard.writeText($("bib").textContent); $("copy").textContent="Copied"; }
-  catch(_){ const r=document.createRange(); r.selectNodeContents($("bib")); const s=getSelection(); s.removeAllRanges(); s.addRange(r); $("copy").textContent="Selected, press Ctrl+C"; }
-  setTimeout(()=>$("copy").textContent="Copy",1800);
-};
-
-/* ---------- charts ---------- */
+const BENCH = {geneval:"GenEval", oneig:"OneIG-Bench", compbench:"CompBench", wise:"WISE"};
+function esc(s){return s.replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]))}
 const NS="http://www.w3.org/2000/svg";
 function el(tag,attrs,parent){const n=document.createElementNS(NS,tag);for(const k in attrs)n.setAttribute(k,attrs[k]);parent&&parent.appendChild(n);return n;}
+const fmt=(v,d)=>v.toLocaleString("en-US",{minimumFractionDigits:d,maximumFractionDigits:d});
+function countUp(node,dur){
+  const to=parseFloat(node.dataset.count), d=+node.dataset.dec||0, pre=node.dataset.pre||"", suf=node.dataset.suf||"";
+  const from=0; if(RM){node.textContent=pre+fmt(to,d)+suf;return;}
+  const t0=performance.now(); dur=dur||1400;
+  (function f(now){const p=Math.min(1,(now-t0)/dur), e=1-Math.pow(1-p,3); node.textContent=pre+fmt(from+(to-from)*e,d)+suf; if(p<1) requestAnimationFrame(f);})(t0);
+}
+function onView(node,fn,th){ if(RM){fn();return;} const io=new IntersectionObserver(es=>{ if(es[0].isIntersecting){fn(); io.disconnect();}},{threshold:th||.3}); io.observe(node); }
 function tipFor(card){let t=card.querySelector(".tip"); if(!t){t=document.createElement("div");t.className="tip";t.hidden=true;card.appendChild(t);} return t;}
 function place(tip,card,svg,x,y){
   const sr=svg.getBoundingClientRect(), cr=card.getBoundingClientRect(), vb=svg.viewBox.baseVal;
   const px=sr.left-cr.left + x*sr.width/vb.width, py=sr.top-cr.top + y*sr.height/vb.height;
   tip.hidden=false;
-  const w=tip.offsetWidth; let left=px+12; if(left+w>cr.width-8) left=px-12-w;
+  const w=tip.offsetWidth; let left=px+14; if(left+w>cr.width-8) left=px-14-w;
   tip.style.left=left+"px"; tip.style.top=Math.max(8,py-tip.offsetHeight/2)+"px";
 }
-
-// Chart 1: accuracy by budget
-(function(){
-  const svg=$("ch1"), card=$("c1");
-  const S=[
-    {name:"Base", c:"var(--s-base)", v:[71,72,73,73]},
-    {name:"SFT", c:"var(--s-sft)", v:[70,71,72,72]},
-    {name:"UMM-Reflection", c:"var(--s-ours)", v:[73,82,84,84]},
-  ];
-  const X=["R0","+1","+2","+3"];
-  const L=44,R=400,T=16,B=264, y0=66,y1=86;
-  const xs=i=>L+i*(R-L)/3, ys=v=>B-(v-y0)/(y1-y0)*(B-T);
-  for(let v=66;v<=86;v+=4){ el("line",{x1:L,x2:R,y1:ys(v),y2:ys(v),stroke:"var(--grid)","stroke-width":1},svg); const t=el("text",{x:L-10,y:ys(v)+4,"text-anchor":"end"},svg); t.textContent=v; }
-  X.forEach((x,i)=>{const t=el("text",{x:xs(i),y:B+22,"text-anchor":"middle"},svg); t.textContent=x;});
-  const ax=el("text",{x:(L+R)/2,y:B+34+4,"text-anchor":"middle"},svg); ax.textContent="";
-  const lg=$("lg1");
-  S.forEach(s=>{lg.insertAdjacentHTML("beforeend",`<span><i style="background:${s.c}"></i>${s.name}</span>`);});
-  const cross=el("line",{x1:0,x2:0,y1:T,y2:B,stroke:"var(--muted)","stroke-width":1,"stroke-dasharray":"3 3",opacity:0},svg);
-  S.forEach(s=>{
-    el("polyline",{class:"draw",points:s.v.map((v,i)=>xs(i)+","+ys(v)).join(" "),fill:"none",stroke:s.c,"stroke-width":2.2,"stroke-linejoin":"round","stroke-linecap":"round"},svg);
-    s.v.forEach((v,i)=>el("circle",{cx:xs(i),cy:ys(v),r:4,fill:s.c,stroke:"var(--surface)","stroke-width":2},svg));
-  });
-  // direct labels at end, nudged apart
-  const ends=[{s:S[2],y:ys(84)},{s:S[0],y:ys(73)-7},{s:S[1],y:ys(72)+9}];
-  ends.forEach(e=>{const t=el("text",{x:R+10,y:e.y+4,class:"dl"},svg); t.textContent=`${e.s.name==="UMM-Reflection"?"Ours":e.s.name} ${e.s.v[3]}`;});
-  const tip=tipFor(card);
-  const hit=el("rect",{x:L-20,y:T,width:R-L+40,height:B-T,fill:"transparent"},svg);
-  hit.addEventListener("pointermove",ev=>{
-    const p=svg.createSVGPoint(); p.x=ev.clientX;p.y=ev.clientY; const q=p.matrixTransform(svg.getScreenCTM().inverse());
-    const i=Math.max(0,Math.min(3,Math.round((q.x-L)/((R-L)/3))));
-    cross.setAttribute("x1",xs(i));cross.setAttribute("x2",xs(i));cross.setAttribute("opacity",1);
-    tip.innerHTML=`<b>${X[i]==="R0"?"First image":X[i]+" edit"+(i>1?"s":"")}</b><br>`+S.slice().reverse().map(s=>`${s.name}: <b>${s.v[i]}</b>`).join("<br>");
-    place(tip,card,svg,xs(i),ys(78));
-  });
-  hit.addEventListener("pointerleave",()=>{tip.hidden=true;cross.setAttribute("opacity",0);});
-})();
-
-// Chart 2: repair rate vs RL updates
-(function(){
-  const svg=$("ch2"), card=$("c2");
-  const P=[[0,20.6],[100,35.6],[200,44.1],[300,56.0],[400,60.4],[500,61.1],[1000,64.9]];
-  const L=44,R=396,T=16,B=264;
-  const xs=u=>L+u/1000*(R-L), ys=v=>B-v/80*(B-T);
-  for(let v=0;v<=80;v+=20){ el("line",{x1:L,x2:R,y1:ys(v),y2:ys(v),stroke:"var(--grid)","stroke-width":1},svg); const t=el("text",{x:L-10,y:ys(v)+4,"text-anchor":"end"},svg); t.textContent=v+"%"; }
-  [0,250,500,750,1000].forEach(u=>{const t=el("text",{x:xs(u),y:B+22,"text-anchor":"middle"},svg); t.textContent=u.toLocaleString("en-US");});
-  const xl=el("text",{x:R,y:B+22+16,"text-anchor":"end"},svg); xl.textContent="RL updates";
-  const area="M"+xs(0)+","+B+" "+P.map(p=>"L"+xs(p[0])+","+ys(p[1])).join(" ")+" L"+xs(1000)+","+B+" Z";
-  el("path",{d:area,fill:"var(--s-ours)",opacity:.1},svg);
-  el("polyline",{class:"draw",points:P.map(p=>xs(p[0])+","+ys(p[1])).join(" "),fill:"none",stroke:"var(--s-ours)","stroke-width":2.2,"stroke-linejoin":"round"},svg);
-  const dots=P.map((p,i)=>el("circle",{cx:xs(p[0]),cy:ys(p[1]),r:i===P.length-1?5:4,fill:"var(--s-ours)",stroke:"var(--surface)","stroke-width":2},svg));
-  const a=el("text",{x:xs(0)+8,y:ys(20.6)+18,class:"dl"},svg); a.textContent="SFT 20.6%";
-  const b=el("text",{x:xs(1000),y:ys(64.9)-12,class:"dl","text-anchor":"end"},svg); b.textContent="64.9%";
-  const tip=tipFor(card);
-  const hit=el("rect",{x:L-20,y:T,width:R-L+40,height:B-T,fill:"transparent"},svg);
-  hit.addEventListener("pointermove",ev=>{
-    const p=svg.createSVGPoint(); p.x=ev.clientX;p.y=ev.clientY; const q=p.matrixTransform(svg.getScreenCTM().inverse());
-    let k=0,best=1e9; P.forEach((pt,i)=>{const d=Math.abs(xs(pt[0])-q.x); if(d<best){best=d;k=i;}});
-    dots.forEach((d,i)=>d.setAttribute("r",i===k?6:(i===P.length-1?5:4)));
-    tip.innerHTML=`<b>${P[k][0]===0?"SFT (0 RL updates)":P[k][0].toLocaleString("en-US")+" RL updates"}</b><br>Repair rate: <b>${P[k][1].toFixed(1)}%</b>`;
-    place(tip,card,svg,xs(P[k][0]),ys(P[k][1]));
-  });
-  hit.addEventListener("pointerleave",()=>{tip.hidden=true;dots.forEach((d,i)=>d.setAttribute("r",i===P.length-1?5:4));});
-})();
-
+function drawLines(svg,on){ svg.querySelectorAll(".draw").forEach(l=>{const L=l.getTotalLength(); l.style.transition="none"; l.style.strokeDasharray=L; l.style.strokeDashoffset=on?0:L; l.getBoundingClientRect(); l.style.transition="";}); }
+function popDots(svg,on){ svg.querySelectorAll(".pop").forEach((d,i)=>{d.style.transitionDelay=on?(0.25+i*0.08)+"s":"0s"; d.style.opacity=on?1:0; d.style.transform=on?"scale(1)":"scale(.2)";}); }
+function play(svg){ if(RM) return; drawLines(svg,false); popDots(svg,false); requestAnimationFrame(()=>requestAnimationFrame(()=>{ svg.querySelectorAll(".draw").forEach(l=>l.style.strokeDashoffset=0); popDots(svg,true); })); }
 
 /* ---------- splash ---------- */
 (function(){
-  const sp=$("splash"); if(RM){sp.remove();return;}
-  const c=CASES[5]; const box=$("spImg"), note=$("spNote"), rs=[...$("spRounds").children];
-  const imgs=c.rounds.map((r,i)=>{const im=new Image(); im.src=r.img; im.alt=""; if(i===0) im.className="on"; box.appendChild(im); return im;});
-  const cut=t=>{t=t.replace(/^Create an image (where|with) /,""); return t.length>96? t.slice(0,94).replace(/\s\S*$/,"")+"…" : t;};
-  const notes=[["[EDIT] → R1",cut(c.events[0].edit)],["[EDIT] → R2",cut(c.events[1].edit)],["[EDIT] → R3",cut(c.events[2].edit)],["[FINAL] R3","GenEval verdict: pass"]];
-  let k=0;
-  function show(){ imgs.forEach((im,i)=>im.classList.toggle("on",i===k)); rs.forEach((r,i)=>r.classList.toggle("on",i===k)); note.innerHTML=`<b>${notes[k][0]}</b>${esc(notes[k][1])}`; }
-  show(); const iv=setInterval(()=>{k=(k+1)%4; show();},1100);
-  let armed=false; setTimeout(()=>armed=true,900);
-  function go(force){ if(!armed && !force) return; clearInterval(iv); sp.classList.add("gone"); ["wheel","touchmove","keydown","pointermove","click"].forEach(e=>removeEventListener(e,h)); setTimeout(()=>sp.remove(),900); startPipe(); }
+  const sp=$("splash"); if(RM){sp.remove();startPipeLater();return;}
+  const word="UMM-Reflection", t=$("spTitle");
+  [...word].forEach((c,i)=>{const s=document.createElement("span"); s.className="ch"+(c==="-"?" d":""); s.textContent=c; s.style.animationDelay=(0.25+i*0.055)+"s"+(c==="-"?"":", "+(1.6+i*0.04)+"s"); t.appendChild(s);});
+  setTimeout(()=>sp.classList.add("lit"),50);
+  // drifting particles
+  const cv=$("spc"), cx=cv.getContext("2d"); let W,H,P=[],raf;
+  function rs(){W=cv.width=innerWidth*devicePixelRatio;H=cv.height=innerHeight*devicePixelRatio;}
+  rs(); addEventListener("resize",rs);
+  for(let i=0;i<70;i++) P.push({x:Math.random(),y:Math.random(),r:Math.random()*1.6+.4,s:Math.random()*.00025+.00008,a:Math.random()*.6+.2});
+  (function fr(){cx.clearRect(0,0,W,H); P.forEach(p=>{p.y-=p.s; if(p.y<0){p.y=1;p.x=Math.random();} cx.beginPath(); cx.arc(p.x*W,p.y*H,p.r*devicePixelRatio,0,7); cx.fillStyle=`rgba(205,190,255,${p.a})`; cx.fill();}); raf=requestAnimationFrame(fr);})();
+  let armed=false; setTimeout(()=>armed=true,1400);
+  function go(force){ if(!armed && !force) return; sp.classList.add("gone"); ["wheel","touchmove","keydown","pointerdown","click"].forEach(e=>removeEventListener(e,h)); removeEventListener("pointermove",hm); setTimeout(()=>{cancelAnimationFrame(raf); sp.remove();},950); startPipe(); }
   const h=()=>go(false);
-  ["wheel","touchmove","keydown","pointermove","click"].forEach(e=>addEventListener(e,h,{passive:true}));
-  setTimeout(()=>go(true),5200);
+  let moved=0; const hm=e=>{ moved+=Math.abs(e.movementX||0)+Math.abs(e.movementY||0); if(moved>120) go(false); };
+  ["wheel","touchmove","keydown","pointerdown","click"].forEach(e=>addEventListener(e,h,{passive:true}));
+  addEventListener("pointermove",hm,{passive:true});
+  setTimeout(()=>go(true),6000);
 })();
+function startPipeLater(){ setTimeout(()=>startPipe(),50); }
 
 /* ---------- scrollspy ---------- */
 (function(){
@@ -677,45 +723,323 @@ function place(tip,card,svg,x,y){
   map.forEach((_,id)=>{const n=document.getElementById(id); n&&io.observe(n);});
 })();
 
-/* ---------- pipeline stages ---------- */
-let startPipe=()=>{};
+/* ---------- hero pipeline stages ---------- */
+var startPipe=()=>{};
 (function(){
   const pipe=$("pipe"), bands=[...pipe.querySelectorAll(".band")], btns=[...$("stagebar").children];
-  let cur=-1, autoP=true, t=0, raf=0; const D=4600;
+  let cur=-1, autoP=!RM, t=0, raf=0; const D=4600;
   function sel(i){ cur=i; pipe.classList.toggle("focus",i>=0); bands.forEach((b,j)=>b.classList.toggle("on",j===i)); btns.forEach((b,j)=>{b.classList.toggle("on",j===i); b.setAttribute("aria-pressed",j===i); if(j!==i) b.querySelector(".bar").style.width="0";}); }
   function loop(now){ if(!autoP) return; if(!t) t=now; const p=(now-t)/D; if(cur>=0) btns[cur].querySelector(".bar").style.width=Math.min(100,p*100)+"%"; if(p>=1){ t=now; if(cur===2){ stop(); sel(-1); return;} sel(cur+1);} raf=requestAnimationFrame(loop); }
   function stop(){ autoP=false; cancelAnimationFrame(raf); btns.forEach(b=>b.querySelector(".bar").style.width="0"); }
   const pick=i=>{ stop(); sel(cur===i?-1:i); };
   btns.forEach((b,i)=>b.onclick=()=>pick(i));
   bands.forEach((b,i)=>b.onclick=()=>pick(i));
-  startPipe=()=>{ if(RM||!autoP) return; sel(0); t=0; raf=requestAnimationFrame(loop); };
-  if(RM) autoP=false;
+  startPipe=()=>{ if(!autoP) return; sel(0); t=0; raf=requestAnimationFrame(loop); };
 })();
 
 /* ---------- marquee ---------- */
 (function(){
   const tr=$("track");
-  const card=(c,i)=>`<button type="button" class="mcard" data-i="${i}" tabindex="-1"><div class="pair"><img src="${c.rounds[0].img}" alt="" loading="lazy"><i>→</i><img src="${c.rounds[3].img}" alt="" loading="lazy"></div><div class="meta"><span>${BENCH[c.bench]}</span><b>R0 → R3</b></div><div class="cap">${esc(c.prompt)}</div></button>`;
+  const card=c=>`<div class="mcard"><div class="pair"><img src="${c.r0}" alt="" loading="lazy"><i>→</i><img src="${c.r3}" alt="" loading="lazy"></div><div class="meta"><span>${BENCH[c.bench]}</span><b>R0 → R3</b></div><div class="cap">${esc(c.prompt)}</div></div>`;
   const html=CASES.map(card).join("");
   tr.innerHTML=html+html;
-  tr.addEventListener("click",e=>{const b=e.target.closest(".mcard"); if(!b) return; userTook(); ci=+b.dataset.i; ri=0; render(); $("trajectories").scrollIntoView({behavior:RM?"auto":"smooth"});});
 })();
 
-/* ---------- reveal & chart draw ---------- */
+/* ---------- count-ups & meters ---------- */
+document.querySelectorAll(".strip [data-count]").forEach(n=>onView(n,()=>countUp(n,1600),.6));
+document.querySelectorAll(".why [data-count], #tiles2 [data-count]").forEach(n=>onView(n,()=>countUp(n,1500),.6));
+onView($("compare"),()=>document.querySelectorAll("#compare .meter i").forEach((m,i)=>setTimeout(()=>m.style.width=m.dataset.w+"%",i*180)),.35);
+
+/* ---------- RL: five steps with spotlight ---------- */
 (function(){
-  const lines=[...document.querySelectorAll("svg.chart .draw")];
-  if(!RM){ lines.forEach(l=>{const L=l.getTotalLength(); l.style.strokeDasharray=L; l.style.strokeDashoffset=L;}); }
+  const H=38.84; // viewBox height for a 100-wide figure (1210 x 470)
+  const R=(x0,y0,x1,y1)=>[x0*100,y0*H,(x1-x0)*100,(y1-y0)*H];
+  const STEPS=[
+    {t:"Shared first image",s:"One detached x₀, sixteen futures",hot:[5.8,19.8],rects:[R(0,.13,.117,.66)],
+     k:"Step 1 · Sampling",h:"Every sibling starts from the same image",
+     p:["For each training prompt the model renders one initial image x₀, which is detached from the gradient. All K = 16 rollouts start from this same image and the same prompt.",
+        "Because the siblings share their starting point, the differences between their rewards come only from what they wrote and drew afterwards. The group comparison therefore ranks reflection strategies, not luck in the first draw."],
+     fx:'x<sub>0</sub> ~ π<sub>flow</sub>(· | c) &nbsp;·&nbsp; stop-grad &nbsp;→&nbsp; τ<sub>1</sub>, …, τ<sub>16</sub> all begin at x<sub>0</sub>',
+     facts:[["16","rollouts per prompt, one shared root"],["x₀","detached: no gradient into the first draw"]]},
+    {t:"Interleaved rollouts",s:"Reflect, decide, render, up to three rounds",hot:[39.3,1.4],rects:[R(.113,0,.725,.995)],
+     k:"Step 2 · Rollout",h:"The model's own words drive its own edits",
+     p:["In every round the text head looks at the current image and writes a reflection, then chooses an action: EDIT or DONE. On EDIT, the flow head of the same model renders the revision, conditioned on the prompt, the current image and the edit instruction it just wrote.",
+        "Everything happens in one interleaved context, for up to three rounds. There is no pruning and no best-of-K: every trajectory is kept and scored, including the ones that go wrong. The text in the figure is the model's verbatim output."],
+     fx:'u<sub>t</sub> ~ π<sub>text</sub>(· | c, x<sub>≤t</sub>), &nbsp;a<sub>t</sub> ∈ {EDIT, DONE}, &nbsp;x<sub>t+1</sub> ~ π<sub>flow</sub>(· | c, x<sub>t</sub>, e<sub>t</sub>)',
+     facts:[["≤ 3","reflection rounds per trajectory"],["0","trajectories pruned or filtered"]]},
+    {t:"Frozen verifier",s:"Graded score per image, one reward per trajectory",hot:[77.9,5.9],rects:[R(.72,.06,.81,.94),R(.80,.14,.995,.275)],
+     k:"Step 3 · Reward",h:"Reward the final image and every round that improved it",
+     p:["A frozen verifier gives every image a graded score q<sub>t</sub> ∈ [0, 1]; Δ<sub>t</sub> is the change from one round to the next. The trajectory reward adds the final score q<sub>T</sub>, credit for each improvement, and extra credit S<sub>multi</sub> when the improvement comes from more than one edit rather than a single lucky fix.",
+        "Regressions are penalized, and so is stopping with DONE while the verifier does not accept the image. The panel below computes R(τ) for the three trajectories in the figure."],
+     fx:'R(τ) = q<sub>T</sub> + α Σ[Δ<sub>t</sub>]<sub>+</sub> + β S<sub>multi</sub> − λ Σ[−Δ<sub>t</sub>]<sub>+</sub> − p·1[premature DONE]',
+     facts:[["0.3","α and β: progress and multi-edit credit"],["0.5","λ and p: damage and premature-DONE penalty"]]},
+    {t:"Group-relative advantage",s:"Normalize the 16 rewards into one A_i each",hot:[82.6,4.7],rects:[R(.80,.30,.995,.50)],
+     k:"Step 4 · Credit",h:"One advantage per trajectory, not per round",
+     p:["Within each shared-root group, rewards are normalized into an advantage A<sub>i</sub> for each of the 16 trajectories, and clipped to [−1, 1].",
+        "A per-round group estimate would need sibling groups at every round, 16³ = 4,096 rollouts per prompt for three rounds; a per-round critic would need a value model over multi-round image–text states. The trajectory-level advantage keeps the K-sample cost of GRPO, while the progress terms in R(τ) still reward each round that helped."],
+     fx:'A<sub>i</sub> = clip( (R(τ<sub>i</sub>) − μ<sub>R</sub>) / max(σ<sub>R</sub>, 0.1), −1, 1 )',
+     facts:[["1","advantage per trajectory"],["4,096","rollouts a per-round group would need"]]},
+    {t:"Joint text + flow update",s:"The same A_i trains both heads",hot:[96.1,20.4],rects:[R(.80,.50,.995,.995)],
+     k:"Step 5 · Update",h:"Words and pixels are credited together",
+     p:["Both channels are optimized with a clipped surrogate and a channel-specific KL penalty to the frozen SFT reference, and both use the same trajectory-level A<sub>i</sub>. A reflection that leads to a better image raises the advantage of the diagnostic tokens and of the rendering steps that followed, so the model learns which reflections lead to which visual outcomes.",
+        "Flow transitions use the Flow-GRPO SDE sampler, with two contiguous stochastic transitions trained per active repair. For text, the credited positions are the sampled policy tokens, excluding the prompt and formatting."],
+     fx:'𝒥<sub>c</sub> = 𝔼[ min(ρ<sup>c</sup> A<sub>i</sub>, clip(ρ<sup>c</sup>, 1−ε<sub>c</sub>, 1+ε<sub>c</sub>) A<sub>i</sub>) ] − η<sub>c</sub> 𝒦<sub>c</sub>, &nbsp;c ∈ {text, flow}',
+     facts:[["2","heads updated by one advantage"],["0","verifiers needed at inference"]]},
+  ];
+  const wrap=$("steps5"), det=$("detail"), holes=$("holes"), rings=$("rings"), veil=$("veil"), figIn=document.querySelector("#rlfig .in");
+  const btns=STEPS.map((s,i)=>{const b=document.createElement("button"); b.type="button"; b.setAttribute("role","tab"); b.innerHTML=`<span class="no">${i+1}</span><span class="t">${s.t}</span><span class="s">${s.s}</span><span class="bar"></span>`; b.onclick=()=>{stop(); sel(i);}; wrap.appendChild(b); return b;});
+  const hots=STEPS.map((s,i)=>{const b=document.createElement("button"); b.type="button"; b.className="hot"; b.setAttribute("aria-label","Step "+(i+1)+": "+s.t); b.style.left=s.hot[0]+"%"; b.style.top=(s.hot[1]/H*100)+"%"; b.onclick=()=>{stop(); sel(i);}; figIn.appendChild(b); return b;});
+  let cur=-1;
+  function sel(i){
+    cur=i; btns.forEach((b,j)=>{b.classList.toggle("on",j===i); b.setAttribute("aria-selected",j===i); if(j!==i) b.querySelector(".bar").style.width="0";}); hots.forEach((b,j)=>b.classList.toggle("on",j===i));
+    const s=STEPS[i];
+    holes.innerHTML=""; rings.innerHTML="";
+    s.rects.forEach(r=>{ el("rect",{class:"hole",x:r[0],y:r[1],width:r[2],height:r[3],rx:.8,fill:"#000"},holes); el("rect",{class:"ring",x:r[0],y:r[1],width:r[2],height:r[3]},rings); });
+    veil.setAttribute("opacity",1);
+    det.innerHTML=`<div class="fadein"><div class="dk">${s.k}</div><h3>${s.h}</h3>${s.p.map(x=>`<p>${x}</p>`).join("")}</div>
+      <div class="side fadein" style="animation-delay:.08s"><div class="fx">${s.fx}</div><div class="facts">${s.facts.map(f=>`<div><b>${f[0]}</b><span>${f[1]}</span></div>`).join("")}</div></div>`;
+  }
+  let autoS=!RM, t0=0, raf=0, inView=false; const D=7000;
+  function loop(now){ if(!autoS) return; if(inView && !document.hidden){ if(!t0) t0=now; const p=(now-t0)/D; btns[cur].querySelector(".bar").style.width=Math.min(100,p*100)+"%"; if(p>=1){ t0=now; sel((cur+1)%STEPS.length);} } else t0=0; raf=requestAnimationFrame(loop); }
+  function stop(){ autoS=false; cancelAnimationFrame(raf); btns.forEach(b=>b.querySelector(".bar").style.width="0"); }
+  wrap.addEventListener("keydown",e=>{ if(e.key==="ArrowRight"||e.key==="ArrowLeft"){ stop(); sel((cur+(e.key==="ArrowRight"?1:4))%5); btns[cur].focus(); e.preventDefault(); }});
+  sel(0);
+  new IntersectionObserver(es=>{inView=es[0].isIntersecting;},{threshold:.25}).observe($("rlfig"));
+  if(autoS) raf=requestAnimationFrame(loop);
+})();
+
+/* ---------- RL: reward of the three trajectories in the figure ---------- */
+(function(){
+  const A=.3,B=.3,LAM=.5,P=.5;
+  const TAU=[{n:"τ₁",q:[.30,1.00,1.00,1.00]},{n:"τ₂",q:[.30,.36,.15,1.00]},{n:"τ₁₆",q:[.30,.30,.30,.30]}];
+  const seg=$("tauSeg"), ql=$("qline"), dc=$("dchips"), terms=$("terms");
+  const ROWS=[["Final score","q_T"],["Progress","+α Σ[Δ]₊"],["Multi-edit","+β S_multi"],["Damage","−λ Σ[−Δ]₊"],["Premature DONE","−p · 1[·]"],["Trajectory reward","R(τ)"]];
+  const MAX=1.4;
+  terms.innerHTML=ROWS.map((r,i)=>`<div class="row${i===5?" total":""}"><span class="k">${r[0]}<small>${r[1]}</small></span><span class="track2"><i></i></span><span class="val">0.00</span></div>`).join("");
+  ql.innerHTML=[0,1,2,3].map(i=>`<div class="qb"><b>0.00</b><i></i><span>${i===0?"x₀":"R"+i}</span></div>`).join("");
+  const rows=[...terms.children], qbs=[...ql.children];
+  const bs=TAU.map((t,i)=>{const b=document.createElement("button"); b.type="button"; b.textContent=t.n; b.onclick=()=>show(i); seg.appendChild(b); return b;});
+  function show(k){
+    bs.forEach((b,i)=>b.setAttribute("aria-pressed",i===k));
+    const q=TAU[k].q, d=q.slice(1).map((v,i)=>+(v-q[i]).toFixed(2));
+    const pos=d.filter(x=>x>0), neg=d.filter(x=>x<0);
+    const sp=pos.reduce((a,b)=>a+b,0), sn=-neg.reduce((a,b)=>a+b,0), mx=pos.length?Math.max(...pos):0;
+    const qT=q[3], prem=0; // the three trajectories in the figure never stop early, so no premature DONE
+    const parts=[qT, A*sp, B*(sp-mx), -LAM*sn, -P*prem];
+    const R=parts.reduce((a,b)=>a+b,0);
+    let acc=0;
+    parts.forEach((v,i)=>{ const r=rows[i], bar=r.querySelector("i"); const a=acc, b=acc+v; acc=b;
+      const lo=Math.min(a,b), w=Math.abs(v); bar.style.left=(lo/MAX*100)+"%"; bar.style.width=Math.max(w/MAX*100, w>0?.6:0)+"%";
+      bar.style.background = i===0?"var(--accent)": v>=0?"color-mix(in srgb,var(--pass) 85%,transparent)":"color-mix(in srgb,var(--fail) 85%,transparent)";
+      r.querySelector(".val").textContent=Math.abs(v)<.005?"0.00":(v<0?"−":i?"+":"")+Math.abs(v).toFixed(2); });
+    const tb=rows[5].querySelector("i"); tb.style.left="0"; tb.style.width=(R/MAX*100)+"%"; tb.style.background="linear-gradient(90deg,var(--accent-mid),var(--accent))";
+    rows[5].querySelector(".val").textContent=R.toFixed(2);
+    qbs.forEach((n,i)=>{ const bar=n.querySelector("i"); bar.className=q[i]>=1?"pass":"fail"; bar.style.height=(8+q[i]*84)+"px"; n.querySelector("b").textContent=q[i].toFixed(2); });
+    dc.innerHTML=d.map((x,i)=>`<span class="${x>0?"up":x<0?"dn":""}">Δ${i+1} ${x>0?"+":x<0?"−":"±"}${Math.abs(x).toFixed(2)}</span>`).join("")+`<span>R(τ) = ${R.toFixed(2)}</span>`;
+  }
+  show(0);
+  let k=0, iv=null;
+  const card=ql.closest(".reward");
+  if(!RM){ onView(card,()=>{ iv=setInterval(()=>{k=(k+1)%3; show(k);},3800); },.4); seg.addEventListener("click",()=>{clearInterval(iv);iv=null;}); }
+})();
+
+/* ---------- benchmarks: tiles, radar, bars ---------- */
+(function(){
+  const M=[
+    {n:"BAGEL-Base",k:"base",c:"var(--s-base)",v:[.71,.55,.80,.49]},
+    {n:"BAGEL-SFT",k:"sft",c:"var(--s-sft)",v:[.72,.63,.79,.50]},
+    {n:"Self-Agentic",k:"sa",c:"var(--s-other)",v:[.77,.61,.81,.52]},
+    {n:"T2I-RL (1k)",k:"t2i",c:"var(--s-other)",v:[.76,.54,.80,.49]},
+    {n:"UMM-Reflection",k:"ours",c:"var(--s-ours)",v:[.84,.74,.83,.55]},
+  ];
+  const BN=[
+    {n:"GenEval",g:"12.05",held:false,d:"553 official prompts over six families (single object, two objects, counting, colors, position, color binding), scored by the official detector. In-domain: RL trains on GenEval-style prompts."},
+    {n:"WISE",g:"10.97",held:true,d:"World-knowledge prompts that require cultural, temporal, spatial and scientific reasoning to draw correctly. Never seen in RL; the largest transfer gain."},
+    {n:"OneIG",g:"3.48",held:true,d:"OneIG-Bench prompt alignment across anime and style, general objects and portraits. Never seen in RL; SFT alone falls slightly below the base model."},
+    {n:"CompBench",g:"4.63",held:true,d:"T2I-CompBench++: attribute binding (color, shape, texture), spatial and 3D relations, numeracy and complex compositions. Never seen in RL."},
+  ];
+  const tiles=$("tiles"), bars=$("bars"), svg=$("radar");
+  tiles.innerHTML=BN.map((b,i)=>`<button type="button" class="tile" data-i="${i}"><span class="k">${b.n}${b.held?" · held out":" · in domain"}</span><span class="n num"><span data-count="${b.g}" data-dec="2" data-pre="+">+${b.g}</span><small>pts</small></span><span class="t">over reflection SFT, final score <b>${M[4].v[i].toFixed(2)}</b></span></button>`).join("");
+  const T=[...tiles.children];
+  T.forEach((t,i)=>{t.onclick=()=>{userPick=true; sel(i);}; t.onmouseenter=()=>{userPick=true; sel(i);};});
+  onView(tiles,()=>tiles.querySelectorAll("[data-count]").forEach(n=>countUp(n,1500)),.5);
+  // radar
+  const cx=220, cy=196, rad=148, lo=.40, hi=.90;
+  const ang=i=>-Math.PI/2+i*Math.PI/2;
+  const pt=(i,v)=>{const r=(v-lo)/(hi-lo)*rad; return [cx+r*Math.cos(ang(i)), cy+r*Math.sin(ang(i))];};
+  [.5,.6,.7,.8,.9].forEach(v=>{ el("polygon",{points:[0,1,2,3].map(i=>pt(i,v).join(",")).join(" "),fill:"none",stroke:"var(--grid)","stroke-width":1},svg); const p=pt(0,v); const t=el("text",{x:p[0]+5,y:p[1]+4,"font-size":10.5},svg); t.textContent=v.toFixed(1); });
+  const axes=BN.map((b,i)=>{ const g=el("g",{class:"ax"},svg); const e=pt(i,hi); el("line",{x1:cx,y1:cy,x2:e[0],y2:e[1],stroke:"var(--rule)","stroke-width":1},g);
+    const lp=pt(i,hi+.06); const side=i%2===1; const t=el("text",{x:side?e[0]:lp[0],y:side?e[1]-14:lp[1]+(i===0?-2:12),"text-anchor":"middle",class:"nm"},g); t.textContent=b.n;
+    const a0=ang(i)-Math.PI/4, a1=ang(i)+Math.PI/4, R2=rad+40;
+    el("path",{class:"hit",d:`M${cx},${cy} L${cx+R2*Math.cos(a0)},${cy+R2*Math.sin(a0)} A${R2},${R2} 0 0 1 ${cx+R2*Math.cos(a1)},${cy+R2*Math.sin(a1)} Z`},g);
+    g.addEventListener("pointerenter",()=>{userPick=true; sel(i);}); g.addEventListener("click",()=>{userPick=true; sel(i);}); return g; });
+  const polys=el("g",{},svg);
+  const order=[2,3,0,1,4];
+  const P=order.map(j=>{ const m=M[j]; const g=el("g",{class:"poly",style:"transform-origin:"+cx+"px "+cy+"px;transform:scale(0);transition:transform 1.2s cubic-bezier(.2,.8,.2,1) "+(j===4?".35s":".1s")},polys);
+    el("polygon",{points:m.v.map((v,i)=>pt(i,v).join(",")).join(" "),fill:m.k==="ours"?"var(--accent)":"none","fill-opacity":m.k==="ours"?.16:0,stroke:m.c,"stroke-width":m.k==="ours"?2.6:1.6,"stroke-dasharray":m.k==="sa"?"4 3":m.k==="t2i"?"1.5 3":"none","stroke-linejoin":"round"},g);
+    m.v.forEach((v,i)=>{const p=pt(i,v); el("circle",{cx:p[0],cy:p[1],r:m.k==="ours"?4.2:2.8,fill:m.c,stroke:"var(--surface)","stroke-width":1.5},g);});
+    return g; });
+  const sel_dots=el("g",{},svg);
+  onView(svg,()=>P.forEach(g=>g.style.transform="scale(1)"),.3);
+  if(RM) P.forEach(g=>g.style.transform="scale(1)");
+  $("rlg").innerHTML=M.map(m=>`<span><i style="background:${m.c};${m.k==="ours"?"height:4px":""}"></i>${m.n}</span>`).join("");
+  // bars
+  const blo=.30, bhi=.90;
+  bars.innerHTML=`<div class="bn"><span class="nm" id="bnm"></span><span class="gain" id="bgain"></span></div><p class="desc" id="bdesc"></p>`+
+    M.map(m=>`<div class="brow${m.k==="ours"?" ours":""}"><span class="m">${m.n}</span><span class="tr"><i style="${m.k!=="ours"?"background:"+m.c:""}"></i></span><span class="v">0.00</span></div>`).join("")+
+    `<div class="brow" style="font:500 11px/1 var(--mono);color:var(--muted)"><span></span><span style="display:flex;justify-content:space-between"><span>0.30</span><span>0.60</span><span>0.90</span></span><span></span></div>`;
+  const BR=[...bars.querySelectorAll(".brow")].slice(0,5);
+  let cur=-1, userPick=false, seen=false;
+  function sel(i){
+    if(i===cur) return; cur=i;
+    T.forEach((t,j)=>t.classList.toggle("on",j===i)); axes.forEach((a,j)=>a.classList.toggle("on",j===i));
+    $("bnm").textContent=BN[i].n; $("bgain").textContent="+"+BN[i].g+" pts over SFT"; $("bdesc").textContent=BN[i].d;
+    const vals=M.map(m=>m.v[i]), best=Math.max(...vals);
+    if(seen) paint();
+    sel_dots.innerHTML=""; const p=pt(i,M[4].v[i]); el("circle",{cx:p[0],cy:p[1],r:9,fill:"none",stroke:"var(--accent)","stroke-width":2,opacity:.5},sel_dots);
+  }
+  function paint(){ BR.forEach((r,j)=>{ const v=M[j].v[cur], bar=r.querySelector("i"); bar.style.transitionDelay=(j*.07)+"s"; bar.style.width=((v-blo)/(bhi-blo)*100)+"%"; animNum(r.querySelector(".v"),v); }); }
+  function animNum(node,to){ const from=parseFloat(node.textContent)||0; if(RM){node.textContent=to.toFixed(2);return;} const t0=performance.now(); (function f(now){const p=Math.min(1,(now-t0)/900), e=1-Math.pow(1-p,3); node.textContent=(from+(to-from)*e).toFixed(2); if(p<1) requestAnimationFrame(f);})(t0); }
+  if(RM) seen=true;
+  sel(0);
+  onView(bars,()=>{ seen=true; paint(); if(RM) return; let k=0; const iv=setInterval(()=>{ if(userPick){clearInterval(iv);return;} k=(k+1)%4; sel(k); },4200); },.35);
+})();
+
+/* ---------- chart 1: accuracy by budget ---------- */
+(function(){
+  const svg=$("ch1"), card=$("c1");
+  const S=[
+    {name:"Base", c:"var(--s-base)", v:[71,72,73,73], dash:"5 4"},
+    {name:"SFT", c:"var(--s-sft)", v:[70,71,72,72], dash:"none"},
+    {name:"UMM-Reflection", c:"var(--s-ours)", v:[73,82,84,84], dash:"none"},
+  ];
+  const X=["R0","+1","+2","+3"];
+  const L=44,R=400,T=16,B=264, y0=66,y1=88;
+  const xs=i=>L+i*(R-L)/3, ys=v=>B-(v-y0)/(y1-y0)*(B-T);
+  for(let v=68;v<=88;v+=4){ el("line",{x1:L,x2:R,y1:ys(v),y2:ys(v),stroke:"var(--grid)","stroke-width":1},svg); const t=el("text",{x:L-10,y:ys(v)+4,"text-anchor":"end"},svg); t.textContent=v; }
+  X.forEach((x,i)=>{const t=el("text",{x:xs(i),y:B+22,"text-anchor":"middle"},svg); t.textContent=x;});
+  // shaded band: all first images within 70-73
+  el("rect",{x:xs(0)-14,y:ys(73.6),width:28,height:ys(69.4)-ys(73.6),rx:8,fill:"var(--accent)",opacity:.07},svg);
+  const lg=$("lg1");
+  S.forEach(s=>{lg.insertAdjacentHTML("beforeend",`<span><i style="background:${s.c}"></i>${s.name}</span>`);});
+  const cross=el("line",{x1:0,x2:0,y1:T,y2:B,stroke:"var(--muted)","stroke-width":1,"stroke-dasharray":"3 3",opacity:0},svg);
+  const area="M"+xs(0)+","+ys(73)+" "+S[2].v.map((v,i)=>"L"+xs(i)+","+ys(v)).join(" ")+" L"+xs(3)+","+ys(72)+" "+S[1].v.slice().reverse().map((v,i)=>"L"+xs(3-i)+","+ys(v)).join(" ")+" Z";
+  el("path",{d:area,fill:"var(--accent)",opacity:.08,class:"pop"},svg);
+  S.forEach(s=>{
+    el("polyline",{class:"draw",points:s.v.map((v,i)=>xs(i)+","+ys(v)).join(" "),fill:"none",stroke:s.c,"stroke-width":s.name==="UMM-Reflection"?3:2.2,"stroke-linejoin":"round","stroke-linecap":"round"},svg);
+    s.v.forEach((v,i)=>el("circle",{class:"pop",cx:xs(i),cy:ys(v),r:s.name==="UMM-Reflection"?5:4,fill:s.c,stroke:"var(--surface)","stroke-width":2},svg));
+  });
+  // gap annotation
+  const g=el("g",{class:"pop"},svg);
+  el("line",{x1:xs(3)-18,x2:xs(3)-18,y1:ys(72)-4,y2:ys(84)+6,stroke:"var(--accent)","stroke-width":1.5,"marker-end":"url(#arw1)"},g);
+  const dfs=el("defs",{},svg); const mk=el("marker",{id:"arw1",viewBox:"0 0 10 10",refX:5,refY:5,markerWidth:6,markerHeight:6,orient:"auto-start-reverse"},dfs); el("path",{d:"M0,0 L10,5 L0,10 z",fill:"var(--accent)"},mk);
+  const gt=el("text",{x:xs(3)-26,y:ys(78)+4,"text-anchor":"end",class:"dl acc"},g); gt.textContent="+12 vs SFT";
+  const bt=el("text",{x:xs(0)+18,y:ys(69.4)+14,"font-size":11},svg); bt.textContent="first images: 70–73 for all";
+  const ends=[{s:S[2],y:ys(84)},{s:S[0],y:ys(73)-7},{s:S[1],y:ys(72)+9}];
+  ends.forEach(e=>{const t=el("text",{x:R+10,y:e.y+4,class:"dl"+(e.s.name==="UMM-Reflection"?" acc":"")},svg); t.textContent=`${e.s.name==="UMM-Reflection"?"Ours":e.s.name} ${e.s.v[3]}`;});
+  const tip=tipFor(card);
+  const hit=el("rect",{x:L-20,y:T,width:R-L+40,height:B-T,fill:"transparent"},svg);
+  hit.addEventListener("pointermove",ev=>{
+    const p=svg.createSVGPoint(); p.x=ev.clientX;p.y=ev.clientY; const q=p.matrixTransform(svg.getScreenCTM().inverse());
+    const i=Math.max(0,Math.min(3,Math.round((q.x-L)/((R-L)/3))));
+    cross.setAttribute("x1",xs(i));cross.setAttribute("x2",xs(i));cross.setAttribute("opacity",1);
+    tip.innerHTML=`<b>${X[i]==="R0"?"First image":X[i]+" edit"+(i>1?"s":"")}</b><br>`+S.slice().reverse().map(s=>`${s.name}: <b>${s.v[i]}</b>`).join("<br>");
+    place(tip,card,svg,xs(i),ys(78));
+  });
+  hit.addEventListener("pointerleave",()=>{tip.hidden=true;cross.setAttribute("opacity",0);});
+  if(!RM){ drawLines(svg,false); popDots(svg,false); onView(card,()=>play(svg),.4); }
+  $("rp1").onclick=()=>play(svg);
+})();
+
+/* ---------- chart 2: repair rate vs RL updates ---------- */
+(function(){
+  const svg=$("ch2"), card=$("c2");
+  const P=[[0,20.6],[100,35.6],[200,44.1],[300,56.0],[400,60.4],[500,61.1],[1000,64.9]];
+  const L=44,R=396,T=16,B=264;
+  const xs=u=>L+u/1000*(R-L), ys=v=>B-v/80*(B-T);
+  const dfs=el("defs",{},svg); const lgd=el("linearGradient",{id:"g2",x1:0,x2:0,y1:0,y2:1},dfs); el("stop",{offset:0,"stop-color":"var(--accent)","stop-opacity":.28},lgd); el("stop",{offset:1,"stop-color":"var(--accent)","stop-opacity":0},lgd);
+  for(let v=0;v<=80;v+=20){ el("line",{x1:L,x2:R,y1:ys(v),y2:ys(v),stroke:"var(--grid)","stroke-width":1},svg); const t=el("text",{x:L-10,y:ys(v)+4,"text-anchor":"end"},svg); t.textContent=v+"%"; }
+  [0,250,500,750,1000].forEach(u=>{const t=el("text",{x:xs(u),y:B+22,"text-anchor":"middle"},svg); t.textContent=u.toLocaleString("en-US");});
+  const xl=el("text",{x:R,y:B+22+16,"text-anchor":"end"},svg); xl.textContent="RL updates";
+  el("line",{x1:L,x2:R,y1:ys(20.6),y2:ys(20.6),stroke:"var(--s-sft)","stroke-width":1.2,"stroke-dasharray":"4 4"},svg);
+  const area="M"+xs(0)+","+B+" "+P.map(p=>"L"+xs(p[0])+","+ys(p[1])).join(" ")+" L"+xs(1000)+","+B+" Z";
+  el("path",{d:area,fill:"url(#g2)",class:"pop"},svg);
+  el("polyline",{class:"draw",points:P.map(p=>xs(p[0])+","+ys(p[1])).join(" "),fill:"none",stroke:"var(--s-ours)","stroke-width":3,"stroke-linejoin":"round","stroke-linecap":"round"},svg);
+  const dots=P.map((p,i)=>el("circle",{class:"pop",cx:xs(p[0]),cy:ys(p[1]),r:i===P.length-1?6:4,fill:"var(--s-ours)",stroke:"var(--surface)","stroke-width":2},svg));
+  const a=el("text",{x:xs(1000),y:ys(20.6)+16,class:"dl","text-anchor":"end"},svg); a.textContent="SFT 20.6%";
+  const b=el("text",{x:xs(1000),y:ys(64.9)-14,class:"dl acc","text-anchor":"end"},svg); b.textContent="64.9%  ≈ 3×";
+  const tip=tipFor(card);
+  const hit=el("rect",{x:L-20,y:T,width:R-L+40,height:B-T,fill:"transparent"},svg);
+  hit.addEventListener("pointermove",ev=>{
+    const p=svg.createSVGPoint(); p.x=ev.clientX;p.y=ev.clientY; const q=p.matrixTransform(svg.getScreenCTM().inverse());
+    let k=0,best=1e9; P.forEach((pt,i)=>{const d=Math.abs(xs(pt[0])-q.x); if(d<best){best=d;k=i;}});
+    dots.forEach((d,i)=>d.setAttribute("r",i===k?7:(i===P.length-1?6:4)));
+    tip.innerHTML=`<b>${P[k][0]===0?"SFT (0 RL updates)":P[k][0].toLocaleString("en-US")+" RL updates"}</b><br>Repair rate: <b>${P[k][1].toFixed(1)}%</b>`;
+    place(tip,card,svg,xs(P[k][0]),ys(P[k][1]));
+  });
+  hit.addEventListener("pointerleave",()=>{tip.hidden=true;dots.forEach((d,i)=>d.setAttribute("r",i===P.length-1?6:4));});
+  if(!RM){ drawLines(svg,false); popDots(svg,false); onView(card,()=>play(svg),.4); }
+  $("rp2").onclick=()=>play(svg);
+})();
+
+/* ---------- analysis: dumbbells ---------- */
+(function(){
+  const SETS=[
+    {b:"GenEval families",title:"Per-family accuracy on GenEval",cap:"Official 553 prompts. The hollow dot is UMM-Reflection's first image, the filled dot its image after three reflection rounds; the grey ring is reflection SFT after three rounds.",
+     ref:"Reflection SFT, final",
+     rows:[["Position",100,47,55,89],["Color binding",100,51,48,65],["Two objects",99,87.88,83.84,95.96],["Counting",80,57.5,67.5,67.5],["Colors",94,87.23,84.04,90.43],["Single object",80,100,100,95]]},
+    {b:"T2I-CompBench++",title:"Per-category scores on T2I-CompBench++",cap:"A benchmark never used in RL. The hollow dot is UMM-Reflection's first image, the filled dot its image after reflection; the grey ring is BAGEL.",
+     ref:"BAGEL",
+     rows:[["Color",null,74.37,72.32,84.02],["Shape",null,52.16,51.82,62.24],["Texture",null,66.58,67.82,75.66],["Spatial",null,30.15,31.19,40.77],["Numeracy",null,60.67,60.10,64.48],["Complex",null,38.47,38.30,40.52],["Non Spatial",null,30.79,30.85,30.65],["3D Spatial",null,39.13,38.22,36.72]]},
+  ];
+  const seg=$("dbSeg"), db=$("db"), lg=$("dblg");
+  const bs=SETS.map((s,i)=>{const b=document.createElement("button"); b.type="button"; b.textContent=s.b; b.onclick=()=>show(i,true); seg.appendChild(b); return b;});
+  let cur=-1;
+  function show(k,anim){
+    cur=k; const S=SETS[k]; bs.forEach((b,i)=>b.setAttribute("aria-pressed",i===k));
+    $("dbtitle").textContent=S.title; $("dbcap").textContent=S.cap;
+    lg.innerHTML=`<span><i class="dot" style="background:var(--surface);border:2px solid var(--s-base)"></i>${S.ref}</span><span><i class="dot" style="background:var(--surface);border:2px solid var(--accent)"></i>UMM-Reflection, first image</span><span><i class="dot" style="background:var(--accent)"></i>UMM-Reflection, after reflection</span>`;
+    db.innerHTML=S.rows.map(r=>`<div class="r"><span class="nm">${r[0]}${r[1]?`<small>n=${r[1]}</small>`:""}</span><span class="ln"><span class="seg2"></span><b class="a"></b><b class="i"></b><b class="f"></b></span><span class="v">${fmt(r[3],r[3]%1?2:0)} → <b>${fmt(r[4],r[4]%1?2:0)}</b></span></div>`).join("")+
+      `<div class="axis"><span></span><div><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div><span></span></div>`;
+    const R=[...db.querySelectorAll(".r")];
+    R.forEach((n,j)=>{ const r=S.rows[j], sg=n.querySelector(".seg2"), a=n.querySelector(".a"), i0=n.querySelector(".i"), f=n.querySelector(".f");
+      const set=(ini)=>{ const lo=Math.min(r[3],ini), w=Math.abs(ini-r[3]); sg.style.left=lo+"%"; sg.style.width=w+"%"; sg.classList.toggle("neg",r[4]<r[3]); f.style.left=ini+"%"; };
+      a.style.left=r[2]+"%"; i0.style.left=r[3]+"%";
+      if(anim && !RM){ [sg,f,a,i0].forEach(x=>x.style.transition="none"); set(r[3]); sg.getBoundingClientRect(); requestAnimationFrame(()=>{ [sg,f,a,i0].forEach(x=>{x.style.transition=""; x.style.transitionDelay=(j*.06)+"s";}); set(r[4]); }); }
+      else set(r[4]);
+    });
+  }
+  show(0,false);
+  if(!RM) onView($("dbcard"),()=>{ if(cur===0) show(0,true); },.35);
+})();
+
+/* ---------- analysis: head ablation ---------- */
+(function(){
+  const A=[["Reflection SFT","no RL",72,20.6,""],["Flow-only RL","text head frozen",73,22.8,""],["Text-only RL","flow head frozen",78,49.4,"half"],["Joint RL","UMM-Reflection",84,64.9,"ours"]];
+  const box=$("abl");
+  box.innerHTML=`<div class="r"><span></span><span class="hd x">GenEval, final</span><span class="hd x">Repair rate</span></div>`+A.map(a=>`<div class="r ${a[4]}"><span class="nm">${a[0]}<small>${a[1]}</small></span><div class="hb"><span class="tr"><i data-w="${a[2]}"></i></span><span>${a[2]}</span></div><div class="hb"><span class="tr"><i data-w="${a[3]}"></i></span><span>${a[3].toFixed(1)}%</span></div></div>`).join("");
+  const go=()=>box.querySelectorAll("i[data-w]").forEach((b,i)=>setTimeout(()=>b.style.width=b.dataset.w+"%",RM?0:Math.floor(i/2)*220));
+  onView($("ablcard"),go,.35);
+})();
+
+/* ---------- reveal ---------- */
+(function(){
+  if(RM) return;
   const vh=innerHeight;
   const items=[...document.querySelectorAll(".rv")].filter(n=>n.getBoundingClientRect().top>vh*0.92);
-  if(RM) return;
   items.forEach(n=>n.classList.add("pre"));
-  const io=new IntersectionObserver(es=>es.forEach(e=>{ if(!e.isIntersecting) return; e.target.classList.remove("pre"); e.target.querySelectorAll(".draw").forEach(l=>l.style.strokeDashoffset=0); io.unobserve(e.target); }),{threshold:.15});
-  document.querySelectorAll(".rv").forEach(n=>io.observe(n));
-  setTimeout(()=>{items.forEach(n=>n.classList.remove("pre")); lines.forEach(l=>l.style.strokeDashoffset=0);},9000);
+  const io=new IntersectionObserver(es=>es.forEach(e=>{ if(!e.isIntersecting) return; e.target.classList.remove("pre"); io.unobserve(e.target); }),{threshold:.08});
+  items.forEach(n=>io.observe(n));
+  setTimeout(()=>items.forEach(n=>n.classList.remove("pre")),12000);
 })();
 
+$("copy").onclick = async ()=>{
+  try{ await navigator.clipboard.writeText($("bib").textContent); $("copy").textContent="Copied"; }
+  catch(_){ const r=document.createRange(); r.selectNodeContents($("bib")); const s=getSelection(); s.removeAllRanges(); s.addRange(r); $("copy").textContent="Selected, press Ctrl+C"; }
+  setTimeout(()=>$("copy").textContent="Copy",1800);
+};
 document.querySelectorAll('.btn[aria-disabled="true"]').forEach(b=>b.addEventListener("click",e=>e.preventDefault()));
-</script>
 
+</script>
 </body>
 </html>

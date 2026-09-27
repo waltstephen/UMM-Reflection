@@ -21,6 +21,9 @@ The pipeline has three stages:
 
 ## Released weights and data
 
+All three are in the Hugging Face collection
+[UMM-Reflection](https://huggingface.co/collections/YijiaFan/umm-reflection-6ab95afe909092518d70a158).
+
 | Hugging Face repo | Content |
 |---|---|
 | [YijiaFan/UMM-Reflection-BAGEL-RL](https://huggingface.co/YijiaFan/UMM-Reflection-BAGEL-RL) | final model: RL checkpoint-1000 merged into full BAGEL weights |

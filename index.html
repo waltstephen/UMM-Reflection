@@ -122,8 +122,8 @@ header.hero::before{content:"";position:absolute;z-index:-1;left:50%;top:-40px;w
 .pipe .band{position:relative;transition:opacity .6s ease,filter .6s ease;cursor:pointer}
 .pipe .band img{display:block;width:100%;height:auto}
 .pipe .band::after{content:"";position:absolute;left:0;top:10%;bottom:10%;width:4px;border-radius:0 3px 3px 0;background:#5D2CD6;transform:scaleY(0);transition:transform .5s ease}
-.pipe.focus .band{opacity:.28;filter:grayscale(.6)}
-.pipe.focus .band.on{opacity:1;filter:none}
+.pipe .band::before{content:"";position:absolute;inset:4px;border:3px solid #5D2CD6;border-radius:12px;opacity:0;transform:scale(.985);transition:opacity .45s ease,transform .45s ease;pointer-events:none;box-shadow:0 0 0 4px rgba(93,44,214,.12),0 0 22px rgba(93,44,214,.25);z-index:1}
+.pipe.focus .band.on::before{opacity:1;transform:none}
 .pipe.focus .band.on::after{transform:scaleY(1)}
 .stagebar{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--rule);background:var(--surface)}
 .stagebar button{all:unset;cursor:pointer;padding:14px 18px 16px;display:grid;gap:4px;position:relative;border-right:1px solid var(--rule)}
@@ -201,7 +201,7 @@ h3.sub{font-family:var(--serif);font-size:24px;line-height:1.2}
 .rlfig svg.spot{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 .rlfig svg.spot .veil{fill:rgba(250,248,255,.78);transition:opacity .5s ease}
 .rlfig svg.spot rect.hole{transition:all .6s cubic-bezier(.2,.7,.2,1)}
-.rlfig svg.spot rect.ring{fill:none;stroke:#5D2CD6;stroke-width:.35;rx:.8;transition:all .6s cubic-bezier(.2,.7,.2,1);filter:drop-shadow(0 0 .6px rgba(93,44,214,.6))}
+.rlfig svg.spot rect.ring{fill:none;stroke:#5D2CD6;stroke-width:.5;rx:.9;transition:all .6s cubic-bezier(.2,.7,.2,1);filter:drop-shadow(0 0 .6px rgba(93,44,214,.6))}
 .rlfig .hot{position:absolute;transform:translate(-50%,-50%);width:28px;height:28px;border-radius:50%;border:0;background:transparent;cursor:pointer}
 .rlfig .hot::after{content:"";position:absolute;inset:-4px;border-radius:50%;border:2px solid #8B6CF0;animation:pulse 2.4s ease-out infinite;animation-play-state:paused;opacity:0}
 .rlfig .hot:hover::after,.rlfig .hot.on::after{animation-play-state:running;border-color:#5D2CD6}
@@ -393,6 +393,19 @@ footer{margin-top:72px;padding-top:20px;border-top:1px solid var(--rule);font-si
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}.splash{display:none}.rv.pre{transform:none;opacity:1}}
 
+.bgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:4px}
+.bgrid>div{background:var(--sunk);border-radius:10px;padding:9px 8px 8px;display:grid;gap:3px;justify-items:center;text-align:center}
+.bgrid span{font:700 10px/1.1 var(--mono);letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.bgrid sup{font-size:.8em}
+.bgrid b{font-family:var(--serif);font-size:22px;font-weight:500;line-height:1.1;font-variant-numeric:tabular-nums}
+.bgrid em{font:600 11.5px/1 var(--mono);font-style:normal;color:var(--pass)}
+.bgrid em.neg{color:var(--fail)}
+.col.ours .bgrid>div{background:var(--accent-soft)}
+.col.ours .bgrid b{color:var(--accent)}
+.rep{display:flex;justify-content:space-between;align-items:baseline;margin-top:6px;font-size:13.5px;color:var(--muted)}
+.rep b{font-family:var(--serif);font-size:22px;font-weight:500;color:var(--ink)}
+.col.ours .rep b{color:var(--accent)}
+
 </style>
 </head>
 <body>
@@ -485,14 +498,14 @@ footer{margin-top:72px;padding-top:20px;border-top:1px solid var(--rule);font-si
   <div class="head">
     <div class="label">Key finding</div>
     <h2 id="h-find">Reflection is only useful when it changes the image</h2>
-    <p class="lede">Writing a plausible critique is easy. Turning that critique into a better image is the hard part. We compare three ways to give BAGEL a second look at its own output on the 553 official GenEval prompts, each with up to three edits.</p>
+    <p class="lede">Writing a plausible critique is easy. Turning that critique into a better image is the hard part. We compare three ways to give BAGEL a second look at its own output, each with up to three edits, on GenEval and on three benchmarks never used in RL. Numbers below each score are the change from BAGEL-Base.</p>
   </div>
   <div class="compare rv" id="compare">
     <div class="col">
       <div class="label" style="color:var(--muted)">External critic</div>
       <h3>BAGEL + GPT-5.5 critic</h3>
       <p class="how">A frontier model reads each image and writes the edit instruction. BAGEL performs the edit.</p>
-      <dl class="kv"><dt>GenEval, final</dt><dd>0.79</dd><dt>Wrong images repaired</dt><dd>27.6%</dd></dl>
+      <div class="bgrid"><div><span>GenEval</span><b>0.79</b><em>+0.08</em></div><div><span>WISE<sup>*</sup></span><b>0.70</b><em>+0.12</em></div><div><span>OneIG</span><b>0.83</b><em>+0.02</em></div><div><span>CompBench</span><b>0.52</b><em>+0.03</em></div></div><div class="rep"><span>Wrong GenEval images repaired</span><b>27.6%</b></div>
       <div class="meter"><i data-w="27.6"></i></div>
       <p class="note">The critic declared 67 of the 163 wrong first images finished at round 0.</p>
     </div>
@@ -500,7 +513,7 @@ footer{margin-top:72px;padding-top:20px;border-top:1px solid var(--rule);font-si
       <div class="label" style="color:var(--muted)">Imitation</div>
       <h3>BAGEL-SFT reflection</h3>
       <p class="how">The model is fine-tuned on interleaved reflection trajectories and reflects on its own.</p>
-      <dl class="kv"><dt>GenEval, final</dt><dd>0.72</dd><dt>Wrong images repaired</dt><dd>20.6%</dd></dl>
+      <div class="bgrid"><div><span>GenEval</span><b>0.72</b><em>+0.00</em></div><div><span>WISE</span><b>0.63</b><em>+0.08</em></div><div><span>OneIG</span><b>0.79</b><em class="neg">−0.01</em></div><div><span>CompBench</span><b>0.50</b><em>+0.01</em></div></div><div class="rep"><span>Wrong GenEval images repaired</span><b>20.6%</b></div>
       <div class="meter"><i data-w="20.6"></i></div>
       <p class="note">It writes reflections in the right format, but the edits rarely fix what was wrong.</p>
     </div>
@@ -508,11 +521,12 @@ footer{margin-top:72px;padding-top:20px;border-top:1px solid var(--rule);font-si
       <div class="label">Learned from consequences</div>
       <h3>UMM-Reflection</h3>
       <p class="how">Same model and protocol, trained with whole-trajectory RL on the images its reflections produce.</p>
-      <dl class="kv"><dt>GenEval, final</dt><dd>0.84</dd><dt>Wrong images repaired</dt><dd>64.9%</dd></dl>
+      <div class="bgrid"><div><span>GenEval</span><b>0.84</b><em>+0.12</em></div><div><span>WISE</span><b>0.74</b><em>+0.19</em></div><div><span>OneIG</span><b>0.83</b><em>+0.02</em></div><div><span>CompBench</span><b>0.55</b><em>+0.06</em></div></div><div class="rep"><span>Wrong GenEval images repaired</span><b>64.9%</b></div>
       <div class="meter"><i data-w="64.9"></i></div>
       <p class="note">Reflection and generation are trained together, so a diagnosis is rewarded only when the edit it leads to is better.</p>
     </div>
   </div>
+  <p class="note2 rv" style="margin-top:-18px">* The critic's WISE score comes from a separate GPT-4o scoring run; its change is measured against BAGEL-Base in that same run (0.58).</p>
   <figure class="rv">
     <div class="wide-fig"><img src="rl_vs_sft.jpg" loading="lazy" alt="Same GenEval prompt, a dog right of a tie. SFT keeps moving the tie and the dog back and forth and ends where it started. After RL the revisions move steadily into the correct-image region and end with the tie left of the dog."></div>
     <figcaption><b>Same prompt, same first-round quality, different revisions.</b> SFT re-rolls the same mistake across rounds. After RL each edit builds on the previous one and the trajectory ends in the correct-image region. The state-space panel is schematic.</figcaption>
@@ -796,7 +810,7 @@ onView($("compare"),()=>document.querySelectorAll("#compare .meter i").forEach((
     const s=STEPS[i];
     holes.innerHTML=""; rings.innerHTML="";
     s.rects.forEach(r=>{ el("rect",{class:"hole",x:r[0],y:r[1],width:r[2],height:r[3],rx:.8,fill:"#000"},holes); el("rect",{class:"ring",x:r[0],y:r[1],width:r[2],height:r[3]},rings); });
-    veil.setAttribute("opacity",1);
+    
     det.innerHTML=`<div class="fadein"><div class="dk">${s.k}</div><h3>${s.h}</h3>${s.p.map(x=>`<p>${x}</p>`).join("")}</div>
       <div class="side fadein" style="animation-delay:.08s"><div class="fx">${s.fx}</div><div class="facts">${s.facts.map(f=>`<div><b>${f[0]}</b><span>${f[1]}</span></div>`).join("")}</div></div>`;
   }

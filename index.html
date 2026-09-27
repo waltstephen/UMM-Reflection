@@ -1,0 +1,721 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="UMM-Reflection: learning native reflection in unified models with interleaved reinforcement learning.">
+<style>:root{color-scheme:light}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>UMM-Reflection</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&family=Public+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<style>
+:root{
+  --bg:#F3F5F6; --surface:#FFFFFF; --sunk:#E9EDEF; --ink:#142026; --ink-2:#3A4A52; --muted:#5E6E76; --rule:#D6DDE0;
+  --accent:#0E7C66; --accent-ink:#FFFFFF; --accent-soft:#DDEFEA;
+  --s-base:#C4702A; --s-sft:#5A62D6; --s-ours:#0E8C73;
+  --pass:#1D7A45; --fail:#B2412F;
+  --grid:#E2E7E9;
+  --serif:"Newsreader","Iowan Old Style","Georgia",serif;
+  --sans:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  color-scheme:dark;
+  --bg:#0E1417; --surface:#151D21; --sunk:#1B2529; --ink:#E3EAEC; --ink-2:#C0CCD0; --muted:#93A3AA; --rule:#27343A;
+  --accent:#2FB08E; --accent-ink:#06120E; --accent-soft:#16312A;
+  --s-base:#C9803B; --s-sft:#7C85EC; --s-ours:#23A785;
+  --pass:#4CC07A; --fail:#E27562; --grid:#212C31;
+}}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0E1417; --surface:#151D21; --sunk:#1B2529; --ink:#E3EAEC; --ink-2:#C0CCD0; --muted:#93A3AA; --rule:#27343A;
+  --accent:#2FB08E; --accent-ink:#06120E; --accent-soft:#16312A;
+  --s-base:#C9803B; --s-sft:#7C85EC; --s-ours:#23A785;
+  --pass:#4CC07A; --fail:#E27562; --grid:#212C31;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.6;padding-inline:20px;padding-block:0 64px}
+.wrap{max-width:1120px;margin-inline:auto}
+.measure{max-width:68ch}
+h1,h2,h3{font-family:var(--serif);font-weight:500;text-wrap:balance;margin:0;letter-spacing:-.01em}
+p{margin:0}
+a{color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px}
+.label{font-family:var(--sans);font-size:12px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+
+/* hero */
+header.hero{display:grid;gap:22px;padding-block:56px 36px}
+.hero .label{color:var(--accent)}
+.hero h1{font-size:clamp(44px,7vw,84px);line-height:1;font-weight:500;letter-spacing:-.025em}
+.hero h1 .dash{color:var(--accent)}
+.hero .sub{font-family:var(--serif);font-size:clamp(20px,2.4vw,27px);line-height:1.3;color:var(--ink-2);max-width:34ch;font-weight:400}
+.authors{font-size:15px;color:var(--muted)}
+.authors b{color:var(--ink-2);font-weight:600}
+.links{display:flex;flex-wrap:wrap;gap:10px}
+.btn{display:inline-flex;align-items:center;gap:9px;padding:9px 16px 9px 13px;border-radius:999px;border:1px solid var(--rule);background:var(--surface);color:var(--ink);font:600 14px/1 var(--sans);text-decoration:none;cursor:not-allowed}
+.btn[href]{cursor:pointer;transition:border-color .2s,color .2s}.btn[href]:hover{border-color:var(--accent);color:var(--accent)}
+.btn svg{width:17px;height:17px;flex:none;fill:currentColor}
+.btn .soon{font:500 11px/1 var(--mono);color:var(--muted);border-left:1px solid var(--rule);padding-left:9px;letter-spacing:.02em}
+figure{margin:0}
+.teaser{background:#fff;border:1px solid var(--rule);border-radius:10px;padding:14px;overflow-x:auto}
+.teaser img{display:block;width:100%;min-width:640px;height:auto}
+figcaption{font-size:14px;color:var(--muted);margin-top:10px;max-width:90ch}
+figcaption b{color:var(--ink-2)}
+
+/* numbers strip */
+.strip{display:grid;grid-template-columns:repeat(3,1fr);border-block:1px solid var(--rule);margin-block:8px 0}
+.strip div{padding:18px 20px 18px 0;display:grid;gap:4px;align-content:start}
+.strip div+div{padding-left:20px;border-left:1px solid var(--rule)}
+.strip .n{font-family:var(--serif);font-size:38px;line-height:1.05;font-variant-numeric:tabular-nums lining-nums}
+.strip .n small{font-size:20px;color:var(--muted)}
+.strip .n em{font-style:normal;color:var(--accent)}
+.strip .t{font-size:14px;color:var(--muted);line-height:1.45}
+
+section{padding-block:60px 0;display:grid;gap:22px}
+section>h2{font-size:clamp(28px,3.4vw,38px);line-height:1.15}
+.lede{font-size:17px;color:var(--ink-2)}
+.abstract p{font-size:17px;line-height:1.7;color:var(--ink-2)}
+.video{background:#000;border:1px solid var(--rule);border-radius:12px;overflow:hidden;aspect-ratio:16/9}
+.video video{display:block;width:100%;height:100%}
+.abstract p+p{margin-top:14px}
+
+/* comparison */
+.compare{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.col{border:1px solid var(--rule);background:var(--surface);border-radius:10px;padding:20px;display:grid;gap:10px;align-content:start}
+.col.ours{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}
+.col h3{font-family:var(--sans);font-size:15px;font-weight:700}
+.col .how{font-size:14px;color:var(--muted);min-height:3em}
+.col .kv{display:grid;grid-template-columns:1fr auto;gap:4px 12px;font-size:14px;border-top:1px solid var(--rule);padding-top:10px}
+.col .kv dt{color:var(--muted)}
+.col .kv dd{margin:0;font-family:var(--mono);font-weight:500;font-variant-numeric:tabular-nums;text-align:right}
+.col.ours .kv dd{color:var(--accent);font-weight:600}
+.col .note{font-size:13.5px;color:var(--ink-2)}
+.evidence{display:grid;gap:0;border-top:1px solid var(--rule)}
+.evidence li{list-style:none;display:grid;grid-template-columns:200px 1fr;gap:20px;padding-block:16px;border-bottom:1px solid var(--rule)}
+.evidence ul{margin:0;padding:0}
+.evidence .k{font-weight:600;font-size:15px}
+.evidence .v{color:var(--ink-2);font-size:15.5px}
+
+/* trajectory viewer */
+.viewer{background:#0F1719;color:#DCE6E8;border-radius:14px;padding:22px;display:grid;gap:18px;--v-muted:#8FA2A8;--v-rule:#24343A;--v-acc:#43C6A1}
+.tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;scrollbar-width:thin}
+.tab{flex:none;border:1px solid var(--v-rule);background:transparent;color:#C6D3D6;border-radius:8px;padding:7px 11px;font:500 13px/1.2 var(--sans);cursor:pointer;display:grid;gap:2px;text-align:left}
+.tab .b{font:600 10.5px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--v-muted)}
+.tab[aria-selected="true"]{background:#E7F2EF;color:#0F1719;border-color:#E7F2EF}
+.tab[aria-selected="true"] .b{color:#0E7C66}
+.tab:hover:not([aria-selected="true"]){border-color:#4A6168}
+.prompt{font-family:var(--serif);font-style:italic;font-size:clamp(18px,2.2vw,23px);line-height:1.35;color:#F2F7F8;max-width:80ch}
+.prompt .src{display:block;font:600 11px/1 var(--mono);font-style:normal;letter-spacing:.08em;text-transform:uppercase;color:var(--v-acc);margin-bottom:8px}
+.stage{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:22px;align-items:start}
+.bigimg{position:relative;border-radius:8px;overflow:hidden;background:#000;aspect-ratio:1/1}
+.bigimg img{width:100%;height:100%;object-fit:cover;display:block;transition:opacity .25s}
+.bigimg .tag{position:absolute;left:10px;top:10px;font:600 11px/1 var(--mono);background:rgba(8,14,16,.78);color:#fff;padding:6px 8px;border-radius:5px;letter-spacing:.04em}
+.verdict{position:absolute;right:10px;top:10px;font:600 11px/1 var(--mono);padding:6px 8px;border-radius:5px;letter-spacing:.03em}
+.verdict.ok{background:#1D7A45;color:#fff}
+.verdict.no{background:#B2412F;color:#fff}
+.film{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
+.frame{padding:0;border:2px solid transparent;border-radius:6px;background:none;cursor:pointer;display:grid;gap:5px;color:var(--v-muted);font:500 11px/1.1 var(--mono);text-align:left}
+.frame img{width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:4px;display:block;opacity:.72;transition:opacity .2s}
+.frame span{padding:0 2px 3px}
+.frame[aria-current="true"]{border-color:var(--v-acc);color:#E7F2EF}
+.frame[aria-current="true"] img,.frame:hover img{opacity:1}
+.transcript{font-family:var(--mono);font-size:13px;line-height:1.65;background:#0A1113;border:1px solid var(--v-rule);border-radius:8px;padding:16px 18px;max-height:560px;overflow:auto}
+.transcript .row{display:grid;gap:3px}
+.transcript .row+.row{margin-top:12px}
+.transcript .t{color:var(--v-acc);font-weight:600;font-size:12px}
+.transcript .x{color:#D5E0E2;white-space:pre-wrap;font-size:12.8px}
+.transcript .x.edit{color:#F3F8F9;border-left:2px solid var(--v-acc);padding-left:10px}
+.transcript .done{color:var(--v-muted)}
+.vfoot{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;font-size:13px;color:var(--v-muted)}
+.vfoot kbd{font:500 11px var(--mono);border:1px solid var(--v-rule);border-radius:4px;padding:1px 5px;color:#C6D3D6}
+.stepper{display:flex;gap:6px}
+.stepper button{font:600 12px/1 var(--mono);background:transparent;color:#DCE6E8;border:1px solid var(--v-rule);border-radius:6px;padding:7px 10px;cursor:pointer}
+.stepper button:hover{border-color:var(--v-acc)}
+
+/* charts */
+.charts{display:grid;grid-template-columns:1.25fr 1fr;gap:16px}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:20px;display:grid;gap:10px;align-content:start;position:relative}
+.card h3{font-family:var(--sans);font-size:15px;font-weight:700}
+.card .cap{font-size:13.5px;color:var(--muted)}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:13px;color:var(--ink-2)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:14px;height:3px;border-radius:2px;display:inline-block}
+svg.chart{width:100%;height:auto;display:block;overflow:visible}
+svg.chart text{font-family:var(--sans);font-size:12px;fill:var(--muted)}
+svg.chart .dl{font-weight:600;fill:var(--ink)}
+.tip{position:absolute;pointer-events:none;background:var(--ink);color:var(--bg);font-size:12.5px;line-height:1.45;padding:8px 10px;border-radius:6px;white-space:nowrap;font-variant-numeric:tabular-nums;z-index:2}
+.tip b{font-weight:600}
+.tbl{overflow-x:auto;border:1px solid var(--rule);border-radius:10px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:560px;font-size:14.5px;font-variant-numeric:tabular-nums}
+th,td{padding:11px 16px;text-align:right;border-bottom:1px solid var(--rule)}
+th:first-child,td:first-child{text-align:left}
+thead th{font-size:12px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+tbody tr:last-child td{border-bottom:0}
+td .d{font-size:12px;color:var(--muted);margin-left:6px;font-family:var(--mono)}
+tr.ours td{background:var(--accent-soft);font-weight:600}
+tr.ours td .d{color:var(--accent)}
+
+/* method */
+.method-fig{background:#fff;border:1px solid var(--rule);border-radius:10px;padding:12px;overflow-x:auto}
+.method-fig img{display:block;width:100%;min-width:640px}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:1px solid var(--rule)}
+.steps div{padding:18px 20px 4px 0;display:grid;gap:8px;align-content:start}
+.steps div+div{padding-left:20px;border-left:1px solid var(--rule)}
+.steps h3{font-family:var(--sans);font-size:15px;font-weight:700}
+.steps .n{font:600 12px/1 var(--mono);color:var(--accent)}
+.steps p{font-size:15px;color:var(--ink-2)}
+
+pre.bib{margin:0;font:13px/1.6 var(--mono);background:var(--sunk);border:1px solid var(--rule);border-radius:10px;padding:18px 20px;overflow-x:auto;color:var(--ink-2)}
+.bibwrap{position:relative}
+.copy{position:absolute;right:10px;top:10px;font:600 12px/1 var(--sans);border:1px solid var(--rule);background:var(--surface);color:var(--ink);border-radius:6px;padding:7px 10px;cursor:pointer}
+footer{margin-top:64px;padding-top:20px;border-top:1px solid var(--rule);font-size:13.5px;color:var(--muted);display:flex;flex-wrap:wrap;gap:8px 24px;justify-content:space-between}
+
+/* splash */
+.splash{position:fixed;inset:0;z-index:100;background:var(--bg);display:grid;place-items:center;transition:opacity .8s ease,visibility .8s;padding:24px}
+.splash.gone{opacity:0;visibility:hidden;pointer-events:none}
+.splash .inner{display:grid;justify-items:center;gap:26px;text-align:center}
+.splash .word{font-family:var(--serif);font-weight:500;font-size:clamp(46px,9vw,104px);line-height:1;letter-spacing:-.03em}
+.splash .word span{display:inline-block;animation:rise .9s cubic-bezier(.2,.7,.2,1) both}
+.splash .word .dash{color:var(--accent)}
+.loop{display:flex;align-items:center;gap:14px}
+.loop .sq{width:clamp(120px,22vw,190px);aspect-ratio:1;border-radius:8px;overflow:hidden;position:relative;background:var(--sunk);box-shadow:0 10px 40px rgba(10,30,30,.18)}
+.loop .sq img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .7s}
+.loop .sq img.on{opacity:1}
+.loop .note{font:500 12px/1.5 var(--mono);color:var(--ink-2);text-align:left;width:clamp(150px,24vw,230px);min-height:7.5em}
+.loop .note b{color:var(--accent);font-weight:600;display:block;margin-bottom:4px}
+.rounds{display:flex;gap:8px;font:600 11px/1 var(--mono);color:var(--muted)}
+.rounds span{padding:5px 8px;border-radius:5px;border:1px solid var(--rule);transition:all .4s}
+.rounds span.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.splash .hint{position:absolute;bottom:calc(34px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
+.splash .hint::after{content:"";display:block;width:1px;height:26px;margin:10px auto 0;background:var(--muted);animation:drip 1.6s ease-in-out infinite;transform-origin:top}
+@keyframes rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+@keyframes drip{0%{transform:scaleY(0)}50%{transform:scaleY(1)}100%{transform:scaleY(0);transform-origin:bottom}}
+
+/* nav */
+.topnav{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;margin-inline:-20px;padding-inline:20px;background:color-mix(in srgb,var(--bg) 82%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--rule)}
+.topnav .in{max-width:1120px;margin-inline:auto;display:flex;align-items:center;gap:18px;height:54px}
+.topnav .brand{font-family:var(--serif);font-weight:600;font-size:19px;text-decoration:none;color:var(--ink);white-space:nowrap}
+.topnav .brand span{color:var(--accent)}
+.topnav .sec{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;flex:1}
+.topnav .sec a{font-size:13.5px;color:var(--muted);text-decoration:none;padding:6px 10px;border-radius:6px;white-space:nowrap;transition:color .2s,background .2s}
+.topnav .sec a:hover{color:var(--ink);background:var(--sunk)}
+.topnav .sec a.on{color:var(--accent);background:var(--accent-soft)}
+.topnav .ext{display:flex;gap:4px}
+.topnav .ext a{font-size:13px;color:var(--muted);text-decoration:none;padding:6px 9px;border-radius:6px;cursor:not-allowed;white-space:nowrap}
+.topnav .ext a[href]{cursor:pointer}.topnav .ext a[href]:hover{color:var(--ink);background:var(--sunk)}
+section{scroll-margin-top:70px}
+
+/* pipeline hero */
+.pipe{background:#fff;border:1px solid var(--rule);border-radius:12px;overflow:hidden}
+.pipe .scroll{overflow-x:auto}
+.pipe .bands{min-width:680px;display:grid}
+.pipe .band{position:relative;transition:opacity .6s ease,filter .6s ease;cursor:pointer}
+.pipe .band img{display:block;width:100%;height:auto}
+.pipe .band::after{content:"";position:absolute;left:0;top:10%;bottom:10%;width:4px;border-radius:0 3px 3px 0;background:#0E7C66;transform:scaleY(0);transition:transform .5s ease}
+.pipe.focus .band{opacity:.28;filter:grayscale(.6)}
+.pipe.focus .band.on{opacity:1;filter:none}
+.pipe.focus .band.on::after{transform:scaleY(1)}
+.stagebar{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--rule);background:var(--surface)}
+.stagebar button{all:unset;cursor:pointer;padding:14px 18px 16px;display:grid;gap:4px;position:relative;border-right:1px solid var(--rule)}
+.stagebar button:last-child{border-right:0}
+.stagebar button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.stagebar .k{font:600 11px/1 var(--mono);letter-spacing:.07em;color:var(--muted);text-transform:uppercase}
+.stagebar .v{font-size:14px;color:var(--ink-2);line-height:1.4}
+.stagebar .bar{position:absolute;left:0;top:0;height:3px;width:0;background:var(--accent)}
+.stagebar button.on .k{color:var(--accent)}
+.stagebar button.on .v{color:var(--ink)}
+
+/* marquee */
+.marquee{margin-inline:-20px;overflow:hidden;padding-block:26px 6px;mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);-webkit-mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent)}
+.track{display:flex;gap:16px;width:max-content;animation:slide 70s linear infinite}
+.marquee:hover .track{animation-play-state:paused}
+@keyframes slide{to{transform:translateX(-50%)}}
+.mcard{width:300px;flex:none;background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:10px;display:grid;gap:8px;transition:transform .3s ease,box-shadow .3s ease;cursor:pointer;text-align:left;font:inherit;color:inherit}
+.mcard:hover{transform:translateY(-4px);box-shadow:0 12px 30px rgba(10,30,30,.12)}
+.mcard .pair{display:grid;grid-template-columns:1fr 18px 1fr;align-items:center;gap:4px}
+.mcard .pair img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:5px;display:block}
+.mcard .pair i{font-style:normal;color:var(--accent);text-align:center;font-weight:700}
+.mcard .cap{font-size:12.5px;line-height:1.4;color:var(--ink-2);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:2.8em}
+.mcard .meta{display:flex;justify-content:space-between;font:600 10.5px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.mcard .meta b{color:var(--accent);font-weight:600}
+
+/* reveal */
+.rv{transition:transform .9s cubic-bezier(.2,.7,.2,1),opacity .9s ease}
+.rv.pre{transform:translateY(26px);opacity:.35}
+
+/* viewer autoplay */
+.play{font:600 12px/1 var(--mono);background:#E7F2EF;color:#0F1719;border:0;border-radius:6px;padding:8px 11px;cursor:pointer}
+.prog{height:2px;background:var(--v-rule);border-radius:2px;overflow:hidden;margin-top:8px}
+.prog i{display:block;height:100%;width:0;background:var(--v-acc)}
+.transcript .x.fresh{animation:fadein .5s ease both}
+@keyframes fadein{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+svg.chart .draw{transition:stroke-dashoffset 1.6s cubic-bezier(.3,.6,.2,1)}
+.wide-fig{background:#fff;border:1px solid var(--rule);border-radius:10px;padding:12px;overflow-x:auto}
+.wide-fig img{display:block;width:100%;min-width:640px;height:auto}
+
+@media (max-width:860px){
+  .topnav .ext{display:none}
+  .stagebar{grid-template-columns:1fr}
+  .stagebar button{border-right:0;border-bottom:1px solid var(--rule)}
+  .compare,.charts,.steps{grid-template-columns:1fr}
+  .steps div+div{padding-left:0;border-left:0;border-top:1px solid var(--rule)}
+  .stage{grid-template-columns:1fr}
+  .evidence li{grid-template-columns:1fr;gap:4px}
+}
+@media (max-width:560px){
+  .strip{grid-template-columns:1fr}
+  .strip div+div{padding-left:0;border-left:0;border-top:1px solid var(--rule)}
+  .viewer{padding:16px}
+  header.hero{padding-block:36px 24px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}.splash{display:none}.rv.pre{transform:none;opacity:1}}
+</style>
+
+</head>
+<body>
+<div class="splash" id="splash" aria-hidden="true">
+  <div class="inner">
+    <div class="word"><span>UMM</span><span class="dash" style="animation-delay:.12s">-</span><span style="animation-delay:.2s">Reflection</span></div>
+    <div class="loop">
+      <div class="sq" id="spImg"></div>
+      <div class="note" id="spNote"></div>
+    </div>
+    <div class="rounds" id="spRounds"><span>R0</span><span>R1</span><span>R2</span><span>R3</span></div>
+  </div>
+  <div class="hint">Move or scroll to enter</div>
+</div>
+
+<nav class="topnav" aria-label="Sections">
+  <div class="in">
+    <a class="brand" href="#top">UMM<span>-</span>Reflection</a>
+    <div class="sec" id="secnav">
+      <a href="#pipeline">Pipeline</a><a href="#video">Video</a><a href="#abstract">Abstract</a><a href="#finding">Finding</a><a href="#trajectories">Examples</a><a href="#results">Results</a><a href="#method">Method</a><a href="#cite">Citation</a>
+    </div>
+    <div class="ext"><a href="https://github.com/waltstephen/UMM-Reflection">Code</a><a href="https://huggingface.co/YijiaFan/UMM-Reflection-BAGEL-RL">Models</a><a href="https://huggingface.co/datasets/YijiaFan/UMM-Reflection-SFT-Data">Data</a></div>
+  </div>
+</nav>
+
+<div class="wrap" id="top">
+<header class="hero">
+  <div class="label">Unified multimodal models · Reinforcement learning · Test-time reflection</div>
+  <h1>UMM<span class="dash">-</span>Reflection</h1>
+  <p class="sub">Learning native reflection in unified models with interleaved reinforcement learning</p>
+  <p class="authors"><b>Authors</b> will be listed with the arXiv release.</p>
+  <nav class="links" aria-label="Resources">
+    <a class="btn" aria-disabled="true" role="link" tabindex="0" title="Coming soon">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2h9l5 5v15H6zM14 3.5V8h4.5zM8 12h8v1.5H8zm0 3h8v1.5H8zm0 3h5v1.5H8z"/></svg>Paper<span class="soon">arXiv · soon</span></a>
+    <a class="btn" href="https://github.com/waltstephen/UMM-Reflection">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.5a10.5 10.5 0 0 0-3.3 20.46c.52.1.72-.23.72-.5v-1.8c-2.93.64-3.55-1.4-3.55-1.4-.48-1.22-1.17-1.54-1.17-1.54-.95-.65.08-.64.08-.64 1.05.08 1.6 1.08 1.6 1.08.94 1.6 2.46 1.14 3.06.87.1-.68.37-1.14.66-1.4-2.34-.27-4.8-1.17-4.8-5.2 0-1.15.41-2.09 1.08-2.83-.1-.27-.47-1.34.1-2.8 0 0 .89-.28 2.9 1.08a10 10 0 0 1 5.27 0c2-1.36 2.89-1.08 2.89-1.08.58 1.46.21 2.53.1 2.8.68.74 1.08 1.68 1.08 2.83 0 4.04-2.46 4.92-4.8 5.18.38.33.72.97.72 1.96v2.9c0 .28.19.61.73.5A10.5 10.5 0 0 0 12 1.5z"/></svg>Code<span class="soon">GitHub</span></a>
+    <a class="btn" href="https://huggingface.co/YijiaFan/UMM-Reflection-BAGEL-RL">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm-3.6 7.2a1.4 1.4 0 1 1 0 2.8 1.4 1.4 0 0 1 0-2.8zm7.2 0a1.4 1.4 0 1 1 0 2.8 1.4 1.4 0 0 1 0-2.8zM7.3 14h9.4c-.6 2.2-2.5 3.8-4.7 3.8S7.9 16.2 7.3 14z"/></svg>Models<span class="soon">Hugging Face</span></a>
+    <a class="btn" href="https://huggingface.co/datasets/YijiaFan/UMM-Reflection-SFT-Data">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C7 2 3 3.8 3 6v12c0 2.2 4 4 9 4s9-1.8 9-4V6c0-2.2-4-4-9-4zm0 2c4.4 0 7 1.4 7 2s-2.6 2-7 2-7-1.4-7-2 2.6-2 7-2zM5 8.7C6.7 9.5 9.2 10 12 10s5.3-.5 7-1.3V12c0 .6-2.6 2-7 2s-7-1.4-7-2zm0 6C6.7 15.5 9.2 16 12 16s5.3-.5 7-1.3V18c0 .6-2.6 2-7 2s-7-1.4-7-2z"/></svg>Data<span class="soon">Hugging Face</span></a>
+    <a class="btn" href="#video">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zM10 8l6 4-6 4z"/></svg>Video<span class="soon">3 min</span></a>
+  </nav>
+  <figure id="pipeline" style="scroll-margin-top:70px">
+    <div class="pipe" id="pipe">
+      <div class="scroll"><div class="bands">
+        <div class="band" data-i="0"><img src="pipe_s1.png" alt="Stage 1, data construction: a prompt pool feeds an image generator; a VLM critic either accepts the image or writes an edit, an image editor applies it, and accepted trajectories are kept as one-shot, natural repair or planned progression."></div>
+        <div class="band" data-i="1"><img src="pipe_s2.png" alt="Stage 2, supervised initialization: interleaved text and image trajectories train unified BAGEL with text cross-entropy and image flow matching, giving the reflection policy pi SFT."></div>
+        <div class="band" data-i="2"><img src="pipe_s3.png" alt="Stage 3, reinforcement learning: from a shared first image, 16 complete trajectories are rolled out, scored by a frozen verifier into trajectory rewards, and a group-relative advantage updates text and flow jointly."></div>
+      </div></div>
+      <div class="stagebar" id="stagebar">
+        <button type="button" data-i="0"><span class="bar"></span><span class="k">Stage 1 · Data</span><span class="v">Build interleaved repair trajectories with a generator, a VLM critic and an editor.</span></button>
+        <button type="button" data-i="1"><span class="bar"></span><span class="k">Stage 2 · SFT</span><span class="v">Teach one unified model to write the reflection and draw the edit.</span></button>
+        <button type="button" data-i="2"><span class="bar"></span><span class="k">Stage 3 · RL</span><span class="v">Score 16 complete trajectories and update text and flow with one shared advantage.</span></button>
+      </div>
+    </div>
+    <figcaption><b>From borrowed critique to native reflection.</b> External models are used only to build the SFT data. After RL, a single model inspects and revises its own images, with no critic or verifier at inference.</figcaption>
+  </figure>
+  <div class="strip" role="list">
+    <div role="listitem"><div class="n">0.71 <small>→</small> <em>0.84</em></div><div class="t">GenEval overall, BAGEL base vs UMM-Reflection with three reflection rounds</div></div>
+    <div role="listitem"><div class="n"><em>64.9%</em> <small>vs 20.6%</small></div><div class="t">of wrong first images repaired by the end of reflection, after RL vs after SFT</div></div>
+    <div role="listitem"><div class="n"><em>+0.19</em> <small>WISE</small></div><div class="t">RL uses only GenEval-style prompts; WISE, OneIG and CompBench are held out</div></div>
+  </div>
+</header>
+
+<div class="marquee" aria-label="First image and final image for eight reflection trajectories"><div class="track" id="track"></div></div>
+
+<section id="video" aria-labelledby="h-vid">
+  <div class="label">Demo</div>
+  <h2 id="h-vid">UMM-Reflection in three minutes</h2>
+  <figure>
+    <div class="video"><video controls preload="metadata" playsinline poster="demo/cover.png">
+      <source src="demo/umm-reflection-3min.mp4" type="video/mp4">
+      <track kind="captions" src="demo/umm-reflection-3min.en.vtt" srclang="en" label="English">
+    </video></div>
+  </figure>
+</section>
+
+<section class="abstract" id="abstract" aria-labelledby="h-abs">
+  <h2 id="h-abs">Abstract</h2>
+  <div class="measure">
+    <p>Unified multimodal models can both look at and render images, so in principle they can repair their own generations: diagnose what an image gets wrong, revise it, observe the result, and diagnose again. Whether a revision helps is known only after it is rendered, so the reflection text and the image generation must be learned jointly, over the whole loop. Supervised fine-tuning (SFT) on reflection trajectories gives a cold start but does not find the high-success repair paths, and naive RL that optimizes only the renderer or only one head leaves most of the gain untapped.</p>
+    <p>We introduce <b>UMM-Reflection</b>, which applies reinforcement learning (RL) to complete reflection trajectories inside one unified model: sibling trajectories share one initial image, so the group-relative advantage compares reflection strategies, and one trajectory-level advantage updates both the reflection tokens and the flow-based revisions, avoiding the combinatorial blow-up of per-round credit assignment. Unlike single-round editing or pipelines with an external critic, credit flows across rounds and to both roles of the same model, and no verifier is needed at inference. On BAGEL, UMM-Reflection improves GenEval by 12.05 points over SFT, and the gains transfer to WISE (+10.97), OneIG-Bench (+3.48), and T2I-CompBench++ (+4.63), none of which is used in training.</p>
+  </div>
+</section>
+
+<section id="finding" aria-labelledby="h-find">
+  <div class="label">Key finding</div>
+  <h2 id="h-find">Reflection is only useful when it changes the image</h2>
+  <p class="lede measure">Writing a plausible critique is easy. Turning that critique into a better image is the hard part. We compare three ways to give BAGEL a second look at its own output on the 553 official GenEval prompts, each with up to three edits.</p>
+  <div class="compare rv">
+    <div class="col">
+      <div class="label">External critic</div>
+      <h3>BAGEL + GPT-5.5 critic</h3>
+      <p class="how">A frontier model reads each image and writes the edit instruction. BAGEL performs the edit.</p>
+      <dl class="kv"><dt>GenEval, final</dt><dd>0.79</dd><dt>Wrong images repaired</dt><dd>27.6%</dd></dl>
+      <p class="note">The critic declared 67 of the 163 wrong first images finished at round 0.</p>
+    </div>
+    <div class="col">
+      <div class="label">Imitation</div>
+      <h3>BAGEL-SFT reflection</h3>
+      <p class="how">The model is fine-tuned on interleaved reflection trajectories and reflects on its own.</p>
+      <dl class="kv"><dt>GenEval, final</dt><dd>0.72</dd><dt>Wrong images repaired</dt><dd>20.6%</dd></dl>
+      <p class="note">It writes reflections in the right format, but the edits rarely fix what was wrong.</p>
+    </div>
+    <div class="col ours">
+      <div class="label" style="color:var(--accent)">Learned from consequences</div>
+      <h3>UMM-Reflection</h3>
+      <p class="how">Same model and protocol, trained with whole-trajectory RL on the images its reflections produce.</p>
+      <dl class="kv"><dt>GenEval, final</dt><dd>0.84</dd><dt>Wrong images repaired</dt><dd>64.9%</dd></dl>
+      <p class="note">Reflection and generation are trained together, so a diagnosis is rewarded only when the edit it leads to is better.</p>
+    </div>
+  </div>
+  <figure class="rv">
+    <div class="wide-fig"><img src="rl_vs_sft.jpg" alt="Same GenEval prompt, a dog right of a tie. SFT keeps moving the tie and the dog back and forth and ends where it started. After RL the revisions move steadily into the correct-image region and end with the tie left of the dog."></div>
+    <figcaption><b>Same prompt, same first-round quality, different revisions.</b> SFT re-rolls the same mistake across rounds. After RL each edit builds on the previous one and the trajectory ends in the correct-image region. The state-space panel is schematic.</figcaption>
+  </figure>
+  <div class="evidence rv"><ul>
+    <li><span class="k">The gain is in the revisions</span><span class="v">First-round accuracy is 70–73 for base, SFT and RL models alike. With three reflection rounds, UMM-Reflection reaches 84, while base and SFT stay at 73 and 72.</span></li>
+    <li><span class="k">It fixes what resampling cannot</span><span class="v">On the 62 prompts where four independent BAGEL samples all fail, reflection after RL repairs 60% of wrong first images. SFT repairs 12%.</span></li>
+    <li><span class="k">It transfers</span><span class="v">RL sees only GenEval-style prompts. The same checkpoint improves WISE by 0.19, T2I-CompBench++ by 0.06 and OneIG-Bench by 0.02 over the base model.</span></li>
+  </ul></div>
+</section>
+
+<section id="trajectories" aria-labelledby="h-traj">
+  <div class="label">Examples</div>
+  <h2 id="h-traj">Step through real trajectories</h2>
+  <p class="lede measure">Each case is one unedited run of UMM-Reflection with a budget of three edits. Pick a round to see the image and the text the model wrote about it. The text is the model's own output in its interleaved format.</p>
+  <figure class="rv">
+    <div class="teaser"><img src="teaser.svg" alt="Three reflection trajectories on GenEval, WISE and CompBench prompts: initial image, the model's diagnosis and edit, two revisions, and the final image." loading="lazy"></div>
+    <figcaption><b>Three capabilities.</b> Spatial relations (GenEval), world knowledge (WISE) and shape binding (CompBench). Each arrow is one round of the model's own diagnosis and edit.</figcaption>
+  </figure>
+  <div class="viewer rv" id="viewer">
+    <div class="tabs" role="tablist" aria-label="Cases" id="tabs"></div>
+    <p class="prompt" id="prompt"></p>
+    <div class="stage">
+      <div>
+        <div class="bigimg"><img id="big" alt=""><span class="tag" id="bigtag"></span><span class="verdict" id="verdict" hidden></span></div>
+        <div class="film" id="film"></div>
+        <div class="prog"><i id="progbar"></i></div>
+      </div>
+      <div class="transcript" id="transcript" aria-live="polite"></div>
+    </div>
+    <div class="vfoot">
+      <span>Plays through the rounds on its own. Click a round or use <kbd>←</kbd> <kbd>→</kbd> to take over. GenEval cases show the official detector verdict for each round.</span>
+      <span class="stepper"><button type="button" class="play" id="play" aria-pressed="true">❚❚ Pause</button><button type="button" id="prev" aria-label="Previous round">← Round</button><button type="button" id="next" aria-label="Next round">Round →</button></span>
+    </div>
+  </div>
+</section>
+
+<section id="results" aria-labelledby="h-res">
+  <div class="label">Results</div>
+  <h2 id="h-res">More rounds help only after RL</h2>
+  <div class="charts">
+    <div class="card rv" id="c1">
+      <h3>GenEval accuracy by reflection budget</h3>
+      <p class="cap">Official 553 prompts and detector, 512 px. R0 is the first image; +k allows k edits.</p>
+      <div class="legend" id="lg1"></div>
+      <svg class="chart" id="ch1" viewBox="0 0 520 300" role="img" aria-label="Line chart of GenEval accuracy against reflection budget. Base: 71, 72, 73, 73. SFT: 70, 71, 72, 72. UMM-Reflection: 73, 82, 84, 84."></svg>
+    </div>
+    <div class="card rv" id="c2">
+      <h3>Repair rate during RL training</h3>
+      <p class="cap">Share of wrong first images that are correct after three edits, per checkpoint.</p>
+      <svg class="chart" id="ch2" viewBox="0 0 420 300" role="img" aria-label="Line chart of repair rate against RL updates: 0 updates 20.6%, 100: 35.6%, 200: 44.1%, 300: 56.0%, 400: 60.4%, 500: 61.1%, 1000: 64.9%."></svg>
+    </div>
+  </div>
+  <div class="tbl rv">
+    <table>
+      <thead><tr><th>Model</th><th>GenEval</th><th>WISE</th><th>OneIG</th><th>CompBench</th></tr></thead>
+      <tbody>
+        <tr><td>BAGEL-Base</td><td>0.71</td><td>0.55</td><td>0.80</td><td>0.49</td></tr>
+        <tr><td>BAGEL-SFT</td><td>0.72<span class="d">+0.00</span></td><td>0.63<span class="d">+0.08</span></td><td>0.79<span class="d">−0.01</span></td><td>0.50<span class="d">+0.01</span></td></tr>
+        <tr><td>BAGEL-Self-Agentic</td><td>0.77<span class="d">+0.05</span></td><td>0.61<span class="d">+0.06</span></td><td>0.81<span class="d">+0.00</span></td><td>0.52<span class="d">+0.03</span></td></tr>
+        <tr><td>BAGEL-T2I-RL (1k updates)</td><td>0.76<span class="d">+0.04</span></td><td>0.54<span class="d">−0.01</span></td><td>0.80<span class="d">−0.01</span></td><td>0.49<span class="d">+0.00</span></td></tr>
+        <tr class="ours"><td>UMM-Reflection</td><td>0.84<span class="d">+0.12</span></td><td>0.74<span class="d">+0.19</span></td><td>0.83<span class="d">+0.02</span></td><td>0.55<span class="d">+0.06</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="cap" style="font-size:13.5px;color:var(--muted)">All rows use the same prompts, resolution and scorer. Differences are relative to BAGEL-Base. T2I-RL applies the same RL budget to single-shot generation, with no reflection.</p>
+</section>
+
+<section id="method" aria-labelledby="h-met">
+  <div class="label">Method</div>
+  <h2 id="h-met">One model, one trajectory, one reward</h2>
+  <figure>
+    <div class="method-fig rv"><img src="method.jpg" alt="Training diagram. Left: the unified actor with text and flow parameters and joint attention rolls out 16 trajectories from a shared first image. Right: a verifier scores each round, the trajectory reward is group-normalized into one advantage, and that advantage updates both the text loss and the flow loss."></div>
+    <figcaption><b>Whole-trajectory RL.</b> Sixteen reflection trajectories start from the same first image. A verifier scores each round during training only. One group-normalized advantage per trajectory updates the text (understanding) and flow (generation) parameters together.</figcaption>
+  </figure>
+  <div class="steps rv">
+    <div><span class="n">Stage 1</span><h3>Learn the protocol</h3><p>SFT on interleaved trajectories teaches the model to inspect an image, write a diagnosis and an edit instruction, and generate the revised image in a single context.</p></div>
+    <div><span class="n">Stage 2</span><h3>Reward the whole sequence</h3><p>RL scores complete repair sequences by visual progress and final quality. The reflection text and the edited image share the credit, so neither is trained in isolation.</p></div>
+    <div><span class="n">Inference</span><h3>No verifier needed</h3><p>At test time the model reflects on its own output. The verifier is used only to compute training rewards.</p></div>
+  </div>
+</section>
+
+<section id="cite" aria-labelledby="h-cite">
+  <div class="label">Citation</div>
+  <h2 id="h-cite">BibTeX</h2>
+  <div class="bibwrap rv">
+<pre class="bib" id="bib">@article{ummreflection2026,
+  title   = {Learning Native Reflection in Unified Models
+             with Interleaved Reinforcement Learning},
+  author  = {Authors to be announced},
+  journal = {arXiv preprint},
+  year    = {2026}
+}</pre>
+    <button class="copy" type="button" id="copy">Copy</button>
+  </div>
+</section>
+
+<footer>
+  <span>Code on <a href="https://github.com/waltstephen/UMM-Reflection">GitHub</a>; models and training data on <a href="https://huggingface.co/YijiaFan/UMM-Reflection-BAGEL-RL">Hugging Face</a>.</span>
+  <span>UMM-Reflection · 2026</span>
+</footer>
+</div>
+
+<script>
+const CASES = [{"bench":"geneval","uid":"official553_position_0378","prompt":"Create an image with a sports ball left of an umbrella.","cat":"position","scoretype":"official_image_only_verdict","rounds":[{"img":"img/c0_r0.jpg","exact":false},{"img":"img/c0_r1.jpg","exact":false},{"img":"img/c0_r2.jpg","exact":true},{"img":"img/c0_r3.jpg","exact":true}],"events":[{"thinking":"The original user request is to create an image with a sports ball left of an umbrella. The current image shows a soccer ball on the left side of a colorful umbrella, which meets the basic elements of the request. However, the soccer ball is not distinctly a sports ball in the traditional sense, and the umbrella is quite large and colorful. To meet the user's request, the image should be edited to show a more typical sports ball, such as a basketball or a football, positioned to the left of an umbrella. The umbrella should be smaller and more appropriately scaled in relation to the sports ball to create a clear left-to-right spatial relationship between the two objects. The background should be kept simple to maintain focus on the sports ball and umbrella.","edit":"Create an image where a sports ball is positioned to the left of an umbrella. The sports ball should be a typical sports ball such as a basketball or a football, and the umbrella should be smaller and appropriately scaled to the right of the sports ball, creating a clear left-to-right spatial relationship. The background should be simple to keep the focus on the sports ball and umbrella."},{"thinking":"The user wants to create an image of a sports ball left of an umbrella. The image provided shows a soccer ball on the left side with a colorful umbrella on the right side, which meets the basic elements of the request but the soccer ball does not fully represent a sports ball in the context of the image. To meet the user's request, the image should be edited to show a clear distinction between the sports ball and the umbrella, with the sports ball placed distinctly to the left of the umbrella. The umbrella should be positioned to the right side of the image and be appropriately scaled in relation to the sports ball to maintain a sense of balance. The background should be kept simple to keep the focus on the two main objects.","edit":"Create an image where a sports ball is positioned distinctly to the left of an umbrella. The sports ball should be a typical sports ball such as a basketball or a football, and the umbrella should be smaller and appropriately scaled to the right of the sports ball, creating a clear left-to-right spatial relationship. The background should be simple to keep the focus on the sports ball and umbrella. The sports ball should be placed on the left side of the image, while the umbrella is on the right side, ensuring the ball is clearly left of the umbrella."},{"thinking":"The user wants to create an image with a sports ball left of an umbrella. The image provided shows a basketball and an umbrella, but the umbrella is not clearly an umbrella; it looks more like a kite or a sail. To meet the user's request, the image should be edited to show a sports ball, such as a soccer ball or a football, positioned to the left side of an actual umbrella. The umbrella should be depicted in a way that is recognizable as an umbrella, with a canopy and a handle, and it should be placed to the right side of the image, creating the left-to-right spatial relationship specified in the user's request.","edit":"Create an image where a sports ball is positioned distinctly to the left of an umbrella. The sports ball should be a typical sports ball such as a soccer ball or a football, and the umbrella should be smaller and appropriately scaled to the right of the sports ball, creating a clear left-to-right spatial relationship. The background should be simple to keep the focus on the sports ball and umbrella. The sports ball should be placed on the left side of the image, while the umbrella is on the right side, ensuring the ball is clearly left of the umbrella. The umbrella should be depicted as a standard umbrella with a canopy and a handle."}]},{"bench":"oneig","uid":"780_human_104","prompt":"Please generate an image capturing a moment in a stylish cafe, where two young women are enjoying coffee. Picture a beautifully crafted latte art and a blooming magnolia flower for a touch of elegance.","cat":"human","scoretype":"cached_official_alignment","rounds":[{"img":"img/c1_r0.jpg","exact":null},{"img":"img/c1_r1.jpg","exact":null},{"img":"img/c1_r2.jpg","exact":null},{"img":"img/c1_r3.jpg","exact":null}],"events":[{"thinking":"The original user request is to create an image capturing a moment in a stylish cafe where two young women are enjoying coffee, with a focus on the beautifully crafted latte art and a blooming magnolia flower for a touch of elegance. The provided image shows two women sitting at a table with cups of coffee, one of which has latte art, and there are magnolia flowers in the background. To meet the request, the image should be edited to show two young women in a cafe setting, with one of them holding a cup of coffee with latte art. The setting should be stylish with elements that suggest a cozy cafe atmosphere, such as wooden tables, ambient lighting, and decor that is sophisticated yet comfortable. The presence of a blooming magnolia flower should be included to add an elegant touch to the scene. The image should also convey a sense of enjoyment and relaxation, as the women are enjoying their coffee.","edit":"Create an image capturing a moment in a stylish cafe where two young women are enjoying coffee. The setting should be elegant with a focus on the beautifully crafted latte art and a blooming magnolia flower adding a touch of sophistication. The two women should be seated at a table, one holding a cup of coffee with intricate latte art, and the other possibly sipping from a cup. The background should feature elements of a chic cafe, such as modern decor, warm lighting, and possibly some greenery or flowers to enhance the ambiance. The image should evoke a sense of relaxation and enjoyment in a stylish environment."},{"thinking":"The user wants to create an image of two young women enjoying coffee in a stylish cafe setting. The image should feature a beautifully crafted latte art and a blooming magnolia flower for an elegant touch. The two women should be seated together, perhaps at a table, holding cups of coffee. The environment should convey a sense of style, so the cafe should be depicted with modern decor, perhaps some artwork on the walls, stylish furniture, and ambient lighting. The latte art on the coffee should be clearly visible, showing an artistic design that complements the elegant theme. The magnolia flower should be in full bloom and placed in a way that adds to the aesthetic appeal of the image without distracting from the main subjects.","edit":"Create an image of two young women enjoying coffee in a stylish cafe setting. The scene should depict them seated at a table with cups of coffee, one of which has a beautifully crafted latte art design. A blooming magnolia flower should be included in the image, possibly as part of a decorative element in the cafe, such as a vase on the table or hanging from the ceiling. The cafe should have a modern and chic atmosphere with stylish decor, comfortable seating, and warm lighting. The women should be casually dressed, perhaps in trendy outfits, and appear relaxed and happy, enjoying their time together. The image should emphasize elegance and a sense of style, with the latte art and magnolia flower enhancing the aesthetic."},{"thinking":"The user wants to create an image capturing a moment in a stylish cafe where two young women are enjoying coffee. The image should prominently feature a beautifully crafted latte art design and a blooming magnolia flower as a touch of elegance. The two women should be positioned in a way that suggests they are enjoying their time together, perhaps sitting at a table with their coffee cups in front of them. The setting should be designed to be stylish, with elements that convey a chic cafe atmosphere, such as modern decor, comfortable seating, and ambient lighting. The latte art should be clearly visible on the coffee cups, and the magnolia flower should be placed in a tasteful manner to enhance the elegance of the scene.","edit":"Create an image of two young women enjoying coffee in a stylish cafe setting. The focal point should be the beautifully crafted latte art on their coffee cups, which should be clearly visible and artistically designed. A blooming magnolia flower should be included in the image, possibly as part of a decorative element such as a vase or hanging ornament, adding an elegant touch to the scene. The two women should be seated together at a table, casually dressed, and appear relaxed and happy, enjoying their coffee. The cafe setting should be modern and chic, with stylish decor, comfortable seating, and warm lighting. The image should convey a sense of style and relaxation, with the latte art and magnolia flower enhancing the overall aesthetic."}]},{"bench":"compbench","uid":"color_000052","prompt":"Create an image with a blue backpack and a gold clock.","cat":"color","scoretype":"cached_official_binding_VQA","rounds":[{"img":"img/c2_r0.jpg","exact":null},{"img":"img/c2_r1.jpg","exact":null},{"img":"img/c2_r2.jpg","exact":null},{"img":"img/c2_r3.jpg","exact":null}],"events":[{"thinking":"The original user request is to create an image with a blue backpack and a gold clock. The current image shows a blue backpack and a gold clock, but the backpack appears to be a modern, possibly nylon, backpack with a contemporary design, while the clock looks like a traditional analog clock. To meet the user's request, the image should be edited to show a more classic or vintage style backpack to pair better with the gold clock. The clock should be clearly gold and have a design that complements the style of the backpack. The background should be adjusted to maintain a consistent setting that complements both objects.","edit":"Replace the modern blue backpack with a vintage-style blue backpack that has a classic design, possibly made of leather or a traditional fabric material. The gold clock should be more ornate and antique-looking, with Roman numerals and a brass finish. The background should be adjusted to a setting that matches the vintage aesthetic, such as an old wooden desk or shelf, to create a cohesive look."},{"thinking":"The user wants to create an image with a blue backpack and a gold clock. The current image shows a modern backpack and a clock, but the backpack is quite different in style compared to what might be described as a \"blue backpack\" in the context of the user's request. The backpack in the image is dark blue with leather straps, which might be more akin to a travel or work backpack rather than a casual blue backpack. For the image to meet the user's request, the backpack should be reimagined as a blue backpack with a more casual or everyday look, perhaps made of fabric. The gold clock should be kept as a key element, but it should be clearly gold in color and have a design that complements the casual style of the backpack, such as a simple analog face or a more minimalist design. The background of the image should be neutral or simple to keep the focus on the backpack and the clock.","edit":"Create an image featuring a casual blue backpack, likely made of fabric material such as nylon or canvas, with simple design elements such as a main compartment and side pockets. The backpack should be blue in color. Next to the backpack, include a gold-colored clock with a simple analog face design. The clock should be positioned close enough to the backpack to create a visual association between the two objects, perhaps resting on a surface near the backpack. The background should be minimalistic to keep the focus on the backpack and the clock."},{"thinking":"The user wants to create an image with a blue backpack and a gold clock. The current image shows a blue backpack, but it is not paired with a gold clock. The image depicts a plain blue backpack with no clock present, which does not meet the user's request. To meet the user's request, the image should be edited to show a blue backpack next to a gold clock. The clock should have a golden color and should be clearly visible and positioned next to the backpack to indicate that they are the two main subjects of the image.","edit":"Place a blue backpack next to a gold-colored clock to meet the user's request of creating an image with a blue backpack and a gold clock. The blue backpack should be positioned on one side of the image, and the gold clock should be placed on the other side, clearly visible and distinct. The background should be neutral to keep the focus on the backpack and the clock."}]},{"bench":"geneval","uid":"official553_two_object_0133","prompt":"Create an image with a computer keyboard and a microwave.","cat":"two_object","scoretype":"official_image_only_verdict","rounds":[{"img":"img/c3_r0.jpg","exact":false},{"img":"img/c3_r1.jpg","exact":true},{"img":"img/c3_r2.jpg","exact":true},{"img":"img/c3_r3.jpg","exact":true}],"events":[{"thinking":"The original user request is to create an image with a computer keyboard and a microwave. The current image shows a microwave oven on a kitchen countertop with a digital display and buttons, and there is a keyboard partially visible on the right side of the image. To meet the user's request, the image should be edited to show a computer keyboard and a microwave in a way that aligns with the original request. The microwave should be clearly visible and identifiable, and the computer keyboard should be present in the image, likely positioned near the microwave to suggest they are in the same space, such as a kitchen or an office setting. The image should be simple and focused on the two objects without any distracting background elements.","edit":"Place a computer keyboard next to a microwave in an image. The microwave should be on one side and the keyboard on the other side, clearly showing both objects. The setting should be a simple environment like a kitchen or a workspace to keep the focus on the two items."},{"thinking":"The user wants to create an image containing a computer keyboard and a microwave. The current image shows a microwave oven in a kitchen setting. To meet the user's request, the image should be edited to show a computer keyboard placed next to a microwave. The microwave should be a common household appliance, and the keyboard should be a typical computer keyboard, possibly resting on a desk or countertop near the microwave. The image should depict the two objects clearly and in a way that conveys their relationship as separate items in the same space.","edit":"Place a computer keyboard next to a microwave oven in the image. The microwave should be positioned on one side of the image, and the computer keyboard on the other side, likely on a desk or countertop. The scene should be simple and clean to emphasize the two objects. The microwave should be a typical kitchen appliance, and the keyboard should be a standard computer keyboard, placed parallel to the microwave to clearly show both items."},{"thinking":"The user wants to create an image with a computer keyboard and a microwave. The current image shows a microwave oven placed on a reflective surface next to a keyboard that is tilted and appears to be floating in mid-air, which does not meet the user's request. To meet the user's request, the image should be edited to show a computer keyboard placed next to a microwave oven. The microwave should be depicted as a typical kitchen appliance and the keyboard should be a conventional computer keyboard, positioned in a manner that clearly shows both objects together.","edit":"Place a standard computer keyboard next to a microwave oven in the image. The microwave should be positioned on one side, and the keyboard on the other side, both resting on a flat surface like a countertop or desk. The microwave should be a common household appliance, and the keyboard should be a typical computer keyboard, clearly showing both objects side by side. The image should depict the two items in a simple setting to emphasize their presence."}]},{"bench":"compbench","uid":"color_000177","prompt":"Create an image with a white snow and a blue sled.","cat":"color","scoretype":"cached_official_binding_VQA","rounds":[{"img":"img/c4_r0.jpg","exact":null},{"img":"img/c4_r1.jpg","exact":null},{"img":"img/c4_r2.jpg","exact":null},{"img":"img/c4_r3.jpg","exact":null}],"events":[{"thinking":"The original user request is to create an image with white snow and a blue sled. The current image shows a blue sled in a snowy environment, but the snow appears to be a mix of white and blue, which does not meet the requirement of having white snow. To meet the user's request, the image should be edited to show a scene with predominantly white snow and a blue sled. The background should be a snowy landscape to maintain the winter theme, and the sled should be clearly blue to stand out against the white snow. The sled should be positioned in a way that is visually appealing and consistent with the snowy setting.","edit":"Create an image with a white snowy landscape and a blue sled. The snow should be predominantly white, and the sled should be blue to stand out against the snow. The sled should be positioned in a snowy setting, possibly on a path or in a field, to maintain a winter theme. The background should be a snowy landscape to keep the image consistent with the request."},{"thinking":"The user wants to create an image with white snow and a blue sled. The current image shows a blue sled in a snowy setting, but the snow has a blue tint which does not match the user's request for white snow. To meet the user's request, the image should be edited to show a blue sled on a background that is entirely white snow. The sled should be clearly blue to contrast with the white snow, and the overall scene should be simple and clean to emphasize the sled and the snow.","edit":"Create an image with a blue sled on white snowy ground. The snow should be pure white, and the sled should be blue to stand out against the snow. The background should be a plain white snowy surface to maintain a clean and simple winter scene. The sled should be positioned in the center of the image to be the focal point, with no other objects or distractions in the scene."},{"thinking":"The user wants to create an image with white snow and a blue sled. The current image shows a blue sled on a plain white background, which is not a natural setting. To meet the user's request, the image should be edited to show a blue sled on a snowy landscape. The snow should be white, and the sled should be clearly blue to contrast with the snow. The sled should be placed in a setting that suggests a winter scene, perhaps in an open field or near a forest, to give context to the image.","edit":"Create an image of a blue sled on a snowy landscape. The snow should be white and cover the ground, creating a winter scene. The sled should be blue and positioned in a natural setting, such as in a snowy field or near a forest, to give context to the image. The background should include snow-covered trees or a horizon line to emphasize the snowy environment. The sled should be clearly visible and stand out against the white snow."}]},{"bench":"geneval","uid":"official553_position_0374","prompt":"Create an image with a dog right of a tie.","cat":"position","scoretype":"official_image_only_verdict","rounds":[{"img":"img/c5_r0.jpg","exact":false},{"img":"img/c5_r1.jpg","exact":true},{"img":"img/c5_r2.jpg","exact":true},{"img":"img/c5_r3.jpg","exact":true}],"events":[{"thinking":"The original user request is to create an image with a dog right of a tie. The current image shows a dog wearing a blue tie sitting in a living room, with a pair of ties lying on the floor to the right of the dog. To meet the user's request, the image should be edited so that the dog is positioned to the right of a single tie instead of wearing a tie around its neck. The tie should be placed to the left of the dog, clearly indicating that the dog is to the right of the tie. The background setting should be kept consistent with a living room environment to maintain context.","edit":"Place a tie to the left of a dog, with the dog positioned to the right of the tie. The image should depict the dog standing or sitting to the right side of the image, while the tie is laid out on the left side of the image, clearly indicating the dog's position relative to the tie. The setting should be a simple background to keep the focus on the dog and the tie."},{"thinking":"The user wants to create an image where a dog is positioned to the right of a tie. The current image shows a dog wearing a tie, which does not meet the user's request. To meet the user's request, the image should be edited such that the dog is placed to the right side of a necktie. The necktie should be on the left side of the image and the dog should be on the right side, clearly showing the dog's position relative to the tie. The background should be minimalistic to keep the focus on the dog and the tie.","edit":"Place a necktie on the left side of the image and position a dog to the right of the tie. The necktie should be upright and clearly separate from the dog, emphasizing the dog's position to the right of the tie. The background should be simple to maintain a clean composition, ensuring the focus is on the dog and the tie. The dog should be depicted standing or sitting appropriately to the right of the necktie."},{"thinking":"The user wants to create an image where a dog is positioned to the right of a tie. The image provided shows a dog wearing a necktie, which does not meet the user's requirement. To meet the user's request, the image should be edited to show a tie on the left side of the image and a dog to the right side of the tie. The dog should be clearly separate from the tie, and the overall composition should be simple with a neutral background.","edit":"Place a necktie on the left side of the image and position a dog to the right of the tie. The image should depict the dog standing or sitting to the right side of the image, clearly separate from the necktie. The necktie should be upright and positioned to the left of the dog, creating a visual separation between the two objects. The background should be neutral to keep the focus on the dog and the tie."}]},{"bench":"wise","uid":"0115_pid116","prompt":"An autumn delight, a fruit with cultural significance in Japan, often seen in traditional dishes and rituals.","cat":"Cultural knowledge","scoretype":"cached_WISE_judge","rounds":[{"img":"img/c6_r0.jpg","exact":null},{"img":"img/c6_r1.jpg","exact":null},{"img":"img/c6_r2.jpg","exact":null},{"img":"img/c6_r3.jpg","exact":null}],"events":[{"thinking":"The original user request is to create an image with an autumn delight, a fruit with cultural significance in Japan, often seen in traditional dishes and rituals. The current image shows a fruit that resembles a pomegranate with a smaller fruit on top, surrounded by autumn leaves, which aligns with the theme of autumn. However, the fruit does not distinctly match the description of a Japanese fruit commonly associated with cultural significance in dishes and rituals. The fruit in the image appears to be a pomegranate, which is not typically a fruit with significant cultural importance in Japan. To meet the request, the image should be edited to depict a Japanese fruit that is culturally significant. The fruit should be identified as a specific type of Japanese fruit, such as an umeboshi (pickled plum) or a kaki (persimmon), and it should be presented in a setting that reflects the autumn season, perhaps surrounded by leaves or other autumnal elements. The image should convey the theme of autumn delight while accurately representing the cultural significance of the fruit.","edit":"Create an image featuring a Japanese fruit with cultural significance in autumn, such as a persimmon (kaki), surrounded by autumn leaves. The persimmon should be prominently displayed, with a warm, autumnal color palette and elements that evoke traditional Japanese culture, such as a tatami mat background or traditional Japanese decorations. The image should depict the fruit in a setting that reflects the theme of autumn delight and cultural significance in Japanese traditions."},{"thinking":"The user wants to create an image of an autumn delight, which is a fruit with cultural significance in Japan, often seen in traditional dishes and rituals. The current image shows a fruit that looks like a pomegranate with a smaller fruit on top, which is not a Japanese fruit with cultural significance. The fruit in the image does not match the description of a Japanese fruit that is commonly used in Japanese cuisine and culture. To meet the user's request, the image should be edited to show a Japanese fruit such as a persimmon or a Japanese plum (umeboshi) that is culturally significant and often seen in traditional Japanese dishes and rituals during autumn. The background should be autumn-themed to match the season of autumn delight.","edit":"Create an image featuring a Japanese fruit that is culturally significant in autumn, such as a persimmon (kaki), surrounded by autumn leaves. The persimmon should be prominently displayed, with a warm, autumnal color palette and elements that evoke traditional Japanese culture, such as a tatami mat background or traditional Japanese decorations. The image should depict the fruit in a setting that reflects the theme of autumn delight and cultural significance in Japanese traditions. The fruit should be shown in a way that is consistent with Japanese culinary and cultural practices, perhaps placed in a traditional Japanese bowl or on a seasonal table setting."},{"thinking":"The user wants an image of an autumn delight, which is a fruit with cultural significance in Japan, often seen in traditional dishes and rituals. The current image shows a pumpkin, which is not a Japanese fruit with cultural significance. The pumpkin does not reflect the cultural context of Japan. To meet the user's request, the image should be edited to depict a Japanese fruit that is culturally significant, such as a persimmon (kaki), which is often associated with autumn and traditional Japanese cuisine. The image should be set in an autumn setting to emphasize the season of autumn delight.","edit":"Create an image featuring a Japanese fruit that is culturally significant in autumn, such as a persimmon (kaki), surrounded by autumn leaves. The persimmon should be prominently displayed, with a warm, autumnal color palette and elements that evoke traditional Japanese culture, such as a tatami mat background or traditional Japanese decorations. The image should depict the fruit in a setting that reflects the theme of autumn delight and cultural significance in Japanese traditions. The fruit should be shown in a way that is consistent with Japanese culinary and cultural practices, perhaps placed in a traditional Japanese bowl or on a seasonal table setting. The background should include elements that suggest autumn, such as maple leaves or a seasonal motif."}]},{"bench":"compbench","uid":"texture_000125","prompt":"Create an image with a plastic phone case and a fabric curtain.","cat":"texture","scoretype":"cached_official_binding_VQA","rounds":[{"img":"img/c7_r0.jpg","exact":null},{"img":"img/c7_r1.jpg","exact":null},{"img":"img/c7_r2.jpg","exact":null},{"img":"img/c7_r3.jpg","exact":null}],"events":[{"thinking":"The original user request is to create an image with a plastic phone case and a fabric curtain. The provided image shows a phone case with a glossy finish resting on a fabric surface, likely a towel, with natural light casting shadows. To meet the request, the image should be edited to show a phone case made of plastic material and a fabric curtain in the background. The phone case should have a more matte texture to suggest plastic, and the curtain should be depicted as a soft, textured fabric to contrast with the smooth plastic of the case. The lighting should be adjusted to maintain a natural look, possibly with soft shadows to match the fabric texture.","edit":"Create an image showing a phone case made of plastic material placed against a fabric curtain. The phone case should have a matte texture to indicate plastic, while the curtain should be depicted with a soft, textured fabric appearance. The setting should be natural and well-lit, with soft shadows to match the fabric texture, similar to the original image."},{"thinking":"The user wants to create an image with a plastic phone case and a fabric curtain. The image provided shows a phone case with a glossy finish resting against a fabric surface, likely a towel, with natural light casting shadows. To meet the user's request, the phone case should be made of plastic material, which generally has a matte finish compared to the glossy finish of the case in the image. The fabric curtain should be visible in the image, perhaps hanging in the background or draping around the phone case, emphasizing the fabric texture. The lighting should be adjusted to maintain a natural look with soft shadows, consistent with the source image.","edit":"Create an image featuring a phone case made of plastic material resting against a fabric curtain. The phone case should have a matte finish to suggest plastic, and the fabric curtain should be visible in the image, possibly hanging in the background or draped around the phone case, emphasizing its texture. The setting should be natural with soft lighting to maintain a realistic look, similar to the source image. The phone case should be positioned such that it contrasts with the fabric curtain, highlighting the difference in textures."},{"thinking":"The user wants to create an image with a plastic phone case and a fabric curtain. The image provided shows a phone case that seems to be more of a silicone or gel-like material rather than plastic. To meet the request, the image should be edited to show a phone case made of plastic, which typically has a matte finish and less shine than the glossy finish of the case in the image. The fabric curtain should be included as part of the image setting, possibly hanging in the background or draped around the phone case to create a contrasting texture between the smooth plastic of the case and the fabric of the curtain. The lighting should be natural to maintain consistency.","edit":"Create an image showing a phone case made of plastic material resting against a fabric curtain. The plastic phone case should have a matte finish to suggest plastic, contrasting with the fabric texture of the curtain. The fabric curtain should be visible in the image, possibly hanging in the background or draped around the phone case, emphasizing the difference in textures between the smooth plastic case and the fabric. The setting should be natural with soft lighting to maintain realism, similar to the source image. The phone case should be positioned to clearly show its plastic material, such as a matte finish, while the curtain provides a soft backdrop."}]}];
+const BENCH = {geneval:"GenEval", oneig:"OneIG-Bench", compbench:"CompBench", wise:"WISE"};
+const CAT = {position:"Spatial relation", two_object:"Two objects", human:"People", color:"Color binding", texture:"Texture binding", "Cultural knowledge":"Cultural knowledge"};
+const $ = id => document.getElementById(id);
+let ci = 0, ri = 0;
+
+function esc(s){return s.replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]))}
+
+function buildTabs(){
+  const t = $("tabs");
+  CASES.forEach((c,i)=>{
+    const b = document.createElement("button");
+    b.type="button"; b.className="tab"; b.id="tab-"+i; b.setAttribute("role","tab");
+    b.innerHTML = `<span class="b">${BENCH[c.bench]}</span>${CAT[c.cat]||c.cat}`;
+    b.onclick = ()=>{userTook(); ci=i; ri=0; render();};
+    t.appendChild(b);
+  });
+}
+function render(){
+  const c = CASES[ci];
+  CASES.forEach((_,i)=>$("tab-"+i).setAttribute("aria-selected", i===ci));
+  { const tb=$("tabs"), t=$("tab-"+ci); if(t.offsetLeft < tb.scrollLeft || t.offsetLeft+t.offsetWidth > tb.scrollLeft+tb.clientWidth) tb.scrollTo({left:t.offsetLeft-12,behavior:"smooth"}); }
+  $("prompt").innerHTML = `<span class="src">${BENCH[c.bench]} · ${CAT[c.cat]||c.cat}</span>${esc(c.prompt)}`;
+  const names = ["Initial","Revision 1","Revision 2","Revision 3 · final"];
+  const f = $("film"); f.innerHTML="";
+  c.rounds.forEach((r,i)=>{
+    const b=document.createElement("button"); b.type="button"; b.className="frame";
+    b.setAttribute("aria-current", i===ri); b.setAttribute("aria-label", names[i]);
+    b.innerHTML=`<img src="${r.img}" alt="" loading="lazy"><span>R${i}${i===3?" · final":""}</span>`;
+    b.onclick=()=>{userTook(); ri=i; render();};
+    f.appendChild(b);
+  });
+  const r = c.rounds[ri];
+  const big=$("big"); big.src=r.img; big.alt=`${names[ri]} image for: ${c.prompt}`;
+  $("bigtag").textContent = names[ri].toUpperCase();
+  const v=$("verdict");
+  if (r.exact===true||r.exact===false){ v.hidden=false; v.className="verdict "+(r.exact?"ok":"no"); v.textContent = r.exact?"✓ GENEVAL PASS":"✗ GENEVAL FAIL"; }
+  else v.hidden=true;
+  const tr=$("transcript");
+  if (ri < c.events.length){
+    const e=c.events[ri];
+    tr.innerHTML = `<div class="row"><span class="t">[CURRENT_ROUND]</span><span class="x">Round#${ri}</span></div>
+<div class="row"><span class="t">[ACTION]</span><span class="x">edit</span></div>
+<div class="row"><span class="t">[THINKING]</span><span class="x fresh">${esc(e.thinking)}</span></div>
+<div class="row"><span class="t">[SOURCE_IMAGE]</span><span class="x">Image #${ri}</span></div>
+<div class="row"><span class="t">[EDIT]  → produces Revision ${ri+1}</span><span class="x edit fresh" style="animation-delay:.15s">${esc(e.edit)}</span></div>`;
+  } else {
+    tr.innerHTML = `<div class="row"><span class="t">[CURRENT_ROUND]</span><span class="x">Round#${ri}</span></div>
+<div class="row done">The edit budget of three rounds is used up. This is the image the model returns.</div>`;
+  }
+  tr.scrollTop=0;
+}
+function step(d){userTook(); ri=Math.max(0,Math.min(3,ri+d)); render();}
+$("prev").onclick=()=>step(-1); $("next").onclick=()=>step(1);
+$("viewer").addEventListener("keydown",e=>{
+  if(e.key==="ArrowLeft"){step(-1);e.preventDefault();}
+  if(e.key==="ArrowRight"){step(1);e.preventDefault();}
+});
+buildTabs(); render();
+
+/* ---------- viewer autoplay ---------- */
+const RM = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const DWELL = 4200;
+let auto = !RM, inView = false, t0 = performance.now();
+function setPlay(on){ auto=on; $("play").setAttribute("aria-pressed",on); $("play").textContent = on ? "❚❚ Pause" : "▶ Play"; t0=performance.now(); if(!on) $("progbar").style.width="0"; }
+function userTook(){ if(auto) setPlay(false); }
+$("play").onclick=()=>setPlay(!auto);
+if(RM) setPlay(false);
+function tick(now){
+  if(auto && inView && !document.hidden){
+    const p=(now-t0)/DWELL;
+    $("progbar").style.width=Math.min(100,p*100)+"%";
+    if(p>=1){ if(ri<3){ri++;} else {ci=(ci+1)%CASES.length; ri=0;} render(); t0=now; }
+  } else { t0 = now - (parseFloat($("progbar").style.width||0)/100)*DWELL; }
+  requestAnimationFrame(tick);
+}
+new IntersectionObserver(es=>{inView=es[0].isIntersecting;},{threshold:.35}).observe($("viewer"));
+requestAnimationFrame(tick);
+
+
+$("copy").onclick = async ()=>{
+  try{ await navigator.clipboard.writeText($("bib").textContent); $("copy").textContent="Copied"; }
+  catch(_){ const r=document.createRange(); r.selectNodeContents($("bib")); const s=getSelection(); s.removeAllRanges(); s.addRange(r); $("copy").textContent="Selected, press Ctrl+C"; }
+  setTimeout(()=>$("copy").textContent="Copy",1800);
+};
+
+/* ---------- charts ---------- */
+const NS="http://www.w3.org/2000/svg";
+function el(tag,attrs,parent){const n=document.createElementNS(NS,tag);for(const k in attrs)n.setAttribute(k,attrs[k]);parent&&parent.appendChild(n);return n;}
+function tipFor(card){let t=card.querySelector(".tip"); if(!t){t=document.createElement("div");t.className="tip";t.hidden=true;card.appendChild(t);} return t;}
+function place(tip,card,svg,x,y){
+  const sr=svg.getBoundingClientRect(), cr=card.getBoundingClientRect(), vb=svg.viewBox.baseVal;
+  const px=sr.left-cr.left + x*sr.width/vb.width, py=sr.top-cr.top + y*sr.height/vb.height;
+  tip.hidden=false;
+  const w=tip.offsetWidth; let left=px+12; if(left+w>cr.width-8) left=px-12-w;
+  tip.style.left=left+"px"; tip.style.top=Math.max(8,py-tip.offsetHeight/2)+"px";
+}
+
+// Chart 1: accuracy by budget
+(function(){
+  const svg=$("ch1"), card=$("c1");
+  const S=[
+    {name:"Base", c:"var(--s-base)", v:[71,72,73,73]},
+    {name:"SFT", c:"var(--s-sft)", v:[70,71,72,72]},
+    {name:"UMM-Reflection", c:"var(--s-ours)", v:[73,82,84,84]},
+  ];
+  const X=["R0","+1","+2","+3"];
+  const L=44,R=400,T=16,B=264, y0=66,y1=86;
+  const xs=i=>L+i*(R-L)/3, ys=v=>B-(v-y0)/(y1-y0)*(B-T);
+  for(let v=66;v<=86;v+=4){ el("line",{x1:L,x2:R,y1:ys(v),y2:ys(v),stroke:"var(--grid)","stroke-width":1},svg); const t=el("text",{x:L-10,y:ys(v)+4,"text-anchor":"end"},svg); t.textContent=v; }
+  X.forEach((x,i)=>{const t=el("text",{x:xs(i),y:B+22,"text-anchor":"middle"},svg); t.textContent=x;});
+  const ax=el("text",{x:(L+R)/2,y:B+34+4,"text-anchor":"middle"},svg); ax.textContent="";
+  const lg=$("lg1");
+  S.forEach(s=>{lg.insertAdjacentHTML("beforeend",`<span><i style="background:${s.c}"></i>${s.name}</span>`);});
+  const cross=el("line",{x1:0,x2:0,y1:T,y2:B,stroke:"var(--muted)","stroke-width":1,"stroke-dasharray":"3 3",opacity:0},svg);
+  S.forEach(s=>{
+    el("polyline",{class:"draw",points:s.v.map((v,i)=>xs(i)+","+ys(v)).join(" "),fill:"none",stroke:s.c,"stroke-width":2.2,"stroke-linejoin":"round","stroke-linecap":"round"},svg);
+    s.v.forEach((v,i)=>el("circle",{cx:xs(i),cy:ys(v),r:4,fill:s.c,stroke:"var(--surface)","stroke-width":2},svg));
+  });
+  // direct labels at end, nudged apart
+  const ends=[{s:S[2],y:ys(84)},{s:S[0],y:ys(73)-7},{s:S[1],y:ys(72)+9}];
+  ends.forEach(e=>{const t=el("text",{x:R+10,y:e.y+4,class:"dl"},svg); t.textContent=`${e.s.name==="UMM-Reflection"?"Ours":e.s.name} ${e.s.v[3]}`;});
+  const tip=tipFor(card);
+  const hit=el("rect",{x:L-20,y:T,width:R-L+40,height:B-T,fill:"transparent"},svg);
+  hit.addEventListener("pointermove",ev=>{
+    const p=svg.createSVGPoint(); p.x=ev.clientX;p.y=ev.clientY; const q=p.matrixTransform(svg.getScreenCTM().inverse());
+    const i=Math.max(0,Math.min(3,Math.round((q.x-L)/((R-L)/3))));
+    cross.setAttribute("x1",xs(i));cross.setAttribute("x2",xs(i));cross.setAttribute("opacity",1);
+    tip.innerHTML=`<b>${X[i]==="R0"?"First image":X[i]+" edit"+(i>1?"s":"")}</b><br>`+S.slice().reverse().map(s=>`${s.name}: <b>${s.v[i]}</b>`).join("<br>");
+    place(tip,card,svg,xs(i),ys(78));
+  });
+  hit.addEventListener("pointerleave",()=>{tip.hidden=true;cross.setAttribute("opacity",0);});
+})();
+
+// Chart 2: repair rate vs RL updates
+(function(){
+  const svg=$("ch2"), card=$("c2");
+  const P=[[0,20.6],[100,35.6],[200,44.1],[300,56.0],[400,60.4],[500,61.1],[1000,64.9]];
+  const L=44,R=396,T=16,B=264;
+  const xs=u=>L+u/1000*(R-L), ys=v=>B-v/80*(B-T);
+  for(let v=0;v<=80;v+=20){ el("line",{x1:L,x2:R,y1:ys(v),y2:ys(v),stroke:"var(--grid)","stroke-width":1},svg); const t=el("text",{x:L-10,y:ys(v)+4,"text-anchor":"end"},svg); t.textContent=v+"%"; }
+  [0,250,500,750,1000].forEach(u=>{const t=el("text",{x:xs(u),y:B+22,"text-anchor":"middle"},svg); t.textContent=u.toLocaleString("en-US");});
+  const xl=el("text",{x:R,y:B+22+16,"text-anchor":"end"},svg); xl.textContent="RL updates";
+  const area="M"+xs(0)+","+B+" "+P.map(p=>"L"+xs(p[0])+","+ys(p[1])).join(" ")+" L"+xs(1000)+","+B+" Z";
+  el("path",{d:area,fill:"var(--s-ours)",opacity:.1},svg);
+  el("polyline",{class:"draw",points:P.map(p=>xs(p[0])+","+ys(p[1])).join(" "),fill:"none",stroke:"var(--s-ours)","stroke-width":2.2,"stroke-linejoin":"round"},svg);
+  const dots=P.map((p,i)=>el("circle",{cx:xs(p[0]),cy:ys(p[1]),r:i===P.length-1?5:4,fill:"var(--s-ours)",stroke:"var(--surface)","stroke-width":2},svg));
+  const a=el("text",{x:xs(0)+8,y:ys(20.6)+18,class:"dl"},svg); a.textContent="SFT 20.6%";
+  const b=el("text",{x:xs(1000),y:ys(64.9)-12,class:"dl","text-anchor":"end"},svg); b.textContent="64.9%";
+  const tip=tipFor(card);
+  const hit=el("rect",{x:L-20,y:T,width:R-L+40,height:B-T,fill:"transparent"},svg);
+  hit.addEventListener("pointermove",ev=>{
+    const p=svg.createSVGPoint(); p.x=ev.clientX;p.y=ev.clientY; const q=p.matrixTransform(svg.getScreenCTM().inverse());
+    let k=0,best=1e9; P.forEach((pt,i)=>{const d=Math.abs(xs(pt[0])-q.x); if(d<best){best=d;k=i;}});
+    dots.forEach((d,i)=>d.setAttribute("r",i===k?6:(i===P.length-1?5:4)));
+    tip.innerHTML=`<b>${P[k][0]===0?"SFT (0 RL updates)":P[k][0].toLocaleString("en-US")+" RL updates"}</b><br>Repair rate: <b>${P[k][1].toFixed(1)}%</b>`;
+    place(tip,card,svg,xs(P[k][0]),ys(P[k][1]));
+  });
+  hit.addEventListener("pointerleave",()=>{tip.hidden=true;dots.forEach((d,i)=>d.setAttribute("r",i===P.length-1?5:4));});
+})();
+
+
+/* ---------- splash ---------- */
+(function(){
+  const sp=$("splash"); if(RM){sp.remove();return;}
+  const c=CASES[5]; const box=$("spImg"), note=$("spNote"), rs=[...$("spRounds").children];
+  const imgs=c.rounds.map((r,i)=>{const im=new Image(); im.src=r.img; im.alt=""; if(i===0) im.className="on"; box.appendChild(im); return im;});
+  const cut=t=>{t=t.replace(/^Create an image (where|with) /,""); return t.length>96? t.slice(0,94).replace(/\s\S*$/,"")+"…" : t;};
+  const notes=[["[EDIT] → R1",cut(c.events[0].edit)],["[EDIT] → R2",cut(c.events[1].edit)],["[EDIT] → R3",cut(c.events[2].edit)],["[FINAL] R3","GenEval verdict: pass"]];
+  let k=0;
+  function show(){ imgs.forEach((im,i)=>im.classList.toggle("on",i===k)); rs.forEach((r,i)=>r.classList.toggle("on",i===k)); note.innerHTML=`<b>${notes[k][0]}</b>${esc(notes[k][1])}`; }
+  show(); const iv=setInterval(()=>{k=(k+1)%4; show();},1100);
+  let armed=false; setTimeout(()=>armed=true,900);
+  function go(force){ if(!armed && !force) return; clearInterval(iv); sp.classList.add("gone"); ["wheel","touchmove","keydown","pointermove","click"].forEach(e=>removeEventListener(e,h)); setTimeout(()=>sp.remove(),900); startPipe(); }
+  const h=()=>go(false);
+  ["wheel","touchmove","keydown","pointermove","click"].forEach(e=>addEventListener(e,h,{passive:true}));
+  setTimeout(()=>go(true),5200);
+})();
+
+/* ---------- scrollspy ---------- */
+(function(){
+  const links=[...document.querySelectorAll("#secnav a")];
+  const map=new Map(links.map(a=>[a.getAttribute("href").slice(1),a]));
+  const io=new IntersectionObserver(es=>{
+    es.forEach(e=>{ if(e.isIntersecting){ links.forEach(l=>l.classList.remove("on")); const a=map.get(e.target.id); a&&a.classList.add("on"); }});
+  },{rootMargin:"-45% 0px -50% 0px"});
+  map.forEach((_,id)=>{const n=document.getElementById(id); n&&io.observe(n);});
+})();
+
+/* ---------- pipeline stages ---------- */
+let startPipe=()=>{};
+(function(){
+  const pipe=$("pipe"), bands=[...pipe.querySelectorAll(".band")], btns=[...$("stagebar").children];
+  let cur=-1, autoP=true, t=0, raf=0; const D=4600;
+  function sel(i){ cur=i; pipe.classList.toggle("focus",i>=0); bands.forEach((b,j)=>b.classList.toggle("on",j===i)); btns.forEach((b,j)=>{b.classList.toggle("on",j===i); b.setAttribute("aria-pressed",j===i); if(j!==i) b.querySelector(".bar").style.width="0";}); }
+  function loop(now){ if(!autoP) return; if(!t) t=now; const p=(now-t)/D; if(cur>=0) btns[cur].querySelector(".bar").style.width=Math.min(100,p*100)+"%"; if(p>=1){ t=now; if(cur===2){ stop(); sel(-1); return;} sel(cur+1);} raf=requestAnimationFrame(loop); }
+  function stop(){ autoP=false; cancelAnimationFrame(raf); btns.forEach(b=>b.querySelector(".bar").style.width="0"); }
+  const pick=i=>{ stop(); sel(cur===i?-1:i); };
+  btns.forEach((b,i)=>b.onclick=()=>pick(i));
+  bands.forEach((b,i)=>b.onclick=()=>pick(i));
+  startPipe=()=>{ if(RM||!autoP) return; sel(0); t=0; raf=requestAnimationFrame(loop); };
+  if(RM) autoP=false;
+})();
+
+/* ---------- marquee ---------- */
+(function(){
+  const tr=$("track");
+  const card=(c,i)=>`<button type="button" class="mcard" data-i="${i}" tabindex="-1"><div class="pair"><img src="${c.rounds[0].img}" alt="" loading="lazy"><i>→</i><img src="${c.rounds[3].img}" alt="" loading="lazy"></div><div class="meta"><span>${BENCH[c.bench]}</span><b>R0 → R3</b></div><div class="cap">${esc(c.prompt)}</div></button>`;
+  const html=CASES.map(card).join("");
+  tr.innerHTML=html+html;
+  tr.addEventListener("click",e=>{const b=e.target.closest(".mcard"); if(!b) return; userTook(); ci=+b.dataset.i; ri=0; render(); $("trajectories").scrollIntoView({behavior:RM?"auto":"smooth"});});
+})();
+
+/* ---------- reveal & chart draw ---------- */
+(function(){
+  const lines=[...document.querySelectorAll("svg.chart .draw")];
+  if(!RM){ lines.forEach(l=>{const L=l.getTotalLength(); l.style.strokeDasharray=L; l.style.strokeDashoffset=L;}); }
+  const vh=innerHeight;
+  const items=[...document.querySelectorAll(".rv")].filter(n=>n.getBoundingClientRect().top>vh*0.92);
+  if(RM) return;
+  items.forEach(n=>n.classList.add("pre"));
+  const io=new IntersectionObserver(es=>es.forEach(e=>{ if(!e.isIntersecting) return; e.target.classList.remove("pre"); e.target.querySelectorAll(".draw").forEach(l=>l.style.strokeDashoffset=0); io.unobserve(e.target); }),{threshold:.15});
+  document.querySelectorAll(".rv").forEach(n=>io.observe(n));
+  setTimeout(()=>{items.forEach(n=>n.classList.remove("pre")); lines.forEach(l=>l.style.strokeDashoffset=0);},9000);
+})();
+
+document.querySelectorAll('.btn[aria-disabled="true"]').forEach(b=>b.addEventListener("click",e=>e.preventDefault()));
+</script>
+
+</body>
+</html>

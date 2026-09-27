@@ -1,0 +1,10 @@
+# Weights, data and run outputs live outside version control.
+/pretrained/
+/data/
+/outputs/
+wandb/
+
+__pycache__/
+*.pyc
+*.egg-info/
+.ipynb_checkpoints/

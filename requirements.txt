@@ -1,0 +1,27 @@
+# Trainer environment: SFT, RL and GenEval-553 generation.
+# Python 3.10 with CUDA 12. Install torch and flash-attn first:
+#   pip install torch==2.5.1 torchvision==0.20.1 --index-url https://download.pytorch.org/whl/cu124
+#   pip install flash_attn==2.7.4.post1 --no-build-isolation
+#   pip install -r requirements.txt
+torch==2.5.1
+torchvision==0.20.1
+accelerate==1.7.0
+transformers==4.49.0
+huggingface_hub==0.29.1
+safetensors==0.4.5
+sentencepiece==0.1.99
+diffusers==0.33.1
+peft==0.10.0
+numpy==1.24.4
+pyarrow==11.0.0
+opencv-python==4.7.0.72
+decord==0.6.0
+einops==0.8.1
+PyYAML==6.0.2
+requests==2.32.3
+ml_collections
+absl-py
+regex
+pillow
+tqdm
+wandb

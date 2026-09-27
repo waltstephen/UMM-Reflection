@@ -1,0 +1,85 @@
+clean29529_multiround_controller:
+  dataset_names:
+  - clean29529_multiround_controller
+  cache_dir: ${UNIFY_RL_DATA_ROOT}/sft/pixel_cache
+  image_transform_args:
+    image_stride: 16
+    max_image_size: 1024
+    min_image_size: 512
+  vit_image_transform_args:
+    image_stride: 14
+    max_image_size: 364
+    min_image_size: 224
+  is_mandatory: true
+  num_used_data:
+  - 100
+  weight: 4
+
+clean29529_transition_mse:
+  dataset_names:
+  - clean29529_transition_mse
+  cache_dir: ${UNIFY_RL_DATA_ROOT}/sft/pixel_cache
+  image_transform_args:
+    image_stride: 16
+    max_image_size: 1024
+    min_image_size: 512
+  vit_image_transform_args:
+    image_stride: 14
+    max_image_size: 364
+    min_image_size: 224
+  is_mandatory: false
+  num_used_data:
+  - 96
+  weight: 4
+
+clean29529_verifier_state:
+  dataset_names:
+  - clean29529_verifier_state
+  cache_dir: ${UNIFY_RL_DATA_ROOT}/sft/pixel_cache
+  image_transform_args:
+    image_stride: 16
+    max_image_size: 1024
+    min_image_size: 512
+  vit_image_transform_args:
+    image_stride: 14
+    max_image_size: 364
+    min_image_size: 224
+  is_mandatory: false
+  num_used_data:
+  - 96
+  weight: 4
+
+clean29529_penultimate_verifier_state:
+  dataset_names:
+  - clean29529_penultimate_verifier_state
+  cache_dir: ${UNIFY_RL_DATA_ROOT}/sft/pixel_cache
+  image_transform_args:
+    image_stride: 16
+    max_image_size: 1024
+    min_image_size: 512
+  vit_image_transform_args:
+    image_stride: 14
+    max_image_size: 364
+    min_image_size: 224
+  is_mandatory: false
+  num_used_data:
+  - 96
+  weight: 1
+
+base_prompt_only_anchor_mse:
+  dataset_names:
+  - reflection_t2i
+  cache_dir: ${UNIFY_RL_DATA_ROOT}/sft/anchor/pixel_cache
+  anchor_allowlist_path: ${UNIFY_RL_DATA_ROOT}/sft/rows/base_anchor_allowlist.json
+  image_transform_args:
+    image_stride: 16
+    max_image_size: 1024
+    min_image_size: 512
+  vit_image_transform_args:
+    image_stride: 14
+    max_image_size: 364
+    min_image_size: 224
+  is_mandatory: false
+  num_used_data:
+  - 96
+  weight: 1

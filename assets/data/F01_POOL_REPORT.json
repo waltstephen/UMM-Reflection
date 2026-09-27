@@ -1,0 +1,32 @@
+{
+  "available": {
+    "color_attr": 8824,
+    "colors": 686,
+    "counting": 752,
+    "position": 20588,
+    "single_object": 80,
+    "two_object": 2941
+  },
+  "dev_rows": 270,
+  "dev_sha256": "45296eea605a6f6370db0d27282e3ae0d2b8ccbf1dea23914637cad7d9487ba6",
+  "pool_version": "clean29529_f01_geneval_pool_v1",
+  "seed": 20260829,
+  "shortfall": {},
+  "train_allocation": {
+    "color_attr": 559,
+    "colors": 187,
+    "counting": 702,
+    "position": 1305,
+    "single_object": 60,
+    "two_object": 187
+  },
+  "train_rows": 3000,
+  "train_sha256": "fc1aa7e9d352ac9eb20f6f69074981be2d470a3c103368f24e0d092315a89f27",
+  "weights": {
+    "color_attr": 0.17647058823529413,
+    "colors": 0.05882352941176471,
+    "counting": 0.29411764705882354,
+    "position": 0.4117647058823529,
+    "two_object": 0.05882352941176471
+  }
+}

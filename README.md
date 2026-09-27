@@ -5,6 +5,10 @@ Training code for teaching a unified understanding-and-generation model
 its own image, decide whether it is done, and, if not, write an edit and render
 a corrected image, all inside one model and one context.
 
+**[Project page](https://waltstephen.github.io/UMM-Reflection/)** (with a 3-minute video) ·
+[Models](https://huggingface.co/YijiaFan/UMM-Reflection-BAGEL-RL) ·
+[Data](https://huggingface.co/datasets/YijiaFan/UMM-Reflection-SFT-Data)
+
 The pipeline has three stages:
 
 1. **Reflection SFT.** Fine-tune base BAGEL on multi-round reflection

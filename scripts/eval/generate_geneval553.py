@@ -12,8 +12,10 @@ Arms:
 * ``base`` -- pretrained BAGEL-7B-MoT (``--model-dir``, default ``$BAGEL_BASE_DIR``).
 * ``sft``  -- the SFT overlay built by ``scripts/rl/make_rl_init.sh`` (``--model-dir``,
   default ``$RL_INIT_DIR``).
-* ``rl``   -- the SFT overlay plus an RL checkpoint: the 784 language-model
-  tensors from ``<checkpoint>/dcp`` and the nine auxiliary tensors exported by
+* ``rl``   -- either a merged RL model directory (``--model-dir``, e.g. the
+  released UMM-Reflection-BAGEL-RL weights), or the SFT overlay plus an RL
+  checkpoint (``--checkpoint``): the 784 language-model tensors from
+  ``<checkpoint>/dcp`` and the nine auxiliary tensors exported by
   ``scripts/rl/export_checkpoint_auxiliary.py``.
 
 Output: ``<output-root>/<label>/samples/<sample_id>/{round_XX.jpg,final.jpg,result.json}``.
@@ -195,7 +197,7 @@ def build_rollout(args, model_dir: Path, device):
     for parameter in model.parameters():
         parameter.requires_grad_(False)
     checkpoint_load = None
-    if args.arm == "rl":
+    if args.checkpoint is not None:
         checkpoint_load = load_language_checkpoint(model, Path(args.checkpoint))
         auxiliary = Path(args.auxiliary_safetensors or Path(args.checkpoint) / "auxiliary.safetensors")
         checkpoint_load["auxiliary_tensor_count"] = load_auxiliary(model, auxiliary)
@@ -237,7 +239,8 @@ def main() -> None:
                              "pretrained/BAGEL-7B-MoT for base, $RL_INIT_DIR or "
                              "outputs/rl_init for sft/rl)")
     parser.add_argument("--checkpoint", default=None,
-                        help="rl only: an RL checkpoint-N directory")
+                        help="rl only: an RL checkpoint-N directory loaded on top of "
+                             "--model-dir; omit when --model-dir is a merged RL model")
     parser.add_argument("--auxiliary-safetensors", default=None,
                         help="rl only: default <checkpoint>/auxiliary.safetensors")
     parser.add_argument("--raw-prompt", action="store_true",
@@ -256,8 +259,10 @@ def main() -> None:
     parser.add_argument("--label", default=None)
     args = parser.parse_args()
 
-    if (args.arm == "rl") != (args.checkpoint is not None):
-        raise SystemExit("--checkpoint is required for --arm rl and only valid there")
+    if args.checkpoint is not None and args.arm != "rl":
+        raise SystemExit("--checkpoint is only valid with --arm rl")
+    if args.arm == "rl" and args.checkpoint is None and args.model_dir is None:
+        raise SystemExit("--arm rl needs --checkpoint or a merged RL --model-dir")
     if not 0 <= args.shard < args.shards:
         raise SystemExit("--shard must be in [0, --shards)")
     if args.arm == "base":
@@ -278,7 +283,8 @@ def main() -> None:
     if label is None:
         label = args.arm
         if args.arm == "rl":
-            label += "-" + Path(args.checkpoint).resolve().name
+            label += "-" + (Path(args.checkpoint).resolve().name
+                            if args.checkpoint is not None else model_dir.name)
         if args.raw_prompt:
             label += "-rawprompt"
         if args.r0_only:

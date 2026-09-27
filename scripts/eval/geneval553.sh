@@ -7,9 +7,12 @@
 # finished samples are skipped and already-scored samples are not rescored.
 #
 # Required:  ARM                 base | sft | rl
-#            CHECKPOINT          rl only: an RL checkpoint-N directory
+#            rl: either MODEL_DIR  a merged RL model (e.g. the released
+#                                  UMM-Reflection-BAGEL-RL weights)
+#                or CHECKPOINT     an RL checkpoint-N directory, loaded on top
+#                                  of MODEL_DIR (default RL_INIT_DIR)
 # Optional:  MODEL_DIR           default: BAGEL_BASE_DIR for base,
-#                                RL_INIT_DIR (the SFT overlay) for sft/rl
+#                                RL_INIT_DIR (the SFT overlay) for sft
 #            NUM_GPUS            default 8, one generation shard per GPU
 #            OUTPUT_ROOT         default outputs/geneval553
 #            LABEL               run name under OUTPUT_ROOT (default: arm and
@@ -36,14 +39,17 @@ case "${ARM}" in
   base)
     MODEL_DIR="${MODEL_DIR:-${BAGEL_BASE_DIR:-${ROOT_DIR}/pretrained/BAGEL-7B-MoT}}" ;;
   sft|rl)
+    if [[ "${ARM}" == "rl" && -z "${CHECKPOINT}" && -z "${MODEL_DIR:-}" ]]; then
+      echo "ARM=rl needs MODEL_DIR (merged RL model) or CHECKPOINT" >&2
+      exit 1
+    fi
     MODEL_DIR="${MODEL_DIR:-${RL_INIT_DIR:-${ROOT_DIR}/outputs/rl_init}}" ;;
   *)
     echo "ARM must be base, sft or rl" >&2
     exit 1 ;;
 esac
 MODEL_DIR="$(realpath -m "${MODEL_DIR}")"
-if [[ "${ARM}" == "rl" ]]; then
-  [[ -n "${CHECKPOINT}" ]] || { echo "ARM=rl needs CHECKPOINT" >&2; exit 1; }
+if [[ "${ARM}" == "rl" && -n "${CHECKPOINT}" ]]; then
   CHECKPOINT="$(realpath -m "${CHECKPOINT}")"
 elif [[ -n "${CHECKPOINT}" ]]; then
   echo "CHECKPOINT is only valid with ARM=rl" >&2
@@ -52,7 +58,9 @@ fi
 
 if [[ -z "${LABEL:-}" ]]; then
   LABEL="${ARM}"
-  [[ "${ARM}" == "rl" ]] && LABEL+="-$(basename "${CHECKPOINT}")"
+  if [[ "${ARM}" == "rl" ]]; then
+    LABEL+="-$(basename "${CHECKPOINT:-${MODEL_DIR}}")"
+  fi
   [[ " ${GENERATE_EXTRA_ARGS} " == *" --raw-prompt "* ]] && LABEL+="-rawprompt"
   [[ " ${GENERATE_EXTRA_ARGS} " == *" --r0-only "* ]] && LABEL+="-r0only"
 fi
@@ -67,7 +75,7 @@ cd "${ROOT_DIR}"
 
 generate_args=(--arm "${ARM}" --model-dir "${MODEL_DIR}"
   --output-root "${OUTPUT_ROOT}" --label "${LABEL}" --shards "${NUM_GPUS}")
-if [[ "${ARM}" == "rl" ]]; then
+if [[ -n "${CHECKPOINT}" ]]; then
   generate_args+=(--checkpoint "${CHECKPOINT}")
   if [[ ! -f "${CHECKPOINT}/auxiliary.safetensors" ]]; then
     "${PYTHON_BIN}" scripts/rl/export_checkpoint_auxiliary.py --checkpoint "${CHECKPOINT}"

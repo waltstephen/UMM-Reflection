@@ -60,7 +60,7 @@ SOURCE_COLUMNS = [
     "user_prompt",
     "system_prompt",
     "system_prompt_version",
-    "meta_path",
+    "meta_steps",
     "think_list",
     "step_action_list",
     "step_role_list",
@@ -201,16 +201,12 @@ def canonical_response(
     return response
 
 
-def load_meta_steps(row: dict, metadata: dict) -> tuple[list[dict], dict]:
-    meta_path = Path(str(row["meta_path"]))
-    meta = json.loads(meta_path.read_text(encoding="utf-8"))
-    steps = list(meta.get("steps") or [])
+def load_meta_steps(row: dict, metadata: dict) -> list[dict]:
+    """Accepted per-step records (action, full edit_instruction, plan index)."""
+    steps = json.loads(str(row["meta_steps"]))
     if len(steps) != len(metadata["think_list"]):
         raise ValueError(f"{row['uid']}: meta/parquet step count mismatch")
-    return steps, {
-        "meta_path": str(meta_path),
-        "meta_size_bytes": meta_path.stat().st_size,
-    }
+    return steps
 
 
 def planned_instruction_text(
@@ -222,7 +218,6 @@ def planned_instruction_text(
         return "", {
             "planned_steps": 0,
             "corrective_repairs": 0,
-            "meta_path": str(row["meta_path"]),
         }
 
     planned = []
@@ -256,7 +251,6 @@ def planned_instruction_text(
     return text, {
         "planned_steps": len(planned),
         "corrective_repairs": corrective_repairs,
-        "meta_path": str(row["meta_path"]),
     }
 
 
@@ -302,7 +296,7 @@ def build_rows(source_root: Path, cache_steps: dict[str, set[int]]):
             raise ValueError(f"{uid}: cache/source image steps differ")
         metadata = validate_enriched_metadata(row, image_presence)
         system_prompt = transformed_system_prompt(row)
-        meta_steps, _ = load_meta_steps(row, metadata)
+        meta_steps = load_meta_steps(row, metadata)
         plan_text, plan_record = planned_instruction_text(
             row,
             metadata,
@@ -565,7 +559,7 @@ def build_rows(source_root: Path, cache_steps: dict[str, set[int]]):
                 "whitespace_normalized"
             ],
             "other_mismatch": payload_defects["other_mismatch"],
-            "authoritative_source": "meta.steps[].edit_instruction",
+            "authoritative_source": "meta_steps[].edit_instruction",
             "used_for_external_edit_ce": True,
             "used_for_transition_mse": True,
         },

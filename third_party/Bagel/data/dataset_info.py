@@ -69,7 +69,7 @@ DATASET_INFO = {
         },
     },
     'base_prompt_only_anchor_mse': {
-        'reflection_t2i': _parquet_entry('anchor/parquet', 96, 11_756),
+        'reflection_t2i': _parquet_entry('anchor/parquet', 96, 1_265),
     },
     'clean29529_multiround_controller': {
         'clean29529_multiround_controller': _parquet_entry('rows/controller_rows_100', 100, 29_529),

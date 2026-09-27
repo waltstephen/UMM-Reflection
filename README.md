@@ -19,6 +19,23 @@ The pipeline has three stages:
    report accuracy at every edit budget (the test-time-scaling curve), plus
    repair and damage rates.
 
+## Released weights and data
+
+| Hugging Face repo | Content |
+|---|---|
+| [YijiaFan/UMM-Reflection-BAGEL-RL](https://huggingface.co/YijiaFan/UMM-Reflection-BAGEL-RL) | final model: RL checkpoint-1000 merged into full BAGEL weights |
+| [YijiaFan/UMM-Reflection-BAGEL-SFT](https://huggingface.co/YijiaFan/UMM-Reflection-BAGEL-SFT) | reflection-SFT model, the RL initialization |
+| [YijiaFan/UMM-Reflection-SFT-Data](https://huggingface.co/datasets/YijiaFan/UMM-Reflection-SFT-Data) | 29,529 reflection trajectories and 1,265 anchor rows (research use only) |
+
+Both models have the base BAGEL-7B-MoT layout, so each downloaded directory
+can be passed directly as `MODEL_DIR` or `RL_INIT_DIR`:
+
+```bash
+huggingface-cli download YijiaFan/UMM-Reflection-BAGEL-RL \
+    --local-dir pretrained/UMM-Reflection-BAGEL-RL
+ARM=rl MODEL_DIR=pretrained/UMM-Reflection-BAGEL-RL bash scripts/eval/geneval553.sh
+```
+
 ## Repository layout
 
 ```
@@ -62,7 +79,8 @@ Scripts take `PYTHON_BIN` (trainer environment) and, where both are needed,
 
 ## Model and verifier assets
 
-Weights and data are not part of this repository. By default everything is
+Weights and data are not part of this repository; they are on Hugging Face
+(see [Released weights and data](#released-weights-and-data)). By default everything is
 looked up under `pretrained/`, `data/` and `outputs/` in the repository root;
 each location can be overridden with an environment variable (see the table
 below).
@@ -129,13 +147,23 @@ HF_HOME=pretrained/hf_home huggingface-cli download bert-base-uncased
 
 ### Data
 
-The SFT data is expected under `$UNIFY_RL_DATA_ROOT/sft` (default `data/sft`):
+The SFT data is expected under `$UNIFY_RL_DATA_ROOT/sft` (default `data/sft`).
+Download it from Hugging Face (about 100 GB):
+
+```bash
+huggingface-cli download --repo-type dataset YijiaFan/UMM-Reflection-SFT-Data \
+    --local-dir data/sft
+```
 
 ```
 data/sft/
-  trajectory_parquet/    reflection trajectories (29,529 rows)
-  anchor/parquet/        base-BAGEL prompt-only anchor trajectories
+  trajectory_parquet/                reflection trajectories (29,529 rows)
+  anchor/parquet/                    base-BAGEL prompt-only anchor trajectories
+  anchor/base_anchor_allowlist.json  the 1,265 anchor rows used by SFT
 ```
+
+The data is for non-commercial research use; each row follows the license of
+its source dataset (see the dataset card).
 
 Build the pixel caches, then expand trajectories into the three row sets the
 SFT readers consume:
@@ -188,12 +216,15 @@ stage 2). W&B logging is online only when `WANDB_API_KEY` is set; otherwise it
 is offline.
 
 The RL initialization is `outputs/sft_stage2/ckpts/0002969/model.safetensors`.
+The released SFT model is the same checkpoint in BAGEL layout.
 
 ## Stage 2: multi-round Flow-GRPO RL
 
 ```bash
 # 1. RL init directory: base assets symlinked, ema.safetensors -> SFT weights
 SFT_CHECKPOINT=outputs/sft_stage2/ckpts/0002969 bash scripts/rl/make_rl_init.sh
+#    or use the released SFT model directly:
+#    export RL_INIT_DIR=pretrained/UMM-Reflection-BAGEL-SFT
 
 # 2. Reward service on node 0, GenEval environment, localhost only
 HF_HOME=pretrained/hf_home PYTHON_BIN=<geneval-python> bash scripts/rl/serve_reward.sh
@@ -226,6 +257,10 @@ ARM=base bash scripts/eval/geneval553.sh
 ARM=sft  bash scripts/eval/geneval553.sh
 ARM=rl CHECKPOINT=outputs/f01_formal1000/checkpoints/checkpoint-1000 \
     bash scripts/eval/geneval553.sh
+
+# released models
+ARM=sft MODEL_DIR=pretrained/UMM-Reflection-BAGEL-SFT bash scripts/eval/geneval553.sh
+ARM=rl  MODEL_DIR=pretrained/UMM-Reflection-BAGEL-RL  bash scripts/eval/geneval553.sh
 ```
 
 The script shards generation over `NUM_GPUS` (default 8), then scores on GPU 0
@@ -275,7 +310,7 @@ end), damage rate (right at R0 and wrong at the end), and protocol-valid rate.
 | `GENEVAL_ASSETS_DIR` | `pretrained/geneval` | reward service, scoring |
 | `HF_HOME` | (must contain `bert-base-uncased`) | reward service, scoring |
 | `NODE_RANK`, `MASTER_ADDR`, `MASTER_PORT` | (required) | SFT, RL |
-| `ARM`, `CHECKPOINT`, `NUM_GPUS`, `OUTPUT_ROOT` | (required), -, `8`, `outputs/geneval553` | eval |
+| `ARM`, `MODEL_DIR`, `CHECKPOINT`, `NUM_GPUS`, `OUTPUT_ROOT` | (required), per arm, -, `8`, `outputs/geneval553` | eval |
 | `PYTHON_BIN`, `GENEVAL_PYTHON_BIN` | `python` | all launchers |
 
 ## License and acknowledgements

@@ -1,13 +1,118 @@
-# Learning Native Reflection in Unified Models
+<div align="center">
 
-Training code for teaching a unified understanding-and-generation model
-([BAGEL-7B-MoT](https://huggingface.co/ByteDance-Seed/BAGEL-7B-MoT)) to inspect
+# UMM-Reflection
+
+### Learning Native Reflection in Unified Models with Interleaved Reinforcement Learning
+
+[![Project Page](https://img.shields.io/badge/Project-Page-5D2CD6?style=for-the-badge)](https://waltstephen.github.io/UMM-Reflection/)
+[![Paper](https://img.shields.io/badge/arXiv-coming%20soon-b31b1b?style=for-the-badge)](#citation)
+[![RL model](https://img.shields.io/badge/%F0%9F%A4%97%20Model-RL-FFD21E?style=for-the-badge)](https://huggingface.co/YijiaFan/UMM-Reflection-BAGEL-RL)
+[![SFT model](https://img.shields.io/badge/%F0%9F%A4%97%20Model-SFT-FFD21E?style=for-the-badge)](https://huggingface.co/YijiaFan/UMM-Reflection-BAGEL-SFT)
+[![Data](https://img.shields.io/badge/%F0%9F%A4%97%20Dataset-SFT%20data-FFD21E?style=for-the-badge)](https://huggingface.co/datasets/YijiaFan/UMM-Reflection-SFT-Data)
+[![License](https://img.shields.io/badge/License-Apache%202.0-3A1A9A?style=for-the-badge)](LICENSE)
+
+</div>
+
+<p align="center"><img src="assets/readme/rl_pipeline.jpg" width="100%" alt="UMM-Reflection RL: sixteen rollouts share one first image, each interleaves the model's own reflection with its renders, a frozen verifier scores every trajectory, and one group-relative advantage updates both the text and flow heads."></p>
+
+UMM-Reflection teaches a unified understanding-and-generation model
+([BAGEL-7B-MoT](https://huggingface.co/ByteDance-Seed/BAGEL-7B-MoT)) to look at
 its own image, decide whether it is done, and, if not, write an edit and render
-a corrected image, all inside one model and one context.
+a corrected image, all inside one model and one context. Reinforcement learning
+runs on complete reflection trajectories: sibling trajectories share one first
+image, so the group-relative advantage compares reflection strategies, and one
+trajectory-level advantage updates both the reflection tokens and the
+flow-based revisions. No critic or verifier is used at inference.
 
-**[Project page](https://waltstephen.github.io/UMM-Reflection/)** (with a 3-minute video) ·
-[Models](https://huggingface.co/YijiaFan/UMM-Reflection-BAGEL-RL) ·
-[Data](https://huggingface.co/datasets/YijiaFan/UMM-Reflection-SFT-Data)
+## News
+
+- **2026-09-28** Training and evaluation code, the RL and SFT models, and the
+  SFT data are released, together with the
+  [project page](https://waltstephen.github.io/UMM-Reflection/) and a
+  3-minute video.
+
+## Contents
+
+- [Results](#results)
+- [Qualitative examples](#qualitative-examples)
+- [Quick start](#quick-start)
+- [Released weights and data](#released-weights-and-data)
+- [Training pipeline](#training-pipeline)
+- [Requirements](#requirements) · [Assets](#model-and-verifier-assets)
+- [Stage 1: reflection SFT](#stage-1-reflection-sft) · [Stage 2: RL](#stage-2-multi-round-flow-grpo-rl) · [Stage 3: evaluation](#stage-3-geneval-553-evaluation)
+- [Citation](#citation)
+
+## Results
+
+RL trains only on GenEval-style prompts. WISE, OneIG-Bench and
+T2I-CompBench++ are never seen in training.
+
+| Model | GenEval | WISE | OneIG-Bench | T2I-CompBench++ |
+|---|:---:|:---:|:---:|:---:|
+| BAGEL-Base | 0.71 | 0.55 | 0.80 | 0.49 |
+| BAGEL + reflection SFT | 0.72 | 0.63 | 0.79 | 0.50 |
+| BAGEL-Self-Agentic (3 rounds, no tuning) | 0.77 | 0.61 | 0.81 | 0.52 |
+| BAGEL-T2I-RL (1k updates, single shot) | 0.76 | 0.54 | 0.80 | 0.49 |
+| **UMM-Reflection** | **0.84** | **0.74** | **0.83** | **0.55** |
+| *Gain over reflection SFT (points)* | *+12.05* | *+10.97* | *+3.48* | *+4.63* |
+
+- **The gain is in the repair.** The first image is essentially unchanged; RL
+  raises the share of wrong first images that are repaired from 20.6% (SFT)
+  to 64.9% on GenEval.
+- **Both heads must be trained.** Training only the flow head gives 73 (repair
+  22.8%), only the text head 78 (49.4%), both heads 84 (64.9%).
+- **Reflection beats re-sampling.** At the same four-image budget, reflection
+  scores 84 against 80 for best-of-4 sampling from the stronger T2I-RL
+  renderer.
+
+Per-category scores for every benchmark are on the
+[project page](https://waltstephen.github.io/UMM-Reflection/#analysis).
+
+<p align="center"><img src="assets/readme/rl_vs_sft.jpg" width="88%" alt="Same GenEval prompt: SFT re-rolls the same mistake across rounds, while after RL each edit builds on the previous one."></p>
+<p align="center"><sub><b>Same prompt, same first-round quality, different revisions.</b> SFT re-rolls the same mistake across rounds. After RL each edit builds on the previous one. The state-space panel is schematic.</sub></p>
+
+## Qualitative examples
+
+Round-by-round repairs on all four benchmarks. The badge on each image is that
+benchmark's own verdict. More examples, with the model's reflections verbatim,
+are on the [project page](https://waltstephen.github.io/UMM-Reflection/#examples).
+
+<p align="center"><img src="assets/readme/qualitative.jpg" width="92%" alt="Four prompts, one per benchmark, shown from the first image through three reflection rounds; each first image fails and each final image passes."></p>
+
+The same GenEval prompts under every variant. Each column is that model's final
+image (BAGEL-Base generates a single image); the inset in the last column is
+UMM-Reflection's own first image. These prompts were selected as cases where
+only UMM-Reflection's final image passes.
+
+<p align="center"><img src="assets/readme/comparison.jpg" width="100%" alt="Four GenEval prompts; BAGEL-Base, Self-Agentic, reflection SFT, flow-only RL and text-only RL all fail, and UMM-Reflection's final image passes."></p>
+
+## Quick start
+
+Download the released RL model and evaluate it on GenEval-553 (one 8-GPU node;
+see [Requirements](#requirements) and [GenEval assets](#geneval-assets) for the
+two Python environments and the verifier weights):
+
+```bash
+huggingface-cli download YijiaFan/UMM-Reflection-BAGEL-RL \
+    --local-dir pretrained/UMM-Reflection-BAGEL-RL
+ARM=rl MODEL_DIR=pretrained/UMM-Reflection-BAGEL-RL bash scripts/eval/geneval553.sh
+```
+
+## Released weights and data
+
+All three are in the Hugging Face collection
+[UMM-Reflection](https://huggingface.co/collections/YijiaFan/umm-reflection-6ab95afe909092518d70a158).
+
+| Hugging Face repo | Content |
+|---|---|
+| [YijiaFan/UMM-Reflection-BAGEL-RL](https://huggingface.co/YijiaFan/UMM-Reflection-BAGEL-RL) | final model: RL checkpoint-1000 merged into full BAGEL weights |
+| [YijiaFan/UMM-Reflection-BAGEL-SFT](https://huggingface.co/YijiaFan/UMM-Reflection-BAGEL-SFT) | reflection-SFT model, the RL initialization |
+| [YijiaFan/UMM-Reflection-SFT-Data](https://huggingface.co/datasets/YijiaFan/UMM-Reflection-SFT-Data) | 29,529 reflection trajectories and 1,265 anchor rows (research use only) |
+
+Both models have the base BAGEL-7B-MoT layout, so each downloaded directory
+can be passed directly as `MODEL_DIR` or `RL_INIT_DIR`.
+
+## Training pipeline
 
 The pipeline has three stages:
 
@@ -22,26 +127,6 @@ The pipeline has three stages:
 3. **GenEval-553 evaluation.** Generate with up to three repair rounds and
    report accuracy at every edit budget (the test-time-scaling curve), plus
    repair and damage rates.
-
-## Released weights and data
-
-All three are in the Hugging Face collection
-[UMM-Reflection](https://huggingface.co/collections/YijiaFan/umm-reflection-6ab95afe909092518d70a158).
-
-| Hugging Face repo | Content |
-|---|---|
-| [YijiaFan/UMM-Reflection-BAGEL-RL](https://huggingface.co/YijiaFan/UMM-Reflection-BAGEL-RL) | final model: RL checkpoint-1000 merged into full BAGEL weights |
-| [YijiaFan/UMM-Reflection-BAGEL-SFT](https://huggingface.co/YijiaFan/UMM-Reflection-BAGEL-SFT) | reflection-SFT model, the RL initialization |
-| [YijiaFan/UMM-Reflection-SFT-Data](https://huggingface.co/datasets/YijiaFan/UMM-Reflection-SFT-Data) | 29,529 reflection trajectories and 1,265 anchor rows (research use only) |
-
-Both models have the base BAGEL-7B-MoT layout, so each downloaded directory
-can be passed directly as `MODEL_DIR` or `RL_INIT_DIR`:
-
-```bash
-huggingface-cli download YijiaFan/UMM-Reflection-BAGEL-RL \
-    --local-dir pretrained/UMM-Reflection-BAGEL-RL
-ARM=rl MODEL_DIR=pretrained/UMM-Reflection-BAGEL-RL bash scripts/eval/geneval553.sh
-```
 
 ## Repository layout
 
@@ -319,6 +404,20 @@ end), damage rate (right at R0 and wrong at the end), and protocol-valid rate.
 | `NODE_RANK`, `MASTER_ADDR`, `MASTER_PORT` | (required) | SFT, RL |
 | `ARM`, `MODEL_DIR`, `CHECKPOINT`, `NUM_GPUS`, `OUTPUT_ROOT` | (required), per arm, -, `8`, `outputs/geneval553` | eval |
 | `PYTHON_BIN`, `GENEVAL_PYTHON_BIN` | `python` | all launchers |
+
+## Citation
+
+The paper will be on arXiv soon. Until then:
+
+```bibtex
+@article{ummreflection2026,
+  title   = {Learning Native Reflection in Unified Models
+             with Interleaved Reinforcement Learning},
+  author  = {Authors to be announced},
+  journal = {arXiv preprint},
+  year    = {2026}
+}
+```
 
 ## License and acknowledgements
 

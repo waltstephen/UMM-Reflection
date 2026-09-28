@@ -5,7 +5,8 @@
 ### Learning Native Reflection in Unified Models with Interleaved Reinforcement Learning
 
 [![Project Page](https://img.shields.io/badge/Project-Page-5D2CD6?style=for-the-badge)](https://waltstephen.github.io/UMM-Reflection/)
-[![Paper](https://img.shields.io/badge/arXiv-coming%20soon-b31b1b?style=for-the-badge)](#citation)
+[![Paper](https://img.shields.io/badge/Paper-PDF-b31b1b?style=for-the-badge)](paper/UMM-Reflection.pdf)
+[![arXiv](https://img.shields.io/badge/arXiv-coming%20soon-b31b1b?style=for-the-badge)](#citation)
 [![RL model](https://img.shields.io/badge/%F0%9F%A4%97%20Model-RL-FFD21E?style=for-the-badge)](https://huggingface.co/YijiaFan/UMM-Reflection-BAGEL-RL)
 [![SFT model](https://img.shields.io/badge/%F0%9F%A4%97%20Model-SFT-FFD21E?style=for-the-badge)](https://huggingface.co/YijiaFan/UMM-Reflection-BAGEL-SFT)
 [![Data](https://img.shields.io/badge/%F0%9F%A4%97%20Dataset-SFT%20data-FFD21E?style=for-the-badge)](https://huggingface.co/datasets/YijiaFan/UMM-Reflection-SFT-Data)
@@ -139,6 +140,7 @@ The pipeline has three stages:
 ```
 assets/        RL prompt pool, GenEval-553 manifest, controller system prompt
 configs/sft/   SFT dataset mixture
+paper/         paper PDF
 scripts/data/  SFT data preparation (pixel caches, row expansion)
 scripts/sft/   SFT stage 1 / stage 2 launchers and stage-2 seed derivation
 scripts/rl/    RL init directory, reward service, trainer launcher
@@ -413,7 +415,7 @@ end), damage rate (right at R0 and wrong at the end), and protocol-valid rate.
 
 ## Citation
 
-The paper will be on arXiv soon. Until then:
+The paper is in [`paper/UMM-Reflection.pdf`](paper/UMM-Reflection.pdf) and will be on arXiv soon. Until then:
 
 ```bibtex
 @article{ummreflection2026,

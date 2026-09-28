@@ -68,6 +68,9 @@ T2I-CompBench++ are never seen in training.
   scores 84 against 80 for best-of-4 sampling from the stronger T2I-RL
   renderer.
 
+<p align="center"><img src="assets/readme/test_time_scaling_geneval.png" width="55%" alt="GenEval macro accuracy versus reflection rounds 0-3 for Base, reflection SFT, UMM-Reflection-500 and UMM-Reflection-1000; RL gains most in round 1 and keeps improving to 83.8 at round 3, while Base and SFT stay near 71-73."></p>
+<p align="center"><sub><b>GenEval accuracy across reflection rounds.</b> The first image (round 0) is comparable across models. SFT gains about 2 points and flattens after round 1. After RL, round 1 alone adds 9 points and the score keeps rising through round 3. The suffixes -500 and -1000 give the number of RL updates.</sub></p>
+
 Per-category scores for every benchmark are on the
 [project page](https://waltstephen.github.io/UMM-Reflection/#analysis).
 

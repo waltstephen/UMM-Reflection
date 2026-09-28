@@ -104,6 +104,16 @@ header.hero::before{content:"";position:absolute;z-index:-1;left:50%;top:-40px;w
 .hero .sub{font-family:var(--serif);font-size:clamp(20px,2.5vw,28px);line-height:1.3;color:var(--ink-2);max-width:40ch;font-weight:400}
 .authors{font-size:15px;color:var(--muted)}
 .authors b{color:var(--ink-2);font-weight:600}
+.authors{font-size:17px;line-height:1.7;color:var(--ink-2);max-width:62ch}
+.authors .au{white-space:nowrap;font-weight:600}
+.authors sup,.affils sup,.affnote sup{font-size:.68em;color:var(--accent);font-weight:600;margin-left:1px}
+.affils{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 22px;font-size:15px;color:var(--muted);margin-top:-12px}
+.affnote{font-size:13px;color:var(--muted);margin-top:-16px}
+.logos{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:14px}
+.logos a{display:flex;align-items:center;height:60px;padding:8px 16px;border-radius:14px;background:#fff;border:1px solid var(--rule);transition:transform .2s,box-shadow .2s}
+.logos a:hover{transform:translateY(-2px);box-shadow:0 8px 22px var(--glow)}
+.logos img{height:44px;width:auto;display:block}
+.logos img.seal{height:46px}
 .links{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
 .btn{display:inline-flex;align-items:center;gap:9px;padding:10px 17px 10px 14px;border-radius:999px;border:1px solid var(--rule);background:var(--surface);color:var(--ink);font:600 14px/1 var(--sans);text-decoration:none;cursor:not-allowed;box-shadow:0 1px 0 rgba(30,10,80,.04)}
 .btn[href]{cursor:pointer;transition:border-color .2s,color .2s,transform .2s,box-shadow .2s}
@@ -564,7 +574,23 @@ footer{margin-top:72px;padding-top:20px;border-top:1px solid var(--rule);font-si
   <div class="label">Unified multimodal models · Reinforcement learning · Test-time reflection</div>
   <h1>UMM-Reflection</h1>
   <p class="sub">Learning native reflection in unified models with interleaved reinforcement learning</p>
-  <p class="authors"><b>Authors</b> will be listed with the arXiv release.</p>
+  <p class="authors">
+    <span class="au">Yijia Fan<sup>1,&dagger;</sup></span>,
+    <span class="au">Ziqi Huang<sup>1</sup></span>,
+    <span class="au">Zhongang Cai<sup>1</sup></span>,
+    <span class="au">Yan Li<sup>2</sup></span>,
+    <span class="au">Zimo Wen<sup>2</sup></span>,
+    <span class="au">Wanqi Yin<sup>3</sup></span>,
+    <span class="au">Haiwen Diao<sup>1</sup></span>,
+    <span class="au">Ziwei Liu<sup>1</sup></span>
+  </p>
+  <p class="affils"><span><sup>1</sup>Nanyang Technological University</span><span><sup>2</sup>Shanghai Jiao Tong University</span><span><sup>3</sup>The University of Tokyo</span></p>
+  <p class="affnote"><sup>&dagger;</sup>Work done during an internship at NTU</p>
+  <div class="logos" aria-label="Affiliations">
+    <a href="https://www.ntu.edu.sg/" title="Nanyang Technological University"><img src="img/logo/ntu.svg" alt="Nanyang Technological University"></a>
+    <a href="https://www.sjtu.edu.cn/" title="Shanghai Jiao Tong University"><img class="seal" src="img/logo/sjtu.png" alt="Shanghai Jiao Tong University"></a>
+    <a href="https://www.u-tokyo.ac.jp/" title="The University of Tokyo"><img src="img/logo/utokyo.svg" alt="The University of Tokyo"></a>
+  </div>
   <nav class="links" aria-label="Resources">
     <a class="btn" aria-disabled="true" role="link" tabindex="0" title="Coming soon">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2h9l5 5v15H6zM14 3.5V8h4.5zM8 12h8v1.5H8zm0 3h8v1.5H8zm0 3h5v1.5H8z"/></svg>Paper<span class="soon">arXiv · soon</span></a>
@@ -835,7 +861,8 @@ footer{margin-top:72px;padding-top:20px;border-top:1px solid var(--rule);font-si
 <pre class="bib" id="bib">@article{ummreflection2026,
   title   = {Learning Native Reflection in Unified Models
              with Interleaved Reinforcement Learning},
-  author  = {Authors to be announced},
+  author  = {Fan, Yijia and Huang, Ziqi and Cai, Zhongang and Li, Yan and
+             Wen, Zimo and Yin, Wanqi and Diao, Haiwen and Liu, Ziwei},
   journal = {arXiv preprint},
   year    = {2026}
 }</pre>

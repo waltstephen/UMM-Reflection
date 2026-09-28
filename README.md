@@ -47,6 +47,9 @@ flow-based revisions. No critic or verifier is used at inference.
 RL trains only on GenEval-style prompts. WISE, OneIG-Bench and
 T2I-CompBench++ are never seen in training.
 
+<p align="center"><img src="assets/readme/benchmarks.png" width="100%" alt="Grouped bar chart of GenEval, WISE, OneIG-Bench and T2I-CompBench++ scores for BAGEL-Base, reflection SFT, Self-Agentic, T2I-RL and UMM-Reflection."></p>
+<p align="center"><sub>Each panel has its own y-axis range.</sub></p>
+
 | Model | GenEval | WISE | OneIG-Bench | T2I-CompBench++ |
 |---|:---:|:---:|:---:|:---:|
 | BAGEL-Base | 0.71 | 0.55 | 0.80 | 0.49 |
@@ -371,7 +374,7 @@ exports the trained auxiliary tensors (`auxiliary.safetensors`) if missing.
 rounds; it defaults to 0 for `base`/`sft` and 500 for `rl`, the convention of
 the reported numbers.
 
-**Ablations.** Pass them through `GENERATE_EXTRA_ARGS`:
+**Evaluation options.** Pass them through `GENERATE_EXTRA_ARGS`:
 
 - `--r0-only`: single-shot generation;
 - `--raw-prompt`: the bare GenEval prompt instead of the instruction wrapper.

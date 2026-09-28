@@ -1,5 +1,4 @@
 <div align="center">
-
 # UMM-Reflection
 
 ### Learning Native Reflection in Unified Models with Interleaved Reinforcement Learning

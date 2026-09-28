@@ -1106,10 +1106,11 @@ onView($("compare"),()=>document.querySelectorAll("#compare .meter i").forEach((
   if(RM) P.forEach(g=>g.style.transform="scale(1)");
   $("rlg").innerHTML=M.map(m=>`<span><i style="background:${m.c};${m.k==="ours"?"height:4px":""}"></i>${m.n}</span>`).join("");
   // bars
-  const blo=.30, bhi=.90;
+  // per-benchmark axis: start at the largest x.x5 below the weakest model, end just above the best
+  const AX=[0,1,2,3].map(i=>{ const v=M.map(m=>m.v[i]); const lo=Math.floor((Math.min(...v)-.05)/.1+1e-9)*.1+.05; const hi=lo+Math.ceil((Math.max(...v)+.01-lo)/.1-1e-9)*.1; return [lo,hi]; });
   bars.innerHTML=`<div class="bn"><span class="nm" id="bnm"></span><span class="gain" id="bgain"></span></div><p class="desc" id="bdesc"></p>`+
     M.map(m=>`<div class="brow${m.k==="ours"?" ours":""}"><span class="m">${m.n}</span><span class="tr"><i style="${m.k!=="ours"?"background:"+m.c:""}"></i></span><span class="v">0.00</span></div>`).join("")+
-    `<div class="brow" style="font:500 11px/1 var(--mono);color:var(--muted)"><span></span><span style="display:flex;justify-content:space-between"><span>0.30</span><span>0.60</span><span>0.90</span></span><span></span></div>`;
+    `<div class="brow" style="font:500 11px/1 var(--mono);color:var(--muted)"><span></span><span style="display:flex;justify-content:space-between" id="bax"><span></span><span></span><span></span></span><span></span></div>`;
   const BR=[...bars.querySelectorAll(".brow")].slice(0,5);
   let cur=-1, userPick=false, seen=false;
   function sel(i){
@@ -1120,7 +1121,8 @@ onView($("compare"),()=>document.querySelectorAll("#compare .meter i").forEach((
     if(seen) paint();
     sel_dots.innerHTML=""; const p=pt(i,M[4].v[i]); el("circle",{cx:p[0],cy:p[1],r:9,fill:"none",stroke:"var(--accent)","stroke-width":2,opacity:.5},sel_dots);
   }
-  function paint(){ BR.forEach((r,j)=>{ const v=M[j].v[cur], bar=r.querySelector("i"); bar.style.transitionDelay=(j*.07)+"s"; bar.style.width=((v-blo)/(bhi-blo)*100)+"%"; animNum(r.querySelector(".v"),v); }); }
+  function paint(){ const [blo,bhi]=AX[cur]; [...$("bax").children].forEach((n,k)=>n.textContent=(blo+(bhi-blo)*k/2).toFixed(2));
+    BR.forEach((r,j)=>{ const v=M[j].v[cur], bar=r.querySelector("i"); bar.style.transitionDelay=(j*.07)+"s"; bar.style.width=((v-blo)/(bhi-blo)*100)+"%"; animNum(r.querySelector(".v"),v); }); }
   function animNum(node,to){ const from=parseFloat(node.textContent)||0; if(RM){node.textContent=to.toFixed(2);return;} const t0=performance.now(); (function f(now){const p=Math.min(1,(now-t0)/900), e=1-Math.pow(1-p,3); node.textContent=(from+(to-from)*e).toFixed(2); if(p<1) requestAnimationFrame(f);})(t0); }
   if(RM) seen=true;
   sel(0);

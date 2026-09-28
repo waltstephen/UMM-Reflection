@@ -1,7 +1,14 @@
 <div align="center">
+
 # UMM-Reflection
 
 ### Learning Native Reflection in Unified Models with Interleaved Reinforcement Learning
+
+Yijia Fan<sup>1,\*,†</sup>, Ziqi Huang<sup>1,\*</sup>, Zhongang Cai<sup>1</sup>, Yan Li<sup>2</sup>, Zimo Wen<sup>2</sup>, Wanqi Yin<sup>3</sup>, Haiwen Diao<sup>1</sup>, Ziwei Liu<sup>1,‡</sup>
+
+<sup>1</sup>Nanyang Technological University&nbsp;&nbsp;<sup>2</sup>Shanghai Jiao Tong University&nbsp;&nbsp;<sup>3</sup>The University of Tokyo
+
+<sup>\*</sup>Equal contribution&nbsp;&nbsp;<sup>†</sup>Work done during an internship at NTU&nbsp;&nbsp;<sup>‡</sup>Corresponding author
 
 [![Project Page](https://img.shields.io/badge/Project-Page-5D2CD6?style=for-the-badge)](https://waltstephen.github.io/UMM-Reflection/)
 [![Paper](https://img.shields.io/badge/arXiv-coming%20soon-b31b1b?style=for-the-badge)](#citation)

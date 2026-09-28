@@ -416,7 +416,8 @@ The paper will be on arXiv soon. Until then:
 @article{ummreflection2026,
   title   = {Learning Native Reflection in Unified Models
              with Interleaved Reinforcement Learning},
-  author  = {Authors to be announced},
+  author  = {Fan, Yijia and Huang, Ziqi and Cai, Zhongang and Li, Yan and
+             Wen, Zimo and Yin, Wanqi and Diao, Haiwen and Liu, Ziwei},
   journal = {arXiv preprint},
   year    = {2026}
 }

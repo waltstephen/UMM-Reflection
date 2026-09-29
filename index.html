@@ -622,7 +622,7 @@ footer{margin-top:72px;padding-top:20px;border-top:1px solid var(--rule);font-si
     <div role="listitem"><div class="n num"><em data-count="12.05" data-dec="2" data-pre="+">+12.05</em> <small>GenEval</small></div><div class="t">0.72 → 0.84 over reflection SFT; the RL training domain</div></div>
     <div role="listitem"><div class="n num"><em data-count="10.97" data-dec="2" data-pre="+">+10.97</em> <small>WISE</small></div><div class="t">0.63 → 0.74 on world-knowledge prompts, held out from RL</div></div>
     <div role="listitem"><div class="n num"><em data-count="3.48" data-dec="2" data-pre="+">+3.48</em> <small>OneIG</small></div><div class="t">0.79 → 0.83 on OneIG-Bench, held out from RL</div></div>
-    <div role="listitem"><div class="n num"><em data-count="4.63" data-dec="2" data-pre="+">+4.63</em> <small>CompBench</small></div><div class="t">0.50 → 0.55 on T2I-CompBench++, held out from RL</div></div>
+    <div role="listitem"><div class="n num"><em data-count="4.63" data-dec="2" data-pre="+">+4.63</em> <small>T2I-CompBench++</small></div><div class="t">0.50 → 0.55 on T2I-CompBench++, held out from RL</div></div>
   </div>
 </header>
 
@@ -657,7 +657,7 @@ footer{margin-top:72px;padding-top:20px;border-top:1px solid var(--rule);font-si
       <div class="label" style="color:var(--muted)">External critic</div>
       <h3>BAGEL + GPT-5.5 critic</h3>
       <p class="how">A frontier model reads each image and writes the edit instruction. BAGEL performs the edit.</p>
-      <div class="bgrid"><div><span>GenEval</span><b>0.79</b><em>+0.08</em></div><div><span>WISE<sup>*</sup></span><b>0.70</b><em>+0.12</em></div><div><span>OneIG</span><b>0.83</b><em>+0.02</em></div><div><span>CompBench</span><b>0.52</b><em>+0.03</em></div></div><div class="rep"><span>Wrong GenEval images repaired</span><b>27.6%</b></div>
+      <div class="bgrid"><div><span>GenEval</span><b>0.79</b><em>+0.08</em></div><div><span>WISE<sup>*</sup></span><b>0.70</b><em>+0.12</em></div><div><span>OneIG</span><b>0.83</b><em>+0.02</em></div><div><span>T2I-CompBench++</span><b>0.52</b><em>+0.03</em></div></div><div class="rep"><span>Wrong GenEval images repaired</span><b>27.6%</b></div>
       <div class="meter"><i data-w="27.6"></i></div>
       <p class="note">The critic declared 67 of the 163 wrong first images finished at round 0.</p>
     </div>
@@ -665,7 +665,7 @@ footer{margin-top:72px;padding-top:20px;border-top:1px solid var(--rule);font-si
       <div class="label" style="color:var(--muted)">Imitation</div>
       <h3>BAGEL-SFT reflection</h3>
       <p class="how">The model is fine-tuned on interleaved reflection trajectories and reflects on its own.</p>
-      <div class="bgrid"><div><span>GenEval</span><b>0.72</b><em>+0.00</em></div><div><span>WISE</span><b>0.63</b><em>+0.08</em></div><div><span>OneIG</span><b>0.79</b><em class="neg">−0.01</em></div><div><span>CompBench</span><b>0.50</b><em>+0.01</em></div></div><div class="rep"><span>Wrong GenEval images repaired</span><b>20.6%</b></div>
+      <div class="bgrid"><div><span>GenEval</span><b>0.72</b><em>+0.00</em></div><div><span>WISE</span><b>0.63</b><em>+0.08</em></div><div><span>OneIG</span><b>0.79</b><em class="neg">−0.01</em></div><div><span>T2I-CompBench++</span><b>0.50</b><em>+0.01</em></div></div><div class="rep"><span>Wrong GenEval images repaired</span><b>20.6%</b></div>
       <div class="meter"><i data-w="20.6"></i></div>
       <p class="note">It writes reflections in the right format, but the edits rarely fix what was wrong.</p>
     </div>
@@ -673,7 +673,7 @@ footer{margin-top:72px;padding-top:20px;border-top:1px solid var(--rule);font-si
       <div class="label">Learned from consequences</div>
       <h3>UMM-Reflection</h3>
       <p class="how">Same model and protocol, trained with whole-trajectory RL on the images its reflections produce.</p>
-      <div class="bgrid"><div><span>GenEval</span><b>0.84</b><em>+0.12</em></div><div><span>WISE</span><b>0.74</b><em>+0.19</em></div><div><span>OneIG</span><b>0.83</b><em>+0.02</em></div><div><span>CompBench</span><b>0.55</b><em>+0.06</em></div></div><div class="rep"><span>Wrong GenEval images repaired</span><b>64.9%</b></div>
+      <div class="bgrid"><div><span>GenEval</span><b>0.84</b><em>+0.12</em></div><div><span>WISE</span><b>0.74</b><em>+0.19</em></div><div><span>OneIG</span><b>0.83</b><em>+0.02</em></div><div><span>T2I-CompBench++</span><b>0.55</b><em>+0.06</em></div></div><div class="rep"><span>Wrong GenEval images repaired</span><b>64.9%</b></div>
       <div class="meter"><i data-w="64.9"></i></div>
       <p class="note">Reflection and generation are trained together, so a diagnosis is rewarded only when the edit it leads to is better.</p>
     </div>
@@ -749,7 +749,7 @@ footer{margin-top:72px;padding-top:20px;border-top:1px solid var(--rule);font-si
   <div class="bench rv">
     <div class="card">
       <h3>All five systems at a glance</h3>
-      <svg class="radar" id="radar" viewBox="0 0 440 400" role="img" aria-label="Radar chart of GenEval, WISE, OneIG and CompBench scores for five systems."></svg>
+      <svg class="radar" id="radar" viewBox="0 0 440 400" role="img" aria-label="Radar chart of GenEval, WISE, OneIG and T2I-CompBench++ scores for five systems."></svg>
       <div class="legend" id="rlg" style="justify-content:center"></div>
       <p class="hint2">Hover or tap an axis to compare on that benchmark.</p>
     </div>
@@ -770,7 +770,7 @@ footer{margin-top:72px;padding-top:20px;border-top:1px solid var(--rule);font-si
   </div>
   <div class="tbl rv">
     <table>
-      <thead><tr><th>Model</th><th>GenEval</th><th>WISE</th><th>OneIG</th><th>CompBench</th></tr></thead>
+      <thead><tr><th>Model</th><th>GenEval</th><th>WISE</th><th>OneIG</th><th>T2I-CompBench++</th></tr></thead>
       <tbody>
         <tr><td>BAGEL-Base</td><td>0.71</td><td>0.55</td><td>0.80</td><td>0.49</td></tr>
         <tr><td>BAGEL-SFT</td><td>0.72<span class="d">+0.00</span></td><td>0.63<span class="d">+0.08</span></td><td>0.79<span class="d">−0.01</span></td><td>0.50<span class="d">+0.01</span></td></tr>
@@ -882,7 +882,7 @@ const QCASES = [{"bench": "geneval", "fam": "Counting", "prompt": "three kites."
 const ABL = [{"fam": "position", "prompt": "a bird below a skateboard.", "cells": {"base": {"img": "img/abl/a0_base.jpg", "ok": false}, "sa": {"img": "img/abl/a0_sa.jpg", "ok": false}, "sft": {"img": "img/abl/a0_sft.jpg", "ok": false}, "flow": {"img": "img/abl/a0_flow.jpg", "ok": false}, "text": {"img": "img/abl/a0_text.jpg", "ok": false}, "ours": {"img": "img/abl/a0_ours.jpg", "ok": true}}, "ours0": {"img": "img/abl/a0_ours0.jpg", "ok": false}}, {"fam": "counting", "prompt": "three cell phones.", "cells": {"base": {"img": "img/abl/a1_base.jpg", "ok": false}, "sa": {"img": "img/abl/a1_sa.jpg", "ok": false}, "sft": {"img": "img/abl/a1_sft.jpg", "ok": false}, "flow": {"img": "img/abl/a1_flow.jpg", "ok": false}, "text": {"img": "img/abl/a1_text.jpg", "ok": false}, "ours": {"img": "img/abl/a1_ours.jpg", "ok": true}}, "ours0": {"img": "img/abl/a1_ours0.jpg", "ok": true}}, {"fam": "color_attr", "prompt": "a pink broccoli and a red sink.", "cells": {"base": {"img": "img/abl/a2_base.jpg", "ok": false}, "sa": {"img": "img/abl/a2_sa.jpg", "ok": false}, "sft": {"img": "img/abl/a2_sft.jpg", "ok": false}, "flow": {"img": "img/abl/a2_flow.jpg", "ok": false}, "text": {"img": "img/abl/a2_text.jpg", "ok": false}, "ours": {"img": "img/abl/a2_ours.jpg", "ok": true}}, "ours0": {"img": "img/abl/a2_ours0.jpg", "ok": false}}, {"fam": "position", "prompt": "a backpack right of a sandwich.", "cells": {"base": {"img": "img/abl/a3_base.jpg", "ok": false}, "sa": {"img": "img/abl/a3_sa.jpg", "ok": false}, "sft": {"img": "img/abl/a3_sft.jpg", "ok": false}, "flow": {"img": "img/abl/a3_flow.jpg", "ok": false}, "text": {"img": "img/abl/a3_text.jpg", "ok": false}, "ours": {"img": "img/abl/a3_ours.jpg", "ok": true}}, "ours0": {"img": "img/abl/a3_ours0.jpg", "ok": false}}, {"fam": "counting", "prompt": "three sports balls.", "cells": {"base": {"img": "img/abl/a4_base.jpg", "ok": false}, "sa": {"img": "img/abl/a4_sa.jpg", "ok": false}, "sft": {"img": "img/abl/a4_sft.jpg", "ok": false}, "flow": {"img": "img/abl/a4_flow.jpg", "ok": false}, "text": {"img": "img/abl/a4_text.jpg", "ok": false}, "ours": {"img": "img/abl/a4_ours.jpg", "ok": true}}, "ours0": {"img": "img/abl/a4_ours0.jpg", "ok": true}}, {"fam": "position", "prompt": "a zebra below a broccoli.", "cells": {"base": {"img": "img/abl/a5_base.jpg", "ok": false}, "sa": {"img": "img/abl/a5_sa.jpg", "ok": false}, "sft": {"img": "img/abl/a5_sft.jpg", "ok": false}, "flow": {"img": "img/abl/a5_flow.jpg", "ok": false}, "text": {"img": "img/abl/a5_text.jpg", "ok": false}, "ours": {"img": "img/abl/a5_ours.jpg", "ok": true}}, "ours0": {"img": "img/abl/a5_ours0.jpg", "ok": false}}, {"fam": "color_attr", "prompt": "a yellow sports ball and a green boat.", "cells": {"base": {"img": "img/abl/a6_base.jpg", "ok": false}, "sa": {"img": "img/abl/a6_sa.jpg", "ok": false}, "sft": {"img": "img/abl/a6_sft.jpg", "ok": false}, "flow": {"img": "img/abl/a6_flow.jpg", "ok": false}, "text": {"img": "img/abl/a6_text.jpg", "ok": false}, "ours": {"img": "img/abl/a6_ours.jpg", "ok": true}}, "ours0": {"img": "img/abl/a6_ours0.jpg", "ok": true}}, {"fam": "position", "prompt": "a sports ball left of an umbrella.", "cells": {"base": {"img": "img/abl/a7_base.jpg", "ok": false}, "sa": {"img": "img/abl/a7_sa.jpg", "ok": false}, "sft": {"img": "img/abl/a7_sft.jpg", "ok": false}, "flow": {"img": "img/abl/a7_flow.jpg", "ok": false}, "text": {"img": "img/abl/a7_text.jpg", "ok": false}, "ours": {"img": "img/abl/a7_ours.jpg", "ok": true}}, "ours0": {"img": "img/abl/a7_ours0.jpg", "ok": false}}];
 const $ = id => document.getElementById(id);
 const RM = matchMedia("(prefers-reduced-motion: reduce)").matches;
-const BENCH = {geneval:"GenEval", oneig:"OneIG-Bench", compbench:"CompBench", wise:"WISE"};
+const BENCH = {geneval:"GenEval", oneig:"OneIG-Bench", compbench:"T2I-CompBench++", wise:"WISE"};
 function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
 const NS="http://www.w3.org/2000/svg";
 function el(tag,attrs,parent){const n=document.createElementNS(NS,tag);for(const k in attrs)n.setAttribute(k,attrs[k]);parent&&parent.appendChild(n);return n;}
@@ -1105,7 +1105,7 @@ onView($("compare"),()=>document.querySelectorAll("#compare .meter i").forEach((
     {n:"GenEval",g:"12.05",held:false,d:"553 official prompts over six families (single object, two objects, counting, colors, position, color binding), scored by the official detector. In-domain: RL trains on GenEval-style prompts."},
     {n:"WISE",g:"10.97",held:true,d:"World-knowledge prompts that require cultural, temporal, spatial and scientific reasoning to draw correctly. Never seen in RL; the largest transfer gain."},
     {n:"OneIG",g:"3.48",held:true,d:"OneIG-Bench prompt alignment across anime and style, general objects and portraits. Never seen in RL; SFT alone falls slightly below the base model."},
-    {n:"CompBench",g:"4.63",held:true,d:"T2I-CompBench++: attribute binding (color, shape, texture), spatial and 3D relations, numeracy and complex compositions. Never seen in RL."},
+    {n:"T2I-CompBench++",g:"4.63",held:true,d:"T2I-CompBench++: attribute binding (color, shape, texture), spatial and 3D relations, numeracy and complex compositions. Never seen in RL."},
   ];
   const tiles=$("tiles"), bars=$("bars"), svg=$("radar");
   tiles.innerHTML=BN.map((b,i)=>`<button type="button" class="tile" data-i="${i}"><span class="k">${b.n}${b.held?" · held out":" · in domain"}</span><span class="n num"><span data-count="${b.g}" data-dec="2" data-pre="+">+${b.g}</span><small>pts</small></span><span class="t">over reflection SFT, final score <b>${M[4].v[i].toFixed(2)}</b></span></button>`).join("");
@@ -1246,7 +1246,7 @@ onView($("compare"),()=>document.querySelectorAll("#compare .meter i").forEach((
     {b:"OneIG",t:"OneIG-Bench",c:"Alignment score by prompt category. Never used in training.",
      cols:["Anime & style","General objects","Portrait","Alignment"],
      v:{base:[.8389,.7569,.8099,.8044],sft:[.8273,.7529,.7945,.7937],sa:[.8436,.7732,.8040,.8088],t2i:[.8326,.7408,.8133,.7986],ours:[.8618,.8020,.8176,.8286]}},
-    {b:"CompBench++",t:"T2I-CompBench++",c:"Eight compositional categories; overall is their mean. Never used in training.",
+    {b:"T2I-CompBench++",t:"T2I-CompBench++",c:"Eight compositional categories; overall is their mean. Never used in training.",
      cols:["Color","Shape","Texture","2D spatial","3D spatial","Numeracy","Non-spatial","Complex","Mean"],
      v:{base:[.7437,.5216,.6658,.3015,.3913,.6067,.3079,.3847,.4904],sft:[.7609,.5725,.7123,.3014,.3759,.6182,.3061,.3870,.5043],sa:[.8010,.5741,.7203,.3268,.4090,.6300,.3059,.3905,.5197],t2i:[.7402,.5029,.6684,.3150,.3931,.6408,.3126,.3746,.4935],ours:[.8460,.6083,.7621,.4489,.3784,.6428,.3108,.4074,.5506]}},
   ];
@@ -1263,7 +1263,7 @@ onView($("compare"),()=>document.querySelectorAll("#compare .meter i").forEach((
       M.map(m=>`<tr class="${m[0]==="ours"?"ours":""}"><td><i style="background:${m[2]}"></i>${m[1]}</td>${B.v[m[0]].map((x,j)=>`<td class="${(+x.toFixed(2))===best[j]?"best ":""}${j===last?"ovc":""}">${f2(x)}</td>`).join("")}</tr>`).join("")+`</tbody></table></div>`;
     tr.insertBefore(el2,dbs);
   });
-  const slides=[...tr.children], NB=["GenEval","WISE","OneIG","CompBench++","First vs. final"];
+  const slides=[...tr.children], NB=["GenEval","WISE","OneIG","T2I-CompBench++","First vs. final"];
   lg.innerHTML=M.map(m=>`<span><i class="dot" style="background:${m[2]}"></i>${m[1]}</span>`).join("");
   const bs=NB.map((t,i)=>{const b=document.createElement("button"); b.type="button"; b.textContent=t; b.setAttribute("role","tab"); b.onclick=()=>go(i); sg.appendChild(b); return b;});
   let cur=0, grown=new Set();

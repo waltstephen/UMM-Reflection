@@ -6,7 +6,7 @@
 
 [![Project Page](https://img.shields.io/badge/Project-Page-5D2CD6?style=for-the-badge)](https://waltstephen.github.io/UMM-Reflection/)
 [![Paper](https://img.shields.io/badge/Paper-PDF-b31b1b?style=for-the-badge)](paper/UMM-Reflection.pdf)
-[![arXiv](https://img.shields.io/badge/arXiv-coming%20soon-b31b1b?style=for-the-badge)](#citation)
+[![arXiv](https://img.shields.io/badge/arXiv-2609.35767-b31b1b?style=for-the-badge)](https://arxiv.org/abs/2609.35767)
 [![RL model](https://img.shields.io/badge/%F0%9F%A4%97%20Model-RL-FFD21E?style=for-the-badge)](https://huggingface.co/YijiaFan/UMM-Reflection-BAGEL-RL)
 [![SFT model](https://img.shields.io/badge/%F0%9F%A4%97%20Model-SFT-FFD21E?style=for-the-badge)](https://huggingface.co/YijiaFan/UMM-Reflection-BAGEL-SFT)
 [![Data](https://img.shields.io/badge/%F0%9F%A4%97%20Dataset-SFT%20data-FFD21E?style=for-the-badge)](https://huggingface.co/datasets/YijiaFan/UMM-Reflection-SFT-Data)
@@ -27,6 +27,7 @@ flow-based revisions. No critic or verifier is used at inference.
 
 ## News
 
+- **2026-09-28** The paper is on [arXiv](https://arxiv.org/abs/2609.35767).
 - **2026-09-28** Training and evaluation code, the RL and SFT models, and the
   SFT data are released, together with the
   [project page](https://waltstephen.github.io/UMM-Reflection/) and a
@@ -415,7 +416,7 @@ end), damage rate (right at R0 and wrong at the end), and protocol-valid rate.
 
 ## Citation
 
-The paper is in [`paper/UMM-Reflection.pdf`](paper/UMM-Reflection.pdf) and will be on arXiv soon. Until then:
+The paper is on [arXiv](https://arxiv.org/abs/2609.35767) and in [`paper/UMM-Reflection.pdf`](paper/UMM-Reflection.pdf).
 
 ```bibtex
 @article{ummreflection2026,
@@ -423,7 +424,7 @@ The paper is in [`paper/UMM-Reflection.pdf`](paper/UMM-Reflection.pdf) and will 
              with Interleaved Reinforcement Learning},
   author  = {Fan, Yijia and Huang, Ziqi and Cai, Zhongang and Li, Yan and
              Wen, Zimo and Yin, Wanqi and Diao, Haiwen and Liu, Ziwei},
-  journal = {arXiv preprint},
+  journal = {arXiv preprint arXiv:2609.35767},
   year    = {2026}
 }
 ```
